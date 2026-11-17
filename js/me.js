@@ -219,6 +219,7 @@
   }
   function buildMini() {
     const box = $("#mini"); if (!box) return;
+    box.innerHTML = "";
     const s = document.createElementNS(NS, "svg"); s.setAttribute("viewBox", W.box.join(" ")); s.setAttribute("preserveAspectRatio", "xMidYMid meet"); box.appendChild(s);
     el("rect", { x: BX, y: BY, width: BW, height: BH, class: "mm-sea" }, s);
     MM = { s };
@@ -226,9 +227,13 @@
     el("path", { d: cr(W.land.me, true), class: "mm-land" }, s);
     const N = W.numenor; MM.nu = el("g", {}, s); el("circle", { cx: N.cx, cy: N.cy, r: N.r * 0.75, class: "mm-land" }, MM.nu);
     MM.aman = el("g", {}, s); el("path", { d: cr(W.land.aman, true), class: "mm-land mm-aman" }, MM.aman);
-    [["snow", "me"], ["lava", "me"], ["sand", "me"]].forEach(([t]) => H3.BIOMES.filter((b) => b.t === t && b.clip === "me").forEach((b) => el("path", { d: cr(b.pts, true), class: "mm-b mm-" + t, "clip-path": "url(#mm-clip)" }, s)));
-    el("path", { d: cr(W.land.me, true) }, el("clipPath", { id: "mm-clip" }, s));
-    D.PLACES.filter((p) => !p.minor).forEach((p) => { p.mm = el("rect", { x: p.x - 9, y: p.y - 9, width: 18, height: 18, fill: H3.FLAG[p.k] || "#888", class: "mm-p" }, p.aman ? MM.aman : p.fa ? MM.bel : s); });
+    if (H3 && H3.BIOMES) {
+      [["snow", "me"], ["lava", "me"], ["sand", "me"]].forEach(([t]) => H3.BIOMES.filter((b) => b.t === t && b.clip === "me").forEach((b) => el("path", { d: cr(b.pts, true), class: "mm-b mm-" + t, "clip-path": "url(#mm-clip)" }, s)));
+      el("path", { d: cr(W.land.me, true) }, el("clipPath", { id: "mm-clip" }, s));
+    }
+    const fallbackFlag = { elf: "#4a84c8", man: "#c83a2a", dwarf: "#d89028", hob: "#4ca040", dark: "#8a3ac0", site: "#9a8e78" };
+    D.PLACES.filter((p) => !p.minor).forEach((p) => { p.mm = el("rect", { x: p.x - 9, y: p.y - 9, width: 18, height: 18, fill: (H3 && H3.FLAG && H3.FLAG[p.k]) || fallbackFlag[p.k] || "#888", class: "mm-p" }, p.aman ? MM.aman : p.fa ? MM.bel : s); });
+    MM.ring = el("circle", { r: 22, class: "mm-ring", style: "display:none" }, s);
     MM.vp = el("rect", { class: "mm-vp" }, s);
     const go = (e, fly) => { const m = s.getScreenCTM(); if (!m) return; const pt = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()); userMoved = Date.now(); if (fly) flyTo(pt.x, pt.y, cam.w, 600); else { cancelAnimationFrame(flyRaf); const hh = (cam.w * ch) / cw; cam.x = pt.x - cam.w / 2; cam.y = pt.y - hh / 2; applyCam(); } };
     let drag = false;
@@ -426,9 +431,12 @@
     // 至尊戒
     L.ring = el("g", { class: "ring" }, svg);
     const rs = el("g", { class: "sc" }, L.ring);
-    el("circle", { r: 9, class: "ring-glow", filter: "url(#gold)" }, rs);
-    el("circle", { r: 4.2, class: "ring-o" }, rs);
-    el("text", { x: 11, y: -4, class: "ring-n" }, rs).textContent = tr("至尊戒");
+    el("circle", { r: 12, class: "ring-glow", filter: "url(#gold)" }, rs);
+    el("circle", { r: 8.2, class: "ring-aura" }, rs);
+    el("circle", { r: 5, class: "ring-shd" }, rs);
+    el("circle", { r: 5, class: "ring-o" }, rs);
+    el("circle", { r: 5, class: "ring-runes" }, rs);
+    el("text", { x: 12, y: -4, class: "ring-n" }, rs).textContent = tr("至尊戒");
     L.won = el("g", { class: "wonders" }, svg);
     (LIFE.WONDERS || []).forEach((o) => lifeItem(o, L.won, "won k-" + o.k));
     L.fx = el("g", { class: "fx" }, svg);
@@ -592,6 +600,10 @@
     const rr = t >= RING[0].t && t < RING_END ? at(RING, t) : null;
     L.ring.style.display = rr ? "" : "none";
     if (rr) L.ring.setAttribute("transform", `translate(${rr.pos[0].toFixed(1)},${(rr.pos[1] - 1).toFixed(1)})`);
+    if (MM && MM.ring) {
+      MM.ring.style.display = rr ? "" : "none";
+      if (rr) { MM.ring.setAttribute("cx", rr.pos[0].toFixed(1)); MM.ring.setAttribute("cy", rr.pos[1].toFixed(1)); }
+    }
     schedDc();
   }
 
@@ -1023,18 +1035,28 @@
   function ensureCharsBuilt() {
     if (charsBuilt) return;
     charsBuilt = true;
-    $("#chars").innerHTML = `<p class="hint">${tr("中洲的 {n} 位人物。点一个人，地图会跳到他出现的年代和地点；在人物卡里点“足迹”，就能跟着他走完那段路。地图上走动的小队就是正在旅行的人。").replace("{n}", CH.CHARS.length)}</p>` +
-      CH.RACES.map(([r, n]) => `<h4 class="ch-race">${esc(n)}</h4><div class="cgrid">${CH.CHARS.filter((c) => c.r === r).map((c) => `<button class="cbtn" data-c="${c.id}" data-jump="1"><span class="cb-pt">${PT(c)}</span><b>${esc(c.n)}</b></button>`).join("")}</div>`).join("");
+    const chips = `<div class="race-chips"><button type="button" class="rc-btn on" data-rf="all">${esc(tr("全部"))} <em>${CH.CHARS.length}</em></button>` +
+      CH.RACES.map(([r, n]) => { const cnt = CH.CHARS.filter((c) => c.r === r).length; return `<button type="button" class="rc-btn" data-rf="${r}">${esc(n)} <em>${cnt}</em></button>`; }).join("") + `</div>`;
+    $("#chars").innerHTML = `<p class="hint">${tr("中洲的 {n} 位人物。点一个人，地图会跳到他出现的年代和地点；在人物卡里点“足迹”，就能跟着他走完那段路。地图上走动的小队就是正在旅行的人。").replace("{n}", CH.CHARS.length)}</p>` + chips +
+      CH.RACES.map(([r, n]) => `<section class="race-sec" data-rsec="${r}"><h4 class="ch-race">${esc(n)}</h4><div class="cgrid">${CH.CHARS.filter((c) => c.r === r).map((c) => `<button class="cbtn" data-c="${c.id}" data-jump="1"><span class="cb-pt">${PT(c)}</span><b>${esc(c.n)}</b></button>`).join("")}</div></section>`).join("");
+    $("#chars").addEventListener("click", (e) => {
+      const rb = e.target.closest("[data-rf]"); if (!rb) return;
+      const rf = rb.dataset.rf;
+      $$("#chars .rc-btn").forEach((b) => b.classList.toggle("on", b === rb));
+      $$("#chars .race-sec").forEach((sec) => { sec.hidden = rf !== "all" && sec.dataset.rsec !== rf; });
+    });
   }
   function buildPanel() {
     $("#tabs").addEventListener("click", (e) => { const b = e.target.closest("[data-tab]"); if (b) setTab(b.dataset.tab); });
     const sBox = document.createElement("div");
     sBox.className = "p-search";
-    sBox.innerHTML = `<input id="pSearch" type="search" placeholder="${tr("搜索地点、人物、事件…")}" autocomplete="off"/><div id="pRes" class="p-res" hidden></div>`;
+    sBox.innerHTML = `<svg class="ps-ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="6.8" cy="6.8" r="4.8" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10.5,10.5L14,14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><input id="pSearch" type="search" placeholder="${tr("搜索地点、人物、事件…")}" autocomplete="off"/><button type="button" id="pClear" class="ps-clr" hidden aria-label="${tr("清空搜索")}">×</button><div id="pRes" class="p-res" hidden></div>`;
     $("#tabs").after(sBox);
-    const sIn = $("#pSearch"), sRes = $("#pRes");
+    const sIn = $("#pSearch"), sRes = $("#pRes"), sClr = $("#pClear");
+    sClr.addEventListener("click", () => { sIn.value = ""; sClr.hidden = true; sRes.hidden = true; sRes.innerHTML = ""; sIn.focus(); });
     sIn.addEventListener("input", () => {
       const q = sIn.value.trim().toLowerCase();
+      sClr.hidden = !q;
       if (!q) { sRes.hidden = true; sRes.innerHTML = ""; return; }
       const pls = D.PLACES.filter((p) => p.n.toLowerCase().includes(q) || (p.en || "").toLowerCase().includes(q) || (p.names || []).some(([, nn]) => nn.toLowerCase().includes(q))).slice(0, 6);
       const chs = CH.CHARS.filter((c) => c.n.toLowerCase().includes(q) || (c.en || "").toLowerCase().includes(q)).slice(0, 6);
@@ -1050,7 +1072,7 @@
       const sp = e.target.closest("[data-sp]");
       if (sp) {
         const p = P[sp.dataset.sp]; if (!p) return;
-        sIn.value = ""; sRes.hidden = true;
+        sIn.value = ""; sClr.hidden = true; sRes.hidden = true;
         if (!visible(p, T)) { pause(); setT(clamp(p.from ?? -100, T0 + 1, T1 - 1), true); }
         flyTo(p.x, p.y, p.minor ? 360 : 520); userMoved = Date.now(); showPlace(p);
         if (innerWidth <= 860) document.body.classList.remove("panel-open");
@@ -1059,12 +1081,12 @@
       const se = e.target.closest("[data-se]");
       if (se) {
         const ev = D.EVENTS[+se.dataset.se];
-        sIn.value = ""; sRes.hidden = true;
+        sIn.value = ""; sClr.hidden = true; sRes.hidden = true;
         if (ev) goEvent(ev);
         if (innerWidth <= 860) document.body.classList.remove("panel-open");
         return;
       }
-      if (e.target.closest("[data-c]")) { sIn.value = ""; sRes.hidden = true; }
+      if (e.target.closest("[data-c]")) { sIn.value = ""; sClr.hidden = true; sRes.hidden = true; }
     });
     // 编年
     let html = "", cur = null;
@@ -1582,10 +1604,25 @@
     else if (mode === "kids" && window.ME_KIDS) window.ME_KIDS.enter();
   }
   function init() {
-    buildMap(); if (H3 && !PAINT) buildMini(); applyCam(); buildTM(); buildPanel(); bindPan();
+    buildMap(); buildMini(); applyCam(); buildTM(); buildPanel(); bindPan();
+    try { if (localStorage.getItem("me-mini-shut") === "1") document.body.classList.add("mini-shut"); } catch (e) {}
     setT(T0 + 1); flyBox(ERAS[0].cam, 0);
     const c = ERAS[0].cam; cam.x = c[0]; cam.y = c[1]; cam.w = c[2]; applyCam();
     $("#intro").addEventListener("click", (e) => { const b = e.target.closest("[data-start]"); if (b) start(b.dataset.start); });
+    if ($("#homeBtn")) $("#homeBtn").onclick = () => {
+      pause(); closeMoment(false); if (!B.el.hidden) closeBattle();
+      const intro = $("#intro"); intro.hidden = false; void intro.offsetWidth; intro.classList.remove("gone");
+    };
+    if ($("#momentsBtn")) $("#momentsBtn").onclick = () => {
+      if (!MO.length) return;
+      let best = MO[0], bd = Infinity;
+      MO.forEach((m) => { const d = Math.abs(posOf(m.t) - posOf(T)); if (d < bd) { bd = d; best = m; } });
+      openMoment(best.id);
+    };
+    if ($("#miniBtn")) $("#miniBtn").onclick = () => {
+      const shut = document.body.classList.toggle("mini-shut");
+      try { localStorage.setItem("me-mini-shut", shut ? "1" : "0"); } catch (e) {}
+    };
     $("#panelToggle").onclick = () => {
       if (innerWidth <= 860) document.body.classList.toggle("panel-open");
       else { document.body.classList.toggle("panel-shut"); setTimeout(() => { updateSvgSize(); applyCam(); }, 50); }

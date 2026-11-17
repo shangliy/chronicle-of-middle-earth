@@ -437,9 +437,37 @@ window.PORTRAIT = (function () {
   }
 
   function frame(u, k) {
-    const gold = k === "dark" ? "#8a6a5a" : "#c8a050", g2 = k === "dark" ? "#5a4438" : "#8a6a2a";
-    return `<rect x="3" y="3" width="194" height="244" rx="10" fill="none" stroke="${g2}" stroke-width="4.5"/><rect x="3" y="3" width="194" height="244" rx="10" fill="none" stroke="${gold}" stroke-width="2.4"/><rect x="8" y="8" width="184" height="234" rx="7" fill="none" stroke="${gold}" stroke-width=".8" opacity=".7"/><rect x="8" y="8" width="184" height="234" rx="7" fill="none" stroke="#000" stroke-width="2" opacity=".25"/>` +
-      [[8, 8, 0], [192, 8, 90], [192, 242, 180], [8, 242, 270]].map(([x, y, a]) => `<g transform="translate(${x},${y}) rotate(${a})">${S("M0,18 Q0,0 18,0 M4,24 Q4,4 24,4", gold, 1.4)}<circle cx="6" cy="6" r="2.4" fill="${gold}"/><circle cx="5.3" cy="5.3" r=".8" fill="#fff" opacity=".7"/></g>`).join("");
+    const P2 = {
+      elf:   ["#dbe8f6", "#7a9ec2", "#eef6ff", "#a8d4ff"],
+      dwarf: ["#e0ac48", "#805418", "#ffe29a", "#f09030"],
+      hob:   ["#d4a64a", "#785420", "#fae09c", "#88b850"],
+      maia:  ["#f2e2a8", "#9a8244", "#ffffff", "#d8ecff"],
+      dark:  ["#7c5244", "#3c1e16", "#ff7830", "#ff4810"],
+      man:   ["#dbb054", "#845e22", "#fae4a4", "#fff4d0"],
+    }[k] || ["#dbb054", "#845e22", "#fae4a4", "#fff4d0"];
+    const [c1, c2, hiCol, gemCol] = P2;
+    const fg = `${u}fr`;
+    let s = `<defs><linearGradient id="${fg}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${hiCol}"/><stop offset=".35" stop-color="${c1}"/><stop offset=".7" stop-color="${c2}"/><stop offset="1" stop-color="${c1}"/></linearGradient></defs>`;
+    s += `<rect x="3" y="3" width="194" height="244" rx="10" fill="none" stroke="${c2}" stroke-width="5"/>`;
+    s += `<rect x="3" y="3" width="194" height="244" rx="10" fill="none" stroke="url(#${fg})" stroke-width="2.4"/>`;
+    s += `<rect x="8.5" y="8.5" width="183" height="233" rx="6.5" fill="none" stroke="#000" stroke-width="2.2" opacity=".32"/>`;
+    s += `<rect x="8.5" y="8.5" width="183" height="233" rx="6.5" fill="none" stroke="${c1}" stroke-width=".85" opacity=".78"/>`;
+    if (k === "elf" || k === "maia") {
+      s += `<path d="M14,68 V34 C14,16 56,9 100,9 C144,9 186,16 186,34 V68" fill="none" stroke="url(#${fg})" stroke-width="1.3" opacity=".88"/>`;
+      s += `<path d="M100,3 L102.2,9.5 L109,11.5 L102.2,13.5 L100,20 L97.8,13.5 L91,11.5 L97.8,9.5 Z" fill="${hiCol}" stroke="${c2}" stroke-width=".4"/>`;
+      s += [[9, 9, 0], [191, 9, 90], [191, 241, 180], [9, 241, 270]].map(([x, y, a]) => `<g transform="translate(${x},${y}) rotate(${a})">${S("M0,22 C2,8 8,2 22,0 M4,28 C6,12 12,6 28,4", c1, 1.2)}<circle cx="6.5" cy="6.5" r="2.2" fill="${gemCol}"/></g>`).join("");
+    } else if (k === "dwarf") {
+      s += [[9, 9, 0], [191, 9, 90], [191, 241, 180], [9, 241, 270]].map(([x, y, a]) => `<g transform="translate(${x},${y}) rotate(${a})"><path d="M0,22 V6 L6,0 H22 M5,18 V9 L9,5 H18" fill="none" stroke="url(#${fg})" stroke-width="1.5"/><path d="M6,3 L9,6 L6,9 L3,6 Z" fill="${hiCol}"/></g>`).join("");
+      s += `<path d="M100,4 L106,10 L100,16 L94,10 Z" fill="url(#${fg})" stroke="${c2}" stroke-width=".6"/><circle cx="100" cy="10" r="1.8" fill="${hiCol}"/>`;
+    } else if (k === "dark") {
+      s += [[9, 9, 0], [191, 9, 90], [191, 241, 180], [9, 241, 270]].map(([x, y, a]) => `<g transform="translate(${x},${y}) rotate(${a})"><path d="M0,22 L4,4 L22,0 L9,9 Z" fill="${c1}" stroke="#120806" stroke-width=".6"/><circle cx="6.5" cy="6.5" r="2" fill="${gemCol}" opacity=".9"/></g>`).join("");
+      s += `<path d="M92,8.5 L100,2.5 L108,8.5 L100,13.5 Z" fill="${c2}" stroke="${c1}" stroke-width=".7"/><circle cx="100" cy="8.5" r="1.8" fill="${hiCol}"/>`;
+    } else {
+      s += `<path d="M22,13 H84 M116,13 H178" stroke="${c1}" stroke-width=".7" opacity=".6"/>`;
+      s += `<path d="M100,4.5 L102,9.2 L107,11 L102,12.8 L100,17.5 L98,12.8 L93,11 L98,9.2 Z" fill="${hiCol}" stroke="${c2}" stroke-width=".45"/>`;
+      s += [[8.5, 8.5, 0], [191.5, 8.5, 90], [191.5, 241.5, 180], [8.5, 241.5, 270]].map(([x, y, a]) => `<g transform="translate(${x},${y}) rotate(${a})">${S("M0,19 Q0,0 19,0 M4,25 Q4,4 25,4", c1, 1.35)}<circle cx="6" cy="6" r="2.3" fill="${c1}"/><circle cx="5.3" cy="5.3" r=".8" fill="#fff" opacity=".75"/></g>`).join("");
+    }
+    return s;
   }
 
   // 每次插入页面都换一套新 id（同一人物可能同时出现在人物墙、传记卡、首秀卡上，id 重复会让 mask/filter 引用失效）

@@ -46,10 +46,10 @@
     const dd = Math.sqrt(best); return [dd, bu, dd * bs];
   }
   const PAL = {
-    norm: { hi: [206, 202, 188], mid: [124, 118, 102], lo: [44, 42, 36], foot: [86, 96, 58], snow: [246, 246, 240], snowAt: 0.7 },
-    aman: { hi: [226, 224, 214], mid: [146, 142, 130], lo: [56, 56, 54], foot: [100, 118, 72], snow: [255, 255, 252], snowAt: 0.6 },
-    dark: { hi: [140, 124, 114], mid: [78, 66, 60], lo: [18, 12, 10], foot: [58, 48, 42], snow: null },
-    fire: { hi: [150, 112, 92], mid: [86, 58, 46], lo: [24, 12, 8], foot: [60, 44, 36], snow: null }
+    norm: { hi: [222, 212, 192], mid: [132, 122, 102], lo: [42, 45, 52], foot: [84, 98, 56], snow: [252, 252, 248], snowShade: [184, 200, 218], snowAt: 0.68 },
+    aman: { hi: [238, 234, 220], mid: [154, 148, 134], lo: [52, 58, 66], foot: [98, 120, 70], snow: [255, 255, 254], snowShade: [198, 212, 230], snowAt: 0.58 },
+    dark: { hi: [148, 126, 114], mid: [76, 62, 58], lo: [16, 11, 12], foot: [54, 44, 38], snow: null },
+    fire: { hi: [168, 116, 88], mid: [92, 54, 40], lo: [22, 10, 8], foot: [58, 40, 32], snow: null, glow: [255, 118, 32] }
   };
   const mix = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
   // spec: {pts:[[x,y]...], h, kind:'norm'|'aman'|'dark'|'fire', peak:bool}
@@ -94,8 +94,9 @@
       const Hv = HM[o], nx = -(HM[o + 1] - HM[o - 1]) * k, ny = -(HM[o + W] - HM[o - W]) * k, nl = Math.sqrt(nx * nx + ny * ny + 1);
       let s = (nx * Lx + ny * Ly + Lz) / nl; s = Math.max(0, Math.min(1, s * 1.25 - 0.08));
       let c = s < 0.5 ? mix(pal.lo, pal.mid, s * 2) : mix(pal.mid, pal.hi, (s - 0.5) * 2);
-      if (pal.snow) { const sn = Math.max(0, Math.min(1, (Hv - pal.snowAt) * 4)) * Math.min(1, s * 1.3); c = mix(c, s > 0.55 ? pal.snow : [196, 204, 214], sn * (s > 0.55 ? 0.95 : 0.4)); }
-      const foot = Math.max(1 - Math.min(1, Hv / 0.42), 1 - Math.min(1, RG[o] / 0.4)); c = mix(c, pal.foot, foot * 0.7);
+      if (pal.snow) { const sn = Math.max(0, Math.min(1, (Hv - pal.snowAt) * 4.2)) * Math.min(1, s * 1.35); c = mix(c, s > 0.52 ? pal.snow : (pal.snowShade || [196, 204, 214]), sn * (s > 0.52 ? 0.96 : 0.48)); }
+      if (pal.glow && Hv > 0.66) { const gl = Math.min(1, (Hv - 0.66) * 3.2); c = mix(c, pal.glow, gl * 0.55); }
+      const foot = Math.max(1 - Math.min(1, Hv / 0.42), 1 - Math.min(1, RG[o] / 0.4)); c = mix(c, pal.foot, foot * 0.68);
       const g = (H32(i * 7 + 3, j * 13 + 1) - 0.5) * 14; // 颗粒
       D[o * 4] = c[0] + g; D[o * 4 + 1] = c[1] + g; D[o * 4 + 2] = c[2] + g;
       D[o * 4 + 3] = 255 * Math.min(1, b * 1.5) * (0.45 + 0.55 * Math.min(1, Hv * 2.2));

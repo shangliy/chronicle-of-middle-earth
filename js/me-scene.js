@@ -176,14 +176,17 @@ window.ME_SCENE = (function () {
     const s = a.s.replace(/url\(#gFog\)/g, `url(#${u}f)`);
     const fg = `<path d="M0 520V380L48 415L86 465L150 495L240 520ZM1200 520V370L1145 410L1105 460L1035 492L950 520Z" fill="#050304" opacity=".68"/>` +
       `<path d="M${a.x0 - 40} ${a.gy}Q600 ${a.gy - 6} ${a.x1 + 40} ${a.gy}" stroke="${c.fog}" stroke-opacity=".28" stroke-width="2" fill="none"/>`;
+    const rays = `<g opacity=".18" fill="${c.fog}"><polygon points="600,-40 340,${a.gy} 440,${a.gy}"/><polygon points="600,-40 555,${a.gy} 645,${a.gy}"/><polygon points="600,-40 760,${a.gy} 860,${a.gy}"/></g>`;
     return `<svg class="scene" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>
-      <linearGradient id="${u}s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c.sky[0]}"/><stop offset=".6" stop-color="${c.sky[1]}"/><stop offset="1" stop-color="${c.sky[2]}"/></linearGradient>
-      <radialGradient id="${u}f"><stop offset="0" stop-color="${c.fog}" stop-opacity=".9"/><stop offset="1" stop-color="${c.fog}" stop-opacity="0"/></radialGradient>
-      <radialGradient id="${u}v" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".72"/></radialGradient></defs>
-      <rect width="${W}" height="${H}" fill="url(#${u}s)"/><ellipse cx="600" cy="${a.gy - 60}" rx="520" ry="200" fill="url(#${u}f)" opacity=".38" class="sc-glow"/>
+      <linearGradient id="${u}s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c.sky[0]}"/><stop offset=".58" stop-color="${c.sky[1]}"/><stop offset="1" stop-color="${c.sky[2]}"/></linearGradient>
+      <radialGradient id="${u}f"><stop offset="0" stop-color="${c.fog}" stop-opacity=".92"/><stop offset="1" stop-color="${c.fog}" stop-opacity="0"/></radialGradient>
+      <radialGradient id="${u}v" cx=".5" cy=".5" r=".75"><stop offset=".52" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".76"/></radialGradient></defs>
+      <rect width="${W}" height="${H}" fill="url(#${u}s)"/><ellipse cx="600" cy="${a.gy - 60}" rx="540" ry="220" fill="url(#${u}f)" opacity=".44" class="sc-glow"/>${rays}
       <g class="sc-far">${particles(c.p === "rain" || c.p === "star" ? c.p : "", c)}</g>
       <g class="sc-mid">${s}</g>${fig}<g class="sc-near">${fg}${c.p !== "rain" && c.p !== "star" ? particles(c.p, c) : ""}</g>
       <rect width="${W}" height="${H}" fill="url(#${u}v)"/>
-      <rect x="10" y="10" width="${W - 20}" height="${H - 20}" rx="4" fill="none" stroke="${c.fog}" stroke-opacity=".16" stroke-width="1"/></svg>`;
+      <rect x="10" y="10" width="${W - 20}" height="${H - 20}" rx="4" fill="none" stroke="${c.fog}" stroke-opacity=".26" stroke-width="1.2"/>
+      <rect x="15" y="15" width="${W - 30}" height="${H - 30}" rx="2" fill="none" stroke="${c.fog}" stroke-opacity=".12" stroke-width=".8"/>
+      <g fill="${c.fog}" opacity=".45"><circle cx="18" cy="18" r="2.2"/><circle cx="${W - 18}" cy="18" r="2.2"/><circle cx="18" cy="${H - 18}" r="2.2"/><circle cx="${W - 18}" cy="${H - 18}" r="2.2"/></g></svg>`;
   };
 })();

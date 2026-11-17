@@ -5,11 +5,28 @@
 (function () {
   const EN = window.ME_LANG === "en";
   window.ME_UI = {
-    "小朋友寻宝 🧒": "Kids Treasure Hunt 🧒", "跟着弗罗多找地方、集贴纸": "Find places with Frodo, collect stickers", "小朋友模式": "Kids mode",
+    "小朋友寻宝 🧒": "Kids Treasure Hunt 🧒", "跟着弗罗多找地方、集贴纸": "Find places with Frodo, collect stickers", "小朋友模式": "Kids mode", "🧒 小朋友": "🧒 Kids",
     // 页面
     "中洲纪年 · 指环王版": "Chronicle of Middle-earth",
     "可交互的中洲世界地图、编年史、传说导读与主要战役推演。非官方爱好者作品。": "An interactive map of Middle-earth: chronicle, guided legends and the great battles. An unofficial fan work.",
     "商海时报 · 特别版 · 非官方爱好者作品": "Chronicle of Commerce · Special Edition · Unofficial fan work",
+    "阿尔达历史地理与战役全览 · 非官方爱好者作品": "Interactive Atlas, Legends & Great Battles of Arda · Unofficial Fan Work",
+    "回到封面": "Back to Cover",
+    "收起/展开侧栏": "Collapse / Expand Sidebar",
+    "浏览关键时刻": "Explore Key Moments",
+    "✦ 时刻": "✦ Moments",
+    "地图画风": "Map Edition",
+    "地图画风选择": "Choose Map Edition",
+    "手绘山河": "Painted Relief",
+    "英雄冒险": "Heroic Adventure",
+    "古卷羊皮": "Antique Parchment",
+    "手绘": "Painted",
+    "英雄": "Heroes",
+    "羊皮纸": "Parchment",
+    "切换小地图": "Toggle Minimap",
+    "显示/隐藏鹰眼小地图": "Show / Hide Overview Minimap",
+    "全部": "All",
+    "清空搜索": "Clear search",
     "中洲纪年": "Chronicle of Middle-earth",
     "从双圣树的光，到魔戒在末日火山中熔化——七千多年的大陆、王国、传说与战争，铺在一张会随时间变化的地图上。拖动时间，看贝烈瑞安德沉入大海、努门诺尔升起又覆灭；跟着至尊戒走完它的路；看六十多位 Q 版人物在大陆上迁徙、远征、定居；走进战场，亲身经历那几场决定世界的战役。":
       "From the light of the Two Trees to the unmaking of the Ring in the fires of Mount Doom: seven thousand years of lands, kingdoms, legends and wars, laid out on one map that changes with time. Drag the timeline to watch Beleriand sink beneath the sea and Númenor rise and fall; follow the One Ring along its road; watch more than seventy little characters migrate, march and settle; then step onto the battlefields that decided the fate of the world.",
@@ -32,6 +49,7 @@
     "放大": "Zoom in", "缩小": "Zoom out", "本纪元全图": "Whole map for this age",
     "▲ 精灵": "▲ Elves", "■ 人类": "■ Men", "◆ 矮人": "◆ Dwarves", "● 霍比特": "● Hobbits", "✕ 暗影": "✕ Shadow", "◉ 至尊戒": "◉ The One Ring",
     "上一个事件": "Previous event", "下一个事件": "Next event", "播放": "Play", "暂停": "Pause",
+    "上一个事件 (←)": "Previous event (←)", "下一个事件 (→)": "Next event (→)", "播放/暂停 (Space)": "Play / Pause (Space)", "播放速度": "Playback speed",
     "自动推进": "Auto-advance", "声音 关": "Sound off", "声音 开": "Sound on", "关闭": "Close",
     "■ 西方/自由人民": "■ The West / Free Peoples", "■ 黑暗势力": "■ The Shadow",
     // 纪元与日期
@@ -107,17 +125,23 @@
       const u = new URL(location.href); u.searchParams.set("lang", to); location.href = u.toString();
     });
   }
-  // 地图风格切换：手绘写实（默认）→ 英雄（彩色冒险地图）→ 羊皮纸
+  // 地图风格切换：支持三段式按钮组（封面 + 顶栏）与循环按钮
+  const setStyle = (to) => {
+    if (!to || to === window.ME_STYLE) return;
+    try { localStorage.setItem("me-style", to); } catch (e) {}
+    const u = new URL(location.href); u.searchParams.set("style", to); location.href = u.toString();
+  };
+  document.querySelectorAll("[data-set-style]").forEach((b) => {
+    b.classList.toggle("on", b.dataset.setStyle === window.ME_STYLE);
+    b.addEventListener("click", (e) => { e.stopPropagation(); setStyle(b.dataset.setStyle); });
+  });
   const sb = document.getElementById("styleBtn");
   if (sb) {
     const ORD = ["paint", "h3", "parch"], NM = { paint: ["手绘", "Painted"], h3: ["英雄", "Heroes"], parch: ["羊皮纸", "Parchment"] };
     const cur = window.ME_STYLE, to = ORD[(ORD.indexOf(cur) + 1) % ORD.length];
     sb.textContent = "🗺 " + NM[cur][EN ? 1 : 0];
     sb.title = EN ? `Map style: ${NM[cur][1]} — click for ${NM[to][1]}` : `地图风格：${NM[cur][0]}，点击切换到「${NM[to][0]}」`;
-    sb.addEventListener("click", () => {
-      try { localStorage.setItem("me-style", to); } catch (e) {}
-      const u = new URL(location.href); u.searchParams.set("style", to); location.href = u.toString();
-    });
+    sb.addEventListener("click", () => setStyle(to));
   }
   if (!EN) return;
 

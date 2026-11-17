@@ -1000,7 +1000,6 @@ body[data-era="trees"] .advo { display: none; }
 .st-paint .pl .pl-n { transform: translateX(calc(12px * var(--icz, 1))); } .st-paint .pl .pl-n.lf { transform: translateX(calc(-12px * var(--icz, 1))); }
 .st-paint .pl.ruin .ic2 { opacity: .68; }
 .st-paint .pl.dk .ic2 { filter: hue-rotate(-30deg) saturate(.6) brightness(.65); }
-.st-paint .h3flag { display: none; }
 /* 陈旧纸边：四周的海面渐渐褪成羊皮纸色 */
 .st-paint .mapframe { inset: 0; border: 0; background:
   radial-gradient(ellipse 75% 70% at 50% 50%, transparent 62%, rgba(176, 146, 92, .35) 82%, rgba(150, 118, 70, .75) 100%);
@@ -1203,3 +1202,303 @@ body[data-era="trees"] .advo { display: none; }
 .b-forces { grid-template-columns: minmax(0, 1fr); gap: 2px 0; padding: 10px 12px; border-radius: 6px; background: rgba(255, 230, 170, .04); box-shadow: inset 0 0 0 1px rgba(255, 230, 170, .08); }
 .b-forces dt { padding-top: 6px; } .b-forces dt:first-child { padding-top: 0; }
 .b-forces dd { padding-bottom: 6px; border-bottom: 1px dashed rgba(255, 230, 170, .14); } .b-forces dd:last-child { padding-bottom: 0; border-bottom: 0; }
+
+
+/* =====================================================================
+ * 独立版视觉与美术升级（Tolkien Illuminated Atlas Edition）
+ * ===================================================================== */
+
+/* —— 1. 封面：都林星拱、流火至尊戒、泥金章节牌匾与画风切换 —— */
+.intro {
+  background:
+    radial-gradient(ellipse 68% 55% at 50% 38%, rgba(74, 48, 22, .92), rgba(18, 10, 5, .98) 72%),
+    #0d0704;
+}
+.intro-sky {
+  position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;
+}
+.intro-motes circle {
+  animation: moteFloat 6.5s ease-in-out infinite alternate;
+}
+.intro-motes circle:nth-child(even) { animation-duration: 9s; animation-direction: alternate-reverse; }
+@keyframes moteFloat {
+  0% { transform: translateY(0) scale(.85); opacity: .28; }
+  100% { transform: translateY(-16px) scale(1.25); opacity: .85; }
+}
+.intro-in { z-index: 1; max-width: 780px; padding: 12px 8px; }
+.intro-ring { width: 162px; height: 162px; margin: 0 auto 12px; }
+.intro-k {
+  font-size: 12px; letter-spacing: .32em; color: #c4ad7c; text-transform: uppercase;
+}
+.intro h1 {
+  background: linear-gradient(180deg, #fff5cd 0%, #f3cf72 45%, #be8622 88%, #8f5c10 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 4px 22px rgba(240, 175, 50, .35));
+}
+.intro-en {
+  font-family: "Cinzel", var(--cinzel); font-weight: 600; letter-spacing: .38em;
+  color: #d8c394; margin: 4px 0 12px; font-size: 13.5px;
+}
+.intro-rule {
+  display: flex; align-items: center; justify-content: center; gap: 12px; margin: 0 auto 16px; max-width: 340px;
+}
+.intro-rule span { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(226, 184, 88, .65), transparent); }
+.intro-rule i { font-style: normal; color: #f0ca68; font-size: 12px; text-shadow: 0 0 8px rgba(240, 190, 70, .6); }
+.intro-p {
+  font-size: 14.8px; line-height: 2.02; color: #dfd0ae; margin: 0 auto 24px; max-width: 650px;
+}
+.intro-btns {
+  display: grid; grid-template-columns: repeat(2, minmax(230px, 1fr)); gap: 12px;
+  max-width: 600px; margin: 0 auto;
+}
+.intro-btns button {
+  display: flex; align-items: center; gap: 13px; text-align: left;
+  padding: 13px 18px; min-width: 0; border-radius: 6px;
+  background: linear-gradient(145deg, rgba(46, 31, 18, .86), rgba(24, 15, 9, .92));
+  border: 1px solid rgba(206, 162, 74, .52);
+  box-shadow: inset 0 1px 0 rgba(255, 236, 180, .14), 0 6px 20px rgba(0, 0, 0, .42);
+  position: relative; overflow: hidden;
+}
+.intro-btns button::before {
+  content: ""; position: absolute; inset: 3px; border-radius: 4px;
+  border: 1px solid rgba(240, 204, 118, .12); pointer-events: none;
+}
+.intro-btns button .ib-ic {
+  flex: none; width: 36px; height: 36px; border-radius: 50%;
+  display: grid; place-items: center; color: #f4d27a;
+  background: radial-gradient(circle at 35% 30%, rgba(240, 196, 90, .22), rgba(0, 0, 0, .35));
+  border: 1px solid rgba(226, 182, 84, .4);
+}
+.intro-btns button .ib-ic svg { width: 22px; height: 22px; display: block; }
+.intro-btns button b { display: block; font-size: 15.5px; font-weight: 700; letter-spacing: .08em; color: #f6df98; }
+.intro-btns button small { margin-top: 2px; color: #b7a278; font-size: 11.5px; }
+.intro-btns button.pri {
+  background: linear-gradient(145deg, #a62e1f, #6e1b11);
+  border-color: #e28858;
+  box-shadow: inset 0 1px 0 rgba(255, 226, 180, .3), 0 8px 24px rgba(155, 42, 29, .42);
+}
+.intro-btns button.pri b { color: #fff8e6; }
+.intro-btns button.pri small { color: #f2cfb8; }
+.intro-btns button.pri .ib-ic { color: #ffe69c; border-color: rgba(255, 230, 160, .55); background: rgba(0, 0, 0, .22); }
+.intro-btns button.kid {
+  background: linear-gradient(145deg, #2d7646, #1c4e2d);
+  border-color: #7ad096;
+}
+.intro-btns button.kid b { color: #f4fff6; }
+.intro-btns button.kid .ib-ic { color: #d8ffd8; border-color: rgba(180, 255, 200, .45); }
+.intro-btns button:hover {
+  transform: translateY(-2px);
+  border-color: #f6d67e;
+  box-shadow: inset 0 1px 0 rgba(255, 240, 190, .28), 0 12px 28px rgba(0, 0, 0, .55), 0 0 18px rgba(218, 168, 60, .2);
+}
+.intro-styles {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 20px;
+  padding: 5px 8px 5px 14px; border-radius: 999px;
+  background: rgba(20, 13, 8, .72); border: 1px solid rgba(186, 146, 68, .38);
+}
+.intro-styles .is-lbl { font-size: 11.5px; color: #a9946a; letter-spacing: .12em; margin-right: 4px; }
+.intro-styles button {
+  background: none; border: 1px solid transparent; color: #cdbb92;
+  padding: 4px 12px; border-radius: 999px; font-size: 12px; letter-spacing: .06em;
+  transition: background .2s, color .2s, border-color .2s;
+}
+.intro-styles button:hover { color: #fff4d2; background: rgba(232, 196, 102, .12); }
+.intro-styles button.on {
+  background: linear-gradient(180deg, rgba(226, 180, 74, .28), rgba(140, 96, 24, .36));
+  border-color: rgba(240, 202, 104, .68); color: #ffe8a2; font-weight: 600;
+}
+@media (max-width: 600px) {
+  .intro-btns { grid-template-columns: 1fr; max-width: 340px; }
+  .intro-ring { width: 128px; height: 128px; }
+  .intro-styles { flex-wrap: wrap; justify-content: center; border-radius: 14px; padding: 6px 10px; }
+}
+
+/* —— 2. 独立版顶栏：至尊戒徽章、三段式画风切换器、时刻入口 —— */
+.top { gap: 10px; padding: 0 14px; }
+.top-spacer { flex: 1; min-width: 4px; }
+.crest-btn {
+  width: 32px; height: 32px; padding: 0; border-radius: 50%; flex: none;
+  display: grid; place-items: center;
+  background: radial-gradient(circle at 35% 30%, #46311c, #1c1109);
+  border: 1px solid rgba(214, 170, 72, .65);
+  box-shadow: inset 0 1px 0 rgba(255, 236, 180, .25), 0 2px 6px rgba(0, 0, 0, .45);
+  transition: transform .25s ease, border-color .2s, box-shadow .2s;
+}
+.crest-btn svg { width: 24px; height: 24px; display: block; }
+.crest-btn:hover {
+  transform: rotate(18deg) scale(1.06);
+  border-color: #ffe28a;
+  box-shadow: 0 0 12px rgba(240, 190, 70, .45);
+}
+.style-seg {
+  display: inline-flex; align-items: center; padding: 2px; border-radius: 999px;
+  background: rgba(12, 8, 5, .48); border: 1px solid rgba(168, 132, 62, .55);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, .55);
+}
+.style-seg button {
+  background: none; border: 0; color: #c8b68e; padding: 3px 10px;
+  border-radius: 999px; font: 600 11.5px/1.35 var(--serif); letter-spacing: .04em;
+  transition: background .18s, color .18s, box-shadow .18s;
+}
+.style-seg button:hover { color: #fff6dc; }
+.style-seg button.on {
+  background: linear-gradient(180deg, #e0b24c, #9e6e1a);
+  color: #1e1206; box-shadow: 0 1px 4px rgba(0, 0, 0, .45);
+}
+.st-h3 .style-seg { border-radius: 4px; border-color: #c8902a; background: #18120e; }
+.st-h3 .style-seg button { border-radius: 2px; }
+.mo-btn { color: #f6d87e; }
+@media (max-width: 760px) {
+  .style-seg { display: none; }
+  #styleBtn { display: inline-flex !important; }
+  .mo-btn { display: none; }
+  .lang { margin-left: 0 !important; }
+  .ptog { margin-left: 0 !important; }
+}
+
+/* —— 3. 手稿侧栏：SVG 页签图标、带清除钮检索框、种族筛选胶囊、泥金首字下沉 —— */
+.tabs button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  letter-spacing: .16em; font-size: 13.5px;
+}
+.tabs .tb-ic { width: 14px; height: 14px; flex: none; opacity: .8; transition: transform .2s, opacity .2s; }
+.tabs button.on .tb-ic, .tabs button:hover .tb-ic { opacity: 1; transform: translateY(-1px); }
+@media (max-width: 420px) { .tabs .tb-ic { display: none; } }
+
+.p-search { display: flex; align-items: center; }
+.p-search .ps-ic {
+  position: absolute; left: 24px; width: 13.5px; height: 13.5px;
+  color: var(--muted); pointer-events: none;
+}
+.p-search input { padding-left: 30px; padding-right: 28px; }
+.p-search .ps-clr {
+  position: absolute; right: 20px; width: 20px; height: 20px; padding: 0;
+  border: 0; border-radius: 50%; background: rgba(138, 115, 83, .2);
+  color: var(--ink2); font-size: 14px; line-height: 1; display: grid; place-items: center;
+}
+.p-search .ps-clr:hover { background: var(--red); color: #fff; }
+
+.race-chips {
+  display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0 12px;
+  padding-bottom: 10px; border-bottom: 1px dotted #ccb88e;
+}
+.rc-btn {
+  background: rgba(255, 250, 236, .72); border: 1px solid #c9b48a;
+  border-radius: 999px; padding: 3px 9px; font-size: 11.5px; color: var(--ink2);
+  display: inline-flex; align-items: center; gap: 4px;
+  transition: background .18s, border-color .18s, color .18s, transform .15s;
+}
+.rc-btn em { font-style: normal; font-size: 10px; opacity: .72; font-family: var(--cinzel); }
+.rc-btn:hover { border-color: var(--red); color: var(--red); transform: translateY(-1px); }
+.rc-btn.on {
+  background: linear-gradient(180deg, #9b2a1d, #781e14);
+  border-color: #781e14; color: #fff8ea; font-weight: 600;
+  box-shadow: 0 2px 6px rgba(155, 42, 29, .28);
+}
+.rc-btn.on em { opacity: .9; color: #f6d89a; }
+
+.cbtn {
+  border-radius: 8px; padding: 5px 4px 7px;
+  background: linear-gradient(180deg, rgba(255, 252, 242, .45), rgba(235, 220, 188, .25));
+  border: 1px solid rgba(185, 163, 122, .35);
+}
+.cbtn:hover {
+  background: linear-gradient(180deg, rgba(255, 252, 244, .95), rgba(242, 228, 196, .85));
+  border-color: #c49642;
+  box-shadow: 0 6px 14px rgba(58, 42, 24, .14);
+}
+
+.rd-beat p::first-letter {
+  padding: 4px 8px; margin: 4px 9px 2px 0;
+  background: linear-gradient(145deg, #fbf2da, #e8d5a8);
+  border: 1px solid #b89654; border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(255, 252, 240, .75), 0 2px 5px rgba(60, 40, 10, .15);
+}
+
+/* —— 4. 全画风通用鹰眼小地图、古图卷草角饰、动态至尊戒与纪元天光 —— */
+@media (min-width: 861px) {
+  :root:not(.kids) .h3mini {
+    display: block; position: absolute; right: 58px; top: 14px;
+    width: 214px; height: 86px; z-index: 3; border-radius: 4px; overflow: hidden;
+    cursor: crosshair; touch-action: none;
+    transition: opacity .25s, transform .25s;
+  }
+  body.mini-shut .h3mini { display: none !important; }
+  .st-paint .h3mini {
+    background: #163b4e;
+    box-shadow: 0 0 0 2px rgba(246, 234, 202, .82), 0 0 0 4px rgba(96, 68, 34, .88), 0 8px 22px rgba(20, 12, 4, .45);
+  }
+  .st-paint .mm-sea { fill: #173f54; }
+  .st-paint .mm-land { fill: #677a42; stroke: #cbb480; stroke-width: 3.5; }
+  .st-paint .mm-aman { fill: #7c964c; }
+  .st-parch .h3mini {
+    background: #bfcabd;
+    box-shadow: 0 0 0 2px #f6ecd4, 0 0 0 3.5px #6e5430, 0 8px 20px rgba(45, 30, 10, .32);
+  }
+  .st-parch .mm-sea { fill: #c2c8ba; }
+  .st-parch .mm-land { fill: #eadcc0; stroke: #5a4326; stroke-width: 3.5; }
+  .st-parch .mm-aman { fill: #f3ead2; }
+  .st-parch .mm-vp { stroke: #9b2a1d; fill: rgba(155, 42, 29, .08); }
+  body:not(.mini-shut) .card { top: 112px; max-height: calc(100% - 128px); }
+  body:not(.mini-shut) .debut-box { top: 112px; }
+}
+@media (max-width: 860px) {
+  #miniBtn { display: none; }
+}
+.mm-ring {
+  fill: #ffd84a; stroke: #9b2a1d; stroke-width: 6;
+  transform-box: fill-box; transform-origin: center;
+  animation: mmRingPulse 1.8s ease-in-out infinite alternate;
+}
+@keyframes mmRingPulse { from { opacity: .68; transform: scale(.85); } to { opacity: 1; transform: scale(1.38); } }
+
+/* 地图边框四角卷草纹 */
+.mf-orn {
+  position: absolute; width: 42px; height: 42px; color: rgba(110, 78, 38, .62); pointer-events: none;
+}
+.st-h3 .mf-orn { display: none; }
+.mf-tl { left: 8px; top: 8px; }
+.mf-tr { right: 8px; top: 8px; transform: scaleX(-1); }
+.mf-bl { left: 8px; bottom: 8px; transform: scaleY(-1); }
+.mf-br { right: 8px; bottom: 8px; transform: scale(-1, -1); }
+@media (max-width: 860px) { .mf-orn { width: 26px; height: 26px; } }
+
+/* 地图上的至尊戒刻纹与光环 */
+.ring-aura {
+  fill: none; stroke: rgba(255, 216, 92, .65); stroke-width: 1;
+  stroke-dasharray: 2 3; animation: irspin 14s linear infinite;
+}
+.ring-shd { fill: none; stroke: rgba(42, 20, 4, .75); stroke-width: 3.6; }
+.ring-o { fill: none; stroke: #f2c244; stroke-width: 2.4; }
+.ring-runes {
+  fill: none; stroke: #fff9d6; stroke-width: .9;
+  stroke-dasharray: 2.2 1.8 1.2 2; animation: rg 2s ease-in-out infinite;
+}
+
+/* 纪元环境光影叠层 */
+.mapwrap::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  transition: opacity 1.8s ease, background 1.8s ease; opacity: 0;
+}
+body[data-era="trees"] .mapwrap::before {
+  opacity: 1;
+  background: radial-gradient(ellipse 55% 75% at 8% 45%, rgba(255, 236, 168, .22), transparent 70%);
+}
+body[data-era="fo"] .mapwrap::before {
+  opacity: 1;
+  background: linear-gradient(105deg, rgba(255, 242, 198, .16), transparent 55%);
+}
+
+/* 关键时刻弹窗引文修饰与沙盘战局双金框 */
+.mo-line {
+  position: relative; padding: 10px 18px 12px;
+  background: radial-gradient(ellipse at 50% 50%, rgba(240, 196, 88, .08), transparent 72%);
+  border-top: 1px solid rgba(216, 174, 82, .22);
+  border-bottom: 1px solid rgba(216, 174, 82, .22);
+}
+.b-field::after {
+  content: ""; position: absolute; inset: 8px; pointer-events: none;
+  border: 1px solid rgba(226, 184, 92, .32);
+  box-shadow: inset 0 0 0 3px rgba(20, 12, 6, .45), inset 0 0 36px rgba(14, 8, 4, .45);
+  border-radius: 3px;
+}
