@@ -56,6 +56,7 @@ window.PORTRAIT = (function () {
     wizard: ["gandalf", "gandalfw"],
     isengard: ["saruman"],
     mordor: ["sauron", "eye", "witchking", "nazgul", "mouth", "gothmog", "bolg"],
+    erech: ["kingdead"],
     lair: ["shelob"],
     angband: ["morgoth", "balrog", "glaurung"],
     hoard: ["smaug"],
@@ -63,8 +64,8 @@ window.PORTRAIT = (function () {
   const SC = {}; Object.entries(SCENE).forEach(([k, l]) => l.forEach((id) => (SC[id] = k)));
   const RACE_SC = { hob: "shire", elf: "forest", man: "gondor", dwarf: "dwarf", maia: "wizard", dark: "mordor" };
   // 每个场景的轮廓光与空气色
-  const RIM = { shire: "#ffe9a0", cave: "#9fd8e8", aman: "#ffffff", forest: "#b8ffd0", lorien: "#fff2a8", rivendell: "#ffe2c0", sea: "#eaf8ff", gondolin: "#ffffff", north: "#ffb080", gondor: "#fff4e0", rohan: "#ffe8a0", dale: "#dce9ff", wild: "#d8ffc0", dwarf: "#ffb060", wizard: "#b8ccff", isengard: "#d0d0d0", mordor: "#ff8a40", lair: "#a8c8d8", angband: "#ff7a30", hoard: "#ffd868" };
-  const HAZE = { shire: "#fbeec4", cave: "#0a1418", aman: "#f4f6ff", forest: "#15302a", lorien: "#f0e0a0", rivendell: "#8aa0a8", sea: "#dceef4", gondolin: "#e8f0f8", north: "#2a2028", gondor: "#e8e4dc", rohan: "#f0dca8", dale: "#d8dce4", wild: "#6a8a66", dwarf: "#2a1c16", wizard: "#2a2a4a", isengard: "#4a4a48", mordor: "#2a0c08", lair: "#101018", angband: "#3a1008", hoard: "#4a2c12" };
+  const RIM = { shire: "#ffe9a0", cave: "#9fd8e8", aman: "#ffffff", forest: "#b8ffd0", lorien: "#fff2a8", rivendell: "#ffe2c0", sea: "#eaf8ff", gondolin: "#ffffff", north: "#ffb080", gondor: "#fff4e0", rohan: "#ffe8a0", dale: "#dce9ff", wild: "#d8ffc0", dwarf: "#ffb060", wizard: "#b8ccff", isengard: "#d0d0d0", mordor: "#ff8a40", erech: "#80ffd4", lair: "#a8c8d8", angband: "#ff7a30", hoard: "#ffd868" };
+  const HAZE = { shire: "#fbeec4", cave: "#0a1418", aman: "#f4f6ff", forest: "#15302a", lorien: "#f0e0a0", rivendell: "#8aa0a8", sea: "#dceef4", gondolin: "#e8f0f8", north: "#2a2028", gondor: "#e8e4dc", rohan: "#f0dca8", dale: "#d8dce4", wild: "#6a8a66", dwarf: "#2a1c16", wizard: "#2a2a4a", isengard: "#4a4a48", mordor: "#2a0c08", erech: "#08221b", lair: "#101018", angband: "#3a1008", hoard: "#4a2c12" };
 
   function sky(id, a, b, c) { return `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset=".62" stop-color="${b}"/><stop offset="1" stop-color="${c || b}"/></linearGradient>`; }
   function stars(r, n, y1, col = "#fff8e0") { let s = ""; for (let i = 0; i < n; i++) { const x = r() * 200, y = r() * y1, z = 0.4 + r() * 1.1; s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${z.toFixed(2)}" fill="${col}" opacity="${(0.4 + r() * 0.6).toFixed(2)}"/>`; } return s; }
@@ -92,10 +93,12 @@ window.PORTRAIT = (function () {
         g += `<ellipse cx="100" cy="230" rx="120" ry="26" fill="#0e1a20"/><ellipse cx="100" cy="228" rx="80" ry="10" fill="#4a7a8a" opacity=".25"/><circle cx="40" cy="222" r="3" fill="#cfe8ef" opacity=".5"/>`;
         break;
       case "aman":
-        d = sky(u + "s", "#fff3c0", "#d6e6f2", "#e8f0f4");
-        g = `<rect width="200" height="250" fill="url(#${u}s)"/><circle cx="34" cy="70" r="40" fill="#f8e070" opacity=".35"/><circle cx="166" cy="70" r="40" fill="#e8f0ff" opacity=".55"/>` + rays(34, 70, "#fff6c0", 7, 0.1) + rays(166, 70, "#ffffff", 7, 0.1);
-        g += tree(34, 150, 70, "#9a8a6a", "#f8d860", r) + tree(166, 150, 70, "#b8c0c8", "#e0ecff", r);
-        g += P("M60,170 Q100,110 140,170 Z", "#d8dce4") + tower(100, 128, 8, 26, "#f4f6fa") + tower(86, 140, 7, 14, "#eef0f4") + tower(114, 140, 7, 14, "#eef0f4");
+        d = sky(u + "s", "#fff5c8", "#dceaf6", "#ecf4f8");
+        g = `<rect width="200" height="250" fill="url(#${u}s)"/><circle cx="34" cy="66" r="46" fill="#fbe274" opacity=".42"/><circle cx="166" cy="66" r="46" fill="#e6f2ff" opacity=".62"/>` + rays(34, 66, "#fff6c0", 8, 0.12) + rays(166, 66, "#ffffff", 8, 0.12);
+        g += S("M34,158 Q30,118 34,78 M34,112 Q18,92 8,86 M34,104 Q48,88 58,82", "#a88a50", 3) + `<ellipse cx="34" cy="72" rx="28" ry="20" fill="#f8d85c" opacity=".9"/><ellipse cx="18" cy="84" rx="16" ry="11" fill="#ffe884" opacity=".82"/><ellipse cx="50" cy="82" rx="16" ry="11" fill="#f0c440" opacity=".82"/>`;
+        g += S("M166,158 Q170,118 166,78 M166,112 Q182,92 192,86 M166,104 Q152,88 142,82", "#c4ccd6", 3) + `<ellipse cx="166" cy="72" rx="28" ry="20" fill="#e4f0ff" opacity=".92"/><ellipse cx="150" cy="82" rx="16" ry="11" fill="#ffffff" opacity=".85"/><ellipse cx="182" cy="84" rx="16" ry="11" fill="#cfe2f8" opacity=".85"/>`;
+        for (let i = 0; i < 14; i++) g += `<circle cx="${(i < 7 ? 14 + r() * 42 : 144 + r() * 42).toFixed(1)}" cy="${(86 + r() * 64).toFixed(1)}" r="1.2" fill="${i < 7 ? "#fff4a8" : "#ffffff"}" opacity=".85"/>`;
+        g += P("M60,170 Q100,110 140,170 Z", "#d8dce4") + tower(100, 128, 8, 28, "#f8fafc") + tower(86, 140, 7, 15, "#eef2f6") + tower(114, 140, 7, 15, "#eef2f6");
         g += hills(178, 18, "#c8d4b0", r);
         break;
       case "forest":
@@ -212,6 +215,13 @@ window.PORTRAIT = (function () {
         g = `<rect width="200" height="250" fill="url(#${u}s)"/>`;
         for (let i = 0; i < 140; i++) { const x = r() * 200, y = 170 + r() * 80 - Math.abs(x - 100) * -0.1; g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(1.2 + r() * 2.2).toFixed(1)}" fill="${r() > 0.3 ? "#f0c040" : "#c08020"}" stroke="#8a5a10" stroke-width=".3"/>`; }
         g += `<g transform="translate(36,186)"><path d="M-8,0 L8,0 L6,-10 L-6,-10 Z" fill="#e0b030" stroke="#7a5010" stroke-width=".6"/><ellipse cy="-10" rx="7" ry="2" fill="#f8d860"/></g><circle cx="166" cy="200" r="5" fill="#fff8e8" opacity=".9"/><circle cx="166" cy="200" r="11" fill="#fff" opacity=".2"/>`;
+        break;
+      case "erech":
+        d = sky(u + "s", "#040d0b", "#0d2b23", "#1c5040");
+        g = `<rect width="200" height="250" fill="url(#${u}s)"/>` + stars(r, 32, 110, "#b8ffe6") + `<path d="M154,32 a13,13 0 1 0 9,22 a10,10 0 1 1 -9,-22 z" fill="#c8ffe8" opacity=".8"/>`;
+        g += peaks(168, "#0a1c17", r, 6, 86);
+        g += `<ellipse cx="100" cy="188" rx="95" ry="32" fill="#5cf0be" opacity=".22"/><ellipse cx="38" cy="176" rx="18" ry="16" fill="#060c0a" stroke="#6ef4c6" stroke-width=".8" opacity=".85"/>`;
+        for (let i = 0; i < 20; i++) g += `<circle cx="${(r() * 200).toFixed(1)}" cy="${(90 + r() * 145).toFixed(1)}" r="${(0.8 + r() * 1.4).toFixed(1)}" fill="#8affd8" opacity=".65"/>`;
         break;
     }
     return { defs: d, g };
@@ -380,13 +390,54 @@ window.PORTRAIT = (function () {
   }
   function flowers(L) { if (!L.fl) return ""; return [[74, 96], [80, 86], [124, 92]].map(([x, y]) => `<g transform="translate(${x},${y})">${[0, 72, 144, 216, 288].map((a) => `<ellipse rx="2.2" ry="4" cy="-3" fill="#fff" transform="rotate(${a})"/>`).join("")}<circle r="1.6" fill="#f0d040"/></g>`).join(""); }
 
+  function signature(c, X) {
+    switch (c.id) {
+      case "frodo":
+        return `<circle cx="46" cy="162" r="18" fill="#88d4ff" opacity=".22"/>` +
+          S("M86,174 Q100,206 114,174", "#d8b254", 1.1) +
+          `<circle cx="100" cy="204" r="10" fill="#ffd866" opacity=".32"/><circle cx="100" cy="204" r="4.6" fill="none" stroke="${X.gold()}" stroke-width="2.3"/>` +
+          `<g transform="translate(136,214)"><circle r="9" fill="#e8f8ff" opacity=".35"/><path d="M-2.5,5 L-1.8,-4 L1.8,-4 L2.5,5 Q0,7 -2.5,5 Z" fill="#f4fcff" stroke="#8ab4d0" stroke-width=".5"/><path d="M0,-9 L1.2,-5.5 L4.5,-4.5 L1.2,-3.5 L0,0 L-1.2,-3.5 L-4.5,-4.5 L-1.2,-5.5 Z" fill="#ffffff"/></g>`;
+      case "feanor":
+        return [[-26, -6], [0, -18], [26, -6]].map(([dx, dy]) =>
+          `<g transform="translate(${100 + dx},${212 + dy})"><circle r="13" fill="#fff6be" opacity=".28"/><path d="M0,-9 L2.2,-2.2 L9,0 L2.2,2.2 L0,9 L-2.2,2.2 L-9,0 L-2.2,-2.2 Z" fill="#ffffff"/></g>`
+        ).join("");
+      case "luthien":
+        return [[-52, 72, -18], [54, 66, 16]].map(([dx, dy, rot]) =>
+          `<g transform="translate(${100 + dx},${dy}) rotate(${rot})"><path d="M0,0 C-6,-7 -16,-9 -22,-3 C-14,-2 -8,1 0,3 C8,1 14,-2 22,-3 C16,-9 6,-7 0,0 Z" fill="#f4d878" opacity=".88"/><circle r="2" fill="#fff8dc"/></g>`
+        ).join("") + `<circle cx="100" cy="54" r="2.2" fill="#ffffff"/><path d="M100,45 L101.4,52.6 L109,54 L101.4,55.4 L100,63 L98.6,55.4 L91,54 L98.6,52.6 Z" fill="#eef6ff" opacity=".85"/>`;
+      case "beren":
+        return `<g transform="translate(138,208)"><circle r="18" fill="#fff8c8" opacity=".35"/><circle r="8" fill="#fffbe0" opacity=".65"/><path d="M0,-12 L2.5,-2.5 L12,0 L2.5,2.5 L0,12 L-2.5,2.5 L-12,0 L-2.5,-2.5 Z" fill="#ffffff"/></g>`;
+      case "turin":
+        return `<g transform="translate(100,52)"><path d="M-12,8 Q-8,-8 0,-12 Q10,-10 16,-2 L10,2 L14,6 L4,6 Q-4,8 -12,8 Z" fill="${X.gold()}" stroke="#4a3008" stroke-width=".7"/><circle cx="7" cy="-4" r="1.2" fill="#ff5020"/></g>` +
+          S("M37,195 L57,131", "#d8f0ff", 1.1, 'opacity=".75"');
+      case "aragorn":
+        return `<g transform="translate(100,183)"><path d="M-9,-2 Q-4,-6 0,-2 Q4,-6 9,-2 Q4,2 0,5 Q-4,2 -9,-2 Z" fill="#dce4ec" stroke="#5a6874" stroke-width=".5"/><path d="M0,-6 L3.2,0 L0,6 L-3.2,0 Z" fill="${X.gem("#2ec47a")}" stroke="#d8f8e4" stroke-width=".5"/></g>` +
+          `<g transform="translate(100,214)" opacity=".85">${S("M0,12 V-4 M0,2 Q-7,-3 -11,-6 M0,0 Q7,-4 11,-7", "#e8ecf2", 1.1)}${[[-10, -10], [-5, -14], [0, -16], [5, -14], [10, -10]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r=".9" fill="#fff"/>`).join("")}</g>`;
+      case "boromir":
+        return `<path d="M114,198 Q132,208 136,228 Q124,232 110,212 Z" fill="#efe6d2" stroke="#5a4224" stroke-width=".9"/>` +
+          S("M118,203 L113,213 M128,213 L121,222", X.gold(), 1.8);
+      case "galadriel":
+        return `<g transform="translate(136,214)"><circle r="15" fill="#e8f6ff" opacity=".32"/><circle r="4.2" fill="none" stroke="#f4f8ff" stroke-width="1.6"/><path d="M0,-7 L1.5,-1.5 L7,0 L1.5,1.5 L0,7 L-1.5,1.5 L-7,0 L-1.5,-1.5 Z" fill="#ffffff"/></g>`;
+      case "gandalfw":
+        return `<circle cx="100" cy="102" r="54" fill="none" stroke="#fff9e2" stroke-width="1.2" stroke-opacity=".32" stroke-dasharray="3 5"/>`;
+      case "thorin":
+        return `<circle cx="46" cy="164" r="16" fill="#7ad0ff" opacity=".22"/><g transform="translate(100,206)"><circle r="12" fill="#e8f8ff" opacity=".28"/><polygon points="0,-6 5.5,0 0,6 -5.5,0" fill="#ffffff" stroke="#9ac8e8" stroke-width=".6"/></g>`;
+      case "bard":
+        return S("M44,132 L72,44", "#141010", 2.2) + `<path d="M72,44 l3,-9 l2,10 z" fill="#222" stroke="#ff9a40" stroke-width=".4"/><path d="M44,132 l-3,6 l5,-2 z" fill="#c83224"/>`;
+      case "eowyn":
+        return `<g transform="translate(56,218)"><circle r="28" fill="${X.metal("#c8ccd2")}" stroke="#3a3222" stroke-width="1"/><circle r="23" fill="${X.cloth("#2d6638")}"/><circle r="7" fill="${X.gold()}"/><path d="M-8,-6 Q0,-16 10,-8 Q4,-2 8,8 Q-2,4 -8,-6 Z" fill="#fbf6e8" opacity=".88"/></g>`;
+      default:
+        return "";
+    }
+  }
+
   function humanoid(c, L, X) {
     const k = c.r, h = L.h || "#4a3a2a";
-    let back = item(L, false, X) + hairBack(L, h, X);
+    let back = (c.id === "gandalfw" ? `<circle cx="100" cy="104" r="48" fill="#ffffff" opacity=".16"/>` : "") + item(L, false, X) + hairBack(L, h, X);
     if (L.hat === "hood") back += P("M52,250 L56,130 C52,70 78,50 100,50 C122,50 148,70 144,130 L148,250 Z", X.cloth(dk(L.hc || L.c || "#555", 0.15))) + folds(["M60,240 C60,190 62,150 66,120", "M140,240 C140,190 138,150 134,120"], L.hc || L.c || "#555", 1.6);
     if (L.hat === "wizard" && L.hs !== "long") back += P("M68,104 C64,150 66,190 60,230 L140,230 C134,190 136,150 132,104 Z", X.hair(L.bc || h)) + S("M72,130 C70,170 68,200 64,226 M128,130 C130,170 132,200 136,226", sh(L.bc || h, 0.5), 1, 'opacity=".6"');
     let o = back + `<g transform="translate(0,-5)">${body(L, k, X)}</g>` + head(L, k, X);
-    o += hairFront(L, h, X) + beard(L, h, X) + flowers(L) + hat(L, X) + item(L, true, X);
+    o += hairFront(L, h, X) + beard(L, h, X) + flowers(L) + hat(L, X) + item(L, true, X) + signature(c, X);
     return o;
   }
 
@@ -402,6 +453,21 @@ window.PORTRAIT = (function () {
         P("M76,124 C74,84 86,64 100,62 C114,64 126,84 124,124 C116,134 84,134 76,124 Z", "#000") + `<ellipse cx="90" cy="104" rx="3" ry="1.6" fill="#c8e0ff" opacity=".7"/><ellipse cx="110" cy="104" rx="3" ry="1.6" fill="#c8e0ff" opacity=".7"/><ellipse cx="100" cy="104" rx="30" ry="22" fill="#6a8ab8" opacity=".08"/>` +
         (L.crown ? P("M76,66 L74,34 L84,52 L92,28 L100,48 L108,28 L116,52 L126,34 L124,66 Q100,58 76,66 Z", X.metal("#8a9098"), `stroke="#3a3a40" stroke-width="1"`) + `<ellipse cx="100" cy="46" rx="34" ry="20" fill="#c8e0ff" opacity=".12"/>` : "") +
         S("M148,250 L162,120", X.metal("#9aa0a8"), 3.5) + S("M152,140 L172,146", "#3a3a40", 4) + `<path d="M162,120 l-1,-12 l4,10 z" fill="#d8dde2"/>`; }
+      case "dead": {
+        const robe = X.cloth("#266a56"), bone = X.skin("#bceee0");
+        return `<ellipse cx="100" cy="145" rx="76" ry="95" fill="#52f0be" opacity=".18"/>` +
+          P("M36,252 C42,188 58,158 80,150 L120,150 C142,158 158,188 164,252 Z", robe, 'opacity=".86" stroke="#7effd4" stroke-width="1"') +
+          folds(["M64,176 C60,206 56,230 52,250", "M136,176 C140,206 144,230 148,250", "M100,164 V250", "M82,170 C80,204 78,230 76,250", "M118,170 C120,204 122,230 124,250"], "#44b894", 1.5) +
+          P("M44,196 C44,172 62,154 84,152 L86,174 C68,178 54,186 44,196 Z M156,196 C156,172 138,154 116,152 L114,174 C132,178 146,186 156,196 Z", X.metal("#5aa892"), 'opacity=".85" stroke="#98ffe0" stroke-width=".8"') +
+          P("M72,112 C70,74 84,58 100,58 C116,58 130,74 128,112 C126,128 118,136 114,148 L86,148 C82,136 74,128 72,112 Z", bone, 'opacity=".9" stroke="#2a6e58" stroke-width="1"') +
+          P("M86,134 H114 L111,152 H89 Z", "#98dec8", 'stroke="#225846" stroke-width=".8"') +
+          S("M93,134 V150 M100,134 V151 M107,134 V150", "#1e4e3e", 1) +
+          `<ellipse cx="88" cy="106" rx="8" ry="6.5" fill="#091e18"/><ellipse cx="112" cy="106" rx="8" ry="6.5" fill="#091e18"/>` +
+          `<circle cx="88" cy="106" r="3.4" fill="#8affd8"/><circle cx="112" cy="106" r="3.4" fill="#8affd8"/><path d="M97,118 L100,111 L103,118 Z" fill="#091e18"/>` +
+          S("M78,124 C74,156 82,188 100,202 C118,188 126,156 122,124", "#c8fff0", 1.2, 'opacity=".55"') +
+          P("M74,68 L72,38 L84,54 L92,32 L100,50 L108,32 L116,54 L128,38 L126,68 Q100,58 74,68 Z", X.metal("#94e8cc"), 'stroke="#225846" stroke-width="1"') +
+          S("M148,250 L164,114", "#a8ffe4", 3.6, 'opacity=".88"') + S("M149,138 L173,144", "#58c49e", 4) + `<path d="M164,114 l-1,-14 l4.5,12 z" fill="#dcfff4"/>`;
+      }
       case "sauron": { const cf = X.metal("#2a2224"); return P("M30,252 C34,196 56,170 84,164 L116,164 C144,170 166,196 170,252 Z", X.cloth("#1a1616"), `stroke="#3a3030" stroke-width="1.2"`) + folds(["M60,200 C56,220 52,236 50,250", "M140,200 C144,220 148,236 150,250", "M100,176 L100,250"], "#1a1616", 1.6) +
         P("M36,206 C34,180 56,162 82,160 L84,184 C66,186 48,194 36,206 Z M164,206 C166,180 144,162 118,160 L116,184 C134,186 152,194 164,206 Z", cf, `stroke="#5a4a40" stroke-width="1"`) + S("M40,196 L30,176 M50,186 L44,164 M160,196 L170,176 M150,186 L156,164", "#2a2424", 4) + S("M40,200 C44,186 56,176 70,172", "#6a5a50", 1, 'opacity=".6"') +
         P("M64,140 C58,80 78,50 100,48 C122,50 142,80 136,140 L120,164 L80,164 Z", cf, `stroke="#4a4040" stroke-width="1.2"`) + P("M72,64 L60,18 L84,52 Z M128,64 L140,18 L116,52 Z M92,50 L100,8 L108,50 Z M82,54 L76,24 L92,48 Z M118,54 L124,24 L108,48 Z", cf, `stroke="#4a4040" stroke-width=".8"`) + S("M70,100 C72,80 80,64 92,56", "#7a6a60", 1, 'opacity=".5"') +

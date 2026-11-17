@@ -1502,3 +1502,56 @@ body[data-era="fo"] .mapwrap::before {
   box-shadow: inset 0 0 0 3px rgba(20, 12, 6, .45), inset 0 0 36px rgba(14, 8, 4, .45);
   border-radius: 3px;
 }
+
+/* —— 5. 美术专项精修：双圣树光露、王国纹章、传说/战役泥金圆章、沙盘树冠与猛犸巨鹰 —— */
+.trees2 .tdew {
+  animation: rg 3.2s ease-in-out infinite alternate;
+  transition: opacity 1s;
+}
+.trees2.dead .tdew { opacity: 0; animation: none; }
+
+.realm-cr {
+  opacity: .72; pointer-events: none;
+  filter: drop-shadow(0 1px 1px rgba(246, 234, 202, .75));
+}
+.realm-cr.c-elf { color: var(--elf); }
+.realm-cr.c-man { color: var(--man); }
+.realm-cr.c-rohan { color: #3a6828; }
+.realm-cr.c-dwarf { color: var(--dwarf); }
+.realm-cr.c-dark { color: var(--dark); }
+.st-h3 .realm-cr { color: #ffe49c; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .85)); }
+#map.near .realm-cr { opacity: .28; }
+
+.lg-card.has-art, .bt-card.has-art {
+  grid-template-columns: 52px 1fr auto;
+  align-items: center;
+  gap: 2px 12px;
+}
+.lg-card.has-art .lg-art, .bt-card.has-art .bt-art {
+  grid-column: 1;
+  grid-row: 1 / 5;
+  width: 52px;
+  height: 52px;
+  display: block;
+  filter: drop-shadow(0 3px 6px rgba(30, 18, 6, .28));
+  transition: transform .25s ease;
+}
+.lg-card.has-art:hover .lg-art, .bt-card.has-art:hover .bt-art {
+  transform: scale(1.07) rotate(-2deg);
+}
+.lg-med, .bt-med { width: 100%; height: 100%; display: block; }
+.lg-card.has-art .lg-y, .bt-card.has-art .bt-y { grid-column: 2 / 4; }
+.lg-card.has-art b, .bt-card.has-art b { grid-column: 2; }
+.lg-card.has-art i, .bt-card.has-art i { grid-column: 2; }
+.lg-card.has-art .lg-n, .bt-card.has-art .bt-go { grid-column: 3; grid-row: 2 / 4; }
+.lg-card.has-art .lg-s, .bt-card.has-art .bt-s { grid-column: 2 / 4; }
+
+.rd-med {
+  width: 66px; height: 66px; margin: 2px auto 8px;
+  filter: drop-shadow(0 4px 10px rgba(42, 24, 6, .28));
+}
+
+.bt-trees .bt-tsh { fill: rgba(10, 16, 6, .48) !important; stroke: none !important; }
+.bt-trees .bt-thi { fill: rgba(126, 164, 82, .52) !important; stroke: none !important; }
+.bu .eag { fill: #8c6230; stroke: #ffe498; stroke-width: 1.25; }
+.bu .bst { fill: #6e665a; stroke: #282018; stroke-width: .9; }

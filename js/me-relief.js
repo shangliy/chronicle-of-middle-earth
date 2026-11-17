@@ -3,7 +3,7 @@
  * 以 <image> 贴在 SVG 里。为不阻塞首屏，按帧逐个生成。
  */
 (function () {
-  const PX = 2; // 每个地图单位的像素数
+  const PX = 2.4; // 每个地图单位的像素数（提升山脊雕刻锐度）
   const H32 = (i, j) => { let n = (i * 374761393 + j * 668265263) | 0; n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
   const sm = (t) => t * t * (3 - 2 * t);
   function noise(x, y) {

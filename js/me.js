@@ -110,10 +110,10 @@
     });
   }
   const SEA_ART = {
-    ship: `<g class="bobsea"><ellipse cx="0" cy="5.5" rx="14" ry="2.2" fill="#000" opacity=".18"/><path d="M-13,-1Q-14,-5 -11,-7Q-9,-4 -9,0L9,0Q11,-4 13,-6Q13,-1 10,4.8H-9.5Z" fill="#7c5a38" stroke="#3a2514" stroke-width=".7"/><path d="M-9.5,2.2H10" stroke="#c89e52" stroke-width=".6"/><path d="M0,0V-18M-5,0L0,-15M5,0L0,-15" stroke="#3a2514" stroke-width=".6"/><path d="M0.5,-16.5Q10,-11 0.5,-2.5Z" fill="#f7f0de" stroke="#3a2514" stroke-width=".6"/><path d="M2.2,-12.5Q5.5,-9.5 2.2,-6.5" fill="none" stroke="#c89e52" stroke-width=".6"/><path d="M-0.5,-14.5Q-7.5,-10 -0.5,-3.5Z" fill="#ebe0c5" stroke="#3a2514" stroke-width=".55"/><path d="M0,-18L5.5,-19.4L0,-20.8Z" fill="#b03a28"/><path d="M-17,6q3.5,-2.2 7,0t7,0t7,0M6,6.8q3,-1.8 6,0" fill="none" stroke="#f6f1e4" stroke-width=".75" opacity=".75"/></g>`,
-    serpent: `<g class="bobsea"><path d="M-24,2.5Q-19,-9 -13,2.5Q-7,-9 -1,2.5Q5,-9 11,2.5" fill="none" stroke="#2a4236" stroke-width="4.2" stroke-linecap="round"/><path d="M-24,2.5Q-19,-9 -13,2.5Q-7,-9 -1,2.5Q5,-9 11,2.5" fill="none" stroke="#567a68" stroke-width="2.6" stroke-linecap="round"/><path d="M-19,-3.5l-1.5,-3.8l2.5,1.4l1,-2.6l1,3M-7,-3.5l-1.5,-3.8l2.5,1.4l1,-2.6l1,3M5,-3.5l-1.5,-3.5l2.5,1.5" fill="#88a894" stroke="#2a3a32" stroke-width=".55"/><path d="M11,2.5Q14,-9 20,-9.5Q26,-9.5 25,-4.5L19.5,-3.5L23.5,-1.5L18,-1" fill="#4e7260" stroke="#24342c" stroke-width=".75"/><circle cx="21" cy="-7" r="1" fill="#ffd86b"/><path d="M24.5,-3.5l3.5,-1l-2,1.8l2.5,1" fill="none" stroke="#c43c28" stroke-width=".65"/><path d="M-28,4.2q4,-2.2 8,0t8,0t8,0t8,0t8,0" fill="none" stroke="#f4eee0" stroke-width=".75" opacity=".7"/></g>`,
-    whirl: `<g><circle r="10" fill="#2a4854" opacity=".18"/><path d="M0,0m-9,0a9,5.6 0 1,1 18,0a6.8,4.2 0 1,1 -13.6,0a4.5,2.8 0 1,1 9,0a2.2,1.4 0 1,1 -4.4,0" fill="none" stroke="#5d7874" stroke-width=".9"/><path d="M-7,-2a7,4.2 0 0,1 12,1M-4,2.2a4.5,2.6 0 0,0 7.5,-0.8" fill="none" stroke="#f5efe0" stroke-width=".65" stroke-dasharray="2 2"/></g>`,
-    whale: `<g class="bobsea"><path d="M-15,0.5Q-13,-9.5 0,-9Q11,-8.5 15,0.5Z" fill="#526670" stroke="#223038" stroke-width=".75"/><path d="M-12,0.5Q-4,-2.5 8,0.5" fill="none" stroke="#9ab0b8" stroke-width=".7"/><path d="M14.5,0.5L21,-5.5L19.5,-0.5L22,3.5L15,1.5Z" fill="#465862" stroke="#223038" stroke-width=".7"/><circle cx="-8.5" cy="-4.2" r=".9" fill="#151c20"/><circle cx="-8.8" cy="-4.5" r=".3" fill="#fff"/><path d="M-6.5,-9.5Q-8.5,-15.5 -11.5,-14M-6.5,-9.5Q-4.5,-15.5 -1.5,-14M-6.5,-9.5V-15" fill="none" stroke="#eef6fa" stroke-width=".85" stroke-linecap="round"/><path d="M-18,1.5q4,-1.8 8,0t8,0t8,0" fill="none" stroke="#f4eee0" stroke-width=".7" opacity=".7"/></g>`
+    ship: `<g class="bobsea"><ellipse cx="0" cy="5.8" rx="15.5" ry="2.5" fill="#000" opacity=".2"/><path d="M-14,-1Q-15.5,-5.5 -12.5,-8.5Q-10.5,-10 -9.5,-8Q-10,-4.5 -9.5,0L9.5,0Q12,-4.5 14,-7.5Q14.5,-1 10.5,5H-10Z" fill="#7c5836" stroke="#342010" stroke-width=".7"/><path d="M-12.5,-8.5Q-11.5,-10.5 -10,-9.2" fill="none" stroke="#f5dfa0" stroke-width=".75"/><path d="M-10,2H10.2M-9.5,3.5H9.5" stroke="#cfa456" stroke-width=".55"/><path d="M0,0V-19.5M-5.5,0L0,-16M5.5,0L0,-16" stroke="#342010" stroke-width=".6"/><path d="M0.5,-18Q11.5,-11.5 0.8,-2.2Q-1,-9 0.5,-18Z" fill="#fbf4e4" stroke="#342010" stroke-width=".6"/><path d="M2.2,-13L4,-10.5L2.2,-8L0.8,-10.5Z" fill="#d8ab4c" opacity=".85"/><path d="M-0.5,-15.5Q-8.5,-10.5 -0.5,-3.2Z" fill="#ece0c4" stroke="#342010" stroke-width=".55"/><path d="M0,-19.5L6.5,-21L4.5,-19.4L6.5,-17.8L0,-19.2Z" fill="#b03624"/><path d="M-18,6.2q3.8,-2.4 7.6,0t7.6,0t7.6,0M5,7.2q3.2,-1.8 6.4,0" fill="none" stroke="#f8f3e6" stroke-width=".8" opacity=".8"/></g>`,
+    serpent: `<g class="bobsea"><path d="M-25,2.5Q-19.5,-10 -13.5,2.5Q-7.5,-10 -1.5,2.5Q4.5,-10 11,2.5" fill="none" stroke="#233a2f" stroke-width="4.5" stroke-linecap="round"/><path d="M-25,2.5Q-19.5,-10 -13.5,2.5Q-7.5,-10 -1.5,2.5Q4.5,-10 11,2.5" fill="none" stroke="#587e6b" stroke-width="2.8" stroke-linecap="round"/><path d="M-25,2Q-19.5,-9.2 -13.5,2Q-7.5,-9.2 -1.5,2" fill="none" stroke="#9ec0ac" stroke-width=".8" stroke-dasharray="1.2 2"/><path d="M-19.5,-3.8l-1.6,-4.2l2.6,1.5l1.2,-3l1.2,3.4M-7.5,-3.8l-1.6,-4.2l2.6,1.5l1.2,-3l1.2,3.4M4.5,-3.8l-1.5,-3.8l2.6,1.6" fill="#8eb09c" stroke="#233a2f" stroke-width=".55"/><path d="M11,2.5Q14.5,-9.5 21,-10.5Q27,-10.5 26,-4.8L20,-3.8L24.5,-1.5L18.5,-0.8" fill="#4e7462" stroke="#203229" stroke-width=".75"/><path d="M18,-9.8L15,-14.5L20,-10.4" fill="#c8b078" stroke="#203229" stroke-width=".5"/><circle cx="21.5" cy="-7.4" r="1.1" fill="#ffe06b"/><path d="M25.5,-3.6l4,-1.2l-2.2,2l2.8,1.2" fill="none" stroke="#c83824" stroke-width=".7"/><path d="M-29,4.4q4.2,-2.3 8.4,0t8.4,0t8.4,0t8.4,0t8.4,0" fill="none" stroke="#f6f0e2" stroke-width=".8" opacity=".75"/></g>`,
+    whirl: `<g><ellipse rx="13" ry="8" fill="#1e404e" opacity=".22"/><path d="M0,0m-10.5,0a10.5,6.4 0 1,1 21,0a7.8,4.8 0 1,1 -15.6,0a5.2,3.2 0 1,1 10.4,0a2.5,1.6 0 1,1 -5,0" fill="none" stroke="#527478" stroke-width="1"/><path d="M-8,-2.4a8,4.8 0 0,1 14,1.2M-5,2.6a5.2,3 0 0,0 8.8,-1" fill="none" stroke="#f6f1e4" stroke-width=".75" stroke-dasharray="2.2 1.8"/></g>`,
+    whale: `<g class="bobsea"><path d="M-16,0.5Q-13.5,-10.5 0,-9.6Q11.5,-9 15.5,0.5Z" fill="#4e6470" stroke="#1e2c34" stroke-width=".75"/><path d="M-12.5,0.5Q-4,-3 8.5,0.5" fill="none" stroke="#a6bec8" stroke-width=".8"/><path d="M15,0.5L22,-6L20,-0.5L23,4L15.5,1.6Z" fill="#425662" stroke="#1e2c34" stroke-width=".7"/><circle cx="-9" cy="-4.4" r=".95" fill="#141c20"/><circle cx="-9.3" cy="-4.7" r=".35" fill="#fff"/><path d="M-6.8,-9.8Q-9.2,-16.5 -12.8,-14.8M-6.8,-9.8Q-4.4,-16.5 -0.8,-14.8M-6.8,-9.8V-16.2" fill="none" stroke="#f0f8fc" stroke-width=".9" stroke-linecap="round"/><path d="M-19,1.6q4.2,-1.9 8.4,0t8.4,0t8.4,0" fill="none" stroke="#f6f0e2" stroke-width=".75" opacity=".75"/></g>`
   };
   function texture(list, cls, draw, sd) {
     list.forEach((a, i) => {
@@ -298,14 +298,21 @@
     // 冰峡（赫尔卡拉克瑟）
     el("path", { d: cr(W.land.ice, true), class: "ice" }, L.bel);
     { let d = ""; seed = 41; for (let i = 0; i < 60; i++) { const x = lerp(-900, -695, rnd()), y = lerp(-118, -72, rnd()); if (inPoly(x, y, W.land.ice)) d += `M${x.toFixed(1)},${y.toFixed(1)}l${(4 + rnd() * 5).toFixed(1)},${(-2 - rnd() * 3).toFixed(1)}`; } el("path", { d, class: "ice-h" }, L.bel); }
-    // 双圣树
-    { const tp = D.PLACES.find((q) => q.id === "twotrees"); L.trees = el("g", { class: "trees2", transform: `translate(${tp.x},${tp.y - 4}) scale(1.6)` }, L.aman);
-      el("circle", { cx: -13, cy: -10, r: 28, class: "tglow tel" }, L.trees); el("circle", { cx: 13, cy: -10, r: 28, class: "tglow tla" }, L.trees);
-      el("ellipse", { cx: 0, cy: 5, rx: 22, ry: 3.5, fill: "rgba(60,85,40,.35)" }, L.trees);
-      [[-12, "tel", -1], [12, "tla", 1]].forEach(([x, c, dir]) => {
-        el("path", { d: `M${x - 3 * dir},5Q${x - dir},1 ${x},-3Q${x + 1.5 * dir},-8 ${x},-13M${x},-6L${x - 5 * dir},-12M${x},-9L${x + 4 * dir},-15`, class: "ttrunk" }, L.trees);
-        [[-5, -13, 5.2], [4, -13, 5], [-2, -18, 5.6], [3, -17, 4.8], [0, -14, 6.8]].forEach(([dx, dy, r]) => el("circle", { cx: x + dx, cy: dy, r, class: "tcrown " + c }, L.trees));
-        [[-7, -7], [6, -6], [0, -22]].forEach(([dx, dy]) => el("circle", { cx: x + dx, cy: dy, r: 0.9, fill: c === "tel" ? "#ffffff" : "#fff2a8" }, L.trees));
+    // 双圣树（埃泽洛哈绿丘、泰尔佩瑞安银树与劳瑞林金树、瓦尔妲光露池）
+    { const tp = D.PLACES.find((q) => q.id === "twotrees"); L.trees = el("g", { class: "trees2", transform: `translate(${tp.x},${tp.y - 4}) scale(1.65)` }, L.aman);
+      el("circle", { cx: -14, cy: -13, r: 32, class: "tglow tel" }, L.trees); el("circle", { cx: 14, cy: -13, r: 32, class: "tglow tla" }, L.trees);
+      el("path", { d: "M-25,6 Q0,-2 25,6 Q0,9 -25,6 Z", fill: "rgba(74,106,48,.58)", stroke: "rgba(42,60,24,.45)", "stroke-width": ".5" }, L.trees);
+      // 库尔维恩恩光露银金双池
+      el("ellipse", { cx: -18, cy: 5.2, rx: 4.2, ry: 1.5, fill: "#e8f4ff", stroke: "#7a90a4", "stroke-width": ".4", class: "tdew" }, L.trees);
+      el("ellipse", { cx: 18, cy: 5.2, rx: 4.2, ry: 1.5, fill: "#ffe88a", stroke: "#9a7424", "stroke-width": ".4", class: "tdew" }, L.trees);
+      [[-12.5, "tel", -1], [12.5, "tla", 1]].forEach(([x, c, dir]) => {
+        [[-7, -14, 5.8, 3.8], [5.5, -13.5, 5.4, 3.6], [-2.5, -19.5, 6.4, 4.2], [3.5, -18.5, 5.6, 3.8], [0, -15, 8.2, 5.2]].forEach(([dx, dy, rx, ry]) =>
+          el("ellipse", { cx: x + dx, cy: dy, rx, ry, class: "tcrown " + c }, L.trees)
+        );
+        el("path", { d: `M${x - 2.6 * dir},5.2 C${x - 1.2 * dir},1 ${x + 0.8 * dir},-4 ${x},-14 M${x},-7 Q${x - 5 * dir},-11 ${x - 8.5 * dir},-13.5 M${x},-10 Q${x + 4 * dir},-13.5 ${x + 6.5 * dir},-16 M${x},-12.5 Q${x - 2 * dir},-17 ${x - 3 * dir},-19.5`, class: "ttrunk", fill: "none", "stroke-linecap": "round" }, L.trees);
+        [[-8.5, -8, 1], [6.5, -7.5, 0.85], [-3, -23.5, 1.1], [4, -21.5, 0.85], [-6 * dir, -2, 0.75]].forEach(([dx, dy, r]) =>
+          el("circle", { cx: x + dx, cy: dy, r, fill: c === "tel" ? "#ffffff" : "#fff4a8", class: "tdew" }, L.trees)
+        );
       }); }
     L.veil = el("g", { class: "veil-l", transform: "translate(-1060,560)" }, L.aman);
     { const s2 = el("g", { class: "sc" }, L.veil); el("text", { class: "veil-n" }, s2).textContent = tr("已移出世界之圈 · 唯有精灵的船走笔直航道"); el("text", { class: "veil-en", y: 13 }, s2).textContent = "REMOVED FROM THE CIRCLES OF THE WORLD · SA 3319"; }
@@ -365,12 +372,24 @@
       if (p.fire) el("circle", { cx: p.x, cy: p.y - p.h, r: 3, class: "ember" }, g);
     });
     if (H3 && !PAINT) advObjects();
-    // 国度
+    // 国度与纹章
+    const REALM_CREST = {
+      elf: `<path d="M0,-7L1.4,-1.4L7,0L1.4,1.4L0,7L-1.4,1.4L-7,0L-1.4,-1.4Z"/><circle r="3.4" fill="none" stroke="currentColor" stroke-width=".7"/>`,
+      man: `<path d="M0,4V-3M0,0Q-4,-2 -6,-5M0,0Q4,-2 6,-5M-3,-6.5L0,-9L3,-6.5" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><circle cy="-6" r="1"/>`,
+      rohan: `<circle r="4.2" fill="none" stroke="currentColor" stroke-width=".9"/><path d="M0,-7.5V-5M0,5V7.5M-7.5,0H-5M5,0H7.5M-5.2,-5.2L-3.5,-3.5M5.2,-5.2L3.5,-3.5" stroke="currentColor" stroke-width=".85"/>`,
+      dwarf: `<path d="M0,-6.5L6,0L0,6.5L-6,0Z" fill="none" stroke="currentColor" stroke-width="1"/><path d="M-2.5,-1.5H2.5M0,-1.5V3" stroke="currentColor" stroke-width="1.1"/>`,
+      dark: `<path d="M-7,0Q0,-5 7,0Q0,5 -7,0Z" fill="none" stroke="currentColor" stroke-width="1"/><path d="M0,-3.2V3.2" stroke="currentColor" stroke-width="1.3"/>`,
+    };
     L.realms = el("g", { class: "realms" }, svg);
     D.REALMS.forEach((r) => {
       const g = el("g", { class: "realm" + (r.soft ? " soft" : "") }, L.realms);
       el("circle", { cx: r.x, cy: r.y, r: r.r, fill: `url(#rg-${r.c})` }, g);
-      const tx = el("text", { x: r.x, y: r.y - r.r * 0.55, class: "realm-n c-" + r.c }, g); tx.textContent = r.n;
+      const ty = r.y - r.r * 0.55;
+      if (!r.soft && REALM_CREST[r.c]) {
+        const cg = el("g", { class: "realm-cr c-" + r.c, transform: `translate(${r.x},${ty - 14})` }, g);
+        cg.innerHTML = REALM_CREST[r.c];
+      }
+      const tx = el("text", { x: r.x, y: ty, class: "realm-n c-" + r.c }, g); tx.textContent = r.n;
       r.g = g;
     });
     // 区域名
@@ -1098,14 +1117,44 @@
     $("#chron").innerHTML = html + "</ul>";
     chronLis = $$("#chron li");
     $("#chron").addEventListener("click", (e) => { if (e.target.closest(".mini")) return; const li = e.target.closest("li[data-i]"); if (li) goEvent(D.EVENTS[+li.dataset.i]); });
+    // 传说与战役泥金徽章插画
+    const lgMedallion = (id) => {
+      const M2 = {
+        silmaril: `<circle cx="28" cy="28" r="23" fill="#1d2438"/><path d="M28,8L30,15L37,17L30,19L28,26L26,19L19,17L26,15ZM17,27L18.6,32.4L24,34L18.6,35.6L17,41L15.4,35.6L10,34L15.4,32.4ZM39,27L40.6,32.4L46,34L40.6,35.6L39,41L37.4,35.6L32,34L37.4,32.4Z" fill="#fff9d6"/><circle cx="28" cy="28" r="16" fill="none" stroke="#e6c068" stroke-width=".7" stroke-dasharray="2 2"/>`,
+        beren: `<circle cx="28" cy="28" r="23" fill="#16282a"/><path d="M22,46L24,32Q28,27 32,32L34,46Z" fill="#d8b894"/><circle cx="28" cy="22" r="9" fill="#ffe89c" opacity=".32"/><path d="M28,11L30.2,19.8L39,22L30.2,24.2L28,33L25.8,24.2L17,22L25.8,19.8Z" fill="#ffffff"/><circle cx="15" cy="16" r="1.5" fill="#d8f0ff"/><circle cx="41" cy="17" r="1.5" fill="#d8f0ff"/>`,
+        turin: `<circle cx="28" cy="28" r="23" fill="#241614"/><path d="M18,38C18,22 23,17 28,17C33,17 38,22 38,38L34,38V29H22V38Z" fill="#c8a048" stroke="#5a3e10" stroke-width=".8"/><path d="M24,17Q28,9 34,14L30,17Z" fill="#f4d26a"/><path d="M14,43L42,13" stroke="#141418" stroke-width="3"/><path d="M14,43L42,13" stroke="#bfe4ff" stroke-width=".8"/>`,
+        gondolin: `<circle cx="28" cy="28" r="23" fill="#26405c"/><path d="M7,42L15,28L22,36L35,35L42,26L49,42Z" fill="#7c96b0"/><path d="M25,42V16L28,10L31,16V42ZM19,42V25L21,21L23,25V42ZM33,42V25L35,21L37,25V42Z" fill="#ffffff"/><circle cx="28" cy="10" r="4" fill="#ffe89a" opacity=".5"/>`,
+        earendil: `<circle cx="28" cy="28" r="23" fill="#10253e"/><path d="M28,8L29.8,14.2L36,16L29.8,17.8L28,24L26.2,17.8L20,16L26.2,14.2Z" fill="#ffffff"/><path d="M15,37Q28,44 41,36L38,41Q28,46 18,41Z" fill="#f4efe0"/><path d="M28,37V23Q37,29 29,36Z" fill="#ffffff"/>`,
+        numenor: `<circle cx="28" cy="28" r="23" fill="#1a3548"/><path d="M28,11L31.5,20.5L41.5,21L33.5,27L36.5,36.5L28,31L19.5,36.5L22.5,27L14.5,21L24.5,20.5Z" fill="#e6c46a" stroke="#7a5818" stroke-width=".7"/><path d="M9,41Q18,35 28,41T47,41" fill="none" stroke="#bfe6f4" stroke-width="2"/>`,
+        rings: `<circle cx="28" cy="28" r="23" fill="#2a1a10"/><circle cx="28" cy="31" r="10.5" fill="none" stroke="#f4c44e" stroke-width="3.4"/><circle cx="20" cy="17" r="4" fill="none" stroke="#e8eff6" stroke-width="1.5"/><circle cx="28" cy="14" r="4" fill="none" stroke="#f6d878" stroke-width="1.5"/><circle cx="36" cy="17" r="4" fill="none" stroke="#e87a64" stroke-width="1.5"/>`,
+        north: `<circle cx="28" cy="28" r="23" fill="#1c1c28"/><path d="M16,28L15,17L22,23L28,13L34,23L41,17L40,28Z" fill="#9aa4b2" stroke="#2c3038" stroke-width=".8"/><path d="M18,42L27,33M30,30L35,25M37,23L40,20" stroke="#e4ecf4" stroke-width="2.4" stroke-linecap="round"/>`,
+        durin: `<circle cx="28" cy="28" r="23" fill="#1c2230"/><path d="M18,35L19,27L23,31L28,25L33,31L37,27L38,35Z" fill="#e4b64c"/><path d="M25,38H31V44H25ZM22,38H34" stroke="#c8ced6" stroke-width="2"/>${[[-12, -6], [-8, -12], [-3, -15], [3, -15], [8, -12], [12, -6], [0, -17]].map(([x, y]) => `<circle cx="${28 + x}" cy="${33 + y}" r="1.2" fill="#fff8d6"/>`).join("")}`,
+        hobbit: `<circle cx="28" cy="28" r="23" fill="#35582c"/><path d="M8,44Q28,20 48,44Z" fill="#5e8c3e"/><circle cx="28" cy="36" r="8.5" fill="#2e6830" stroke="#6a4620" stroke-width="2"/><circle cx="30.5" cy="36" r="1.2" fill="#f0c84b"/><path d="M16,17Q28,11 39,17Q31,18 28,21Q24,18 16,17Z" fill="#c43824"/>`,
+        ring: `<circle cx="28" cy="28" r="23" fill="#321008"/><path d="M9,46L23,26L28,28L33,25L47,46Z" fill="#1a0906"/><path d="M23,26Q28,22 33,25" stroke="#ff7a20" stroke-width="2.5" fill="none"/><circle cx="28" cy="24" r="11.5" fill="none" stroke="#f6cb58" stroke-width="3.6"/><circle cx="28" cy="24" r="11.5" fill="none" stroke="#fff9dc" stroke-width=".9" stroke-dasharray="2.5 2"/>`,
+        aragorn: `<circle cx="28" cy="28" r="23" fill="#182232"/><path d="M28,44V26M28,33Q20,29 16,24M28,31Q36,27 40,22M28,28Q23,22 20,18M28,28Q33,22 36,18" stroke="#f4f6fa" stroke-width="1.8" fill="none" stroke-linecap="round"/>${[[-11, -4], [-7, -10], [0, -13], [7, -10], [11, -4], [-4, -15], [4, -15]].map(([x, y]) => `<circle cx="${28 + x}" cy="${28 + y}" r="1.2" fill="#fffbe0"/>`).join("")}`,
+      };
+      return `<svg class="lg-med" viewBox="0 0 56 56" aria-hidden="true">${M2[id] || M2.ring}<circle cx="28" cy="28" r="25" fill="none" stroke="#c89e4c" stroke-width="1.4"/><circle cx="28" cy="28" r="22.5" fill="none" stroke="#fff3c8" stroke-width=".6" opacity=".65"/></svg>`;
+    };
+    const btCrest = (id) => {
+      const B2 = {
+        nirnaeth: `<circle cx="24" cy="24" r="20" fill="#241412"/><path d="M12,35L36,13M30,13H36V19M36,35L12,13M18,13H12V19" stroke="#9cc4ec" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M24,9L26,16L33,18L26,20L24,27L22,20L15,18L22,16Z" fill="#ffd878"/>`,
+        lastalliance: `<circle cx="24" cy="24" r="20" fill="#1c2434"/><path d="M24,38V14M24,25Q17,21 14,17M24,25Q31,21 34,17" stroke="#f0f4fa" stroke-width="1.8" fill="none"/><circle cx="24" cy="12" r="3" fill="#ffd86b"/>`,
+        fivearmies: `<circle cx="24" cy="24" r="20" fill="#2c1e14"/><path d="M8,36L19,17L24,13L29,17L40,36Z" fill="#7a6852"/><path d="M21,36V28Q24,24 27,28V36Z" fill="#ffb848"/><path d="M14,14Q24,9 34,14Q27,16 24,19Q21,16 14,14Z" fill="#d84828"/>`,
+        hornburg: `<circle cx="24" cy="24" r="20" fill="#1d2b22"/><path d="M10,36V23H38V36ZM18,23V12H25V23Z" fill="#d8d0be"/><path d="M21.5,12V7L28,9.5L21.5,11.5" fill="#46964a"/>`,
+        pelennor: `<circle cx="24" cy="24" r="20" fill="#2a1c12"/><circle cx="24" cy="24" r="11" fill="#2f6c3a" stroke="#e8c258" stroke-width="1.6"/><path d="M19,27Q21,18 28,19L30,17L29,22Q26,26 28,30H20Z" fill="#fbf6e8"/>`,
+        morannon: `<circle cx="24" cy="24" r="20" fill="#180e0c"/><path d="M11,36L13,14L17,20V36ZM37,36L35,14L31,20V36ZM16,36V23H32V36Z" fill="#3a3030" stroke="#ff7420" stroke-width=".8"/><ellipse cx="24" cy="15" rx="5" ry="2.5" fill="#ff8820"/><ellipse cx="24" cy="15" rx="1" ry="2.2" fill="#140300"/>`,
+      };
+      return `<svg class="bt-med" viewBox="0 0 48 48" aria-hidden="true">${B2[id] || B2.pelennor}<circle cx="24" cy="24" r="21.5" fill="none" stroke="#c89844" stroke-width="1.2"/></svg>`;
+    };
+    window.ME_LG_ART = lgMedallion;
     // 传说
-    $("#legends").innerHTML = `<p class="hint">${tr("每个传说是一段引导式阅读：点“下一段”，地图会飞到故事发生的地方，时间也会拨到那一年。")}</p>` + D.LEGENDS.map((l) => `<button class="lg-card" data-l="${l.id}"><span class="lg-y">${esc(fmt(l.beats[0].t).replace(/ \d+( 年)?$/, ""))}</span><b>${esc(l.n)}</b><i>${esc(l.en)}</i><span class="lg-s">${esc(l.sub)}</span><span class="lg-n">${l.beats.length} ${tr("段")}</span></button>`).join("") +
+    $("#legends").innerHTML = `<p class="hint">${tr("每个传说是一段引导式阅读：点“下一段”，地图会飞到故事发生的地方，时间也会拨到那一年。")}</p>` + D.LEGENDS.map((l) => `<button class="lg-card has-art" data-l="${l.id}"><span class="lg-art">${lgMedallion(l.id)}</span><span class="lg-y">${esc(fmt(l.beats[0].t).replace(/ \d+( 年)?$/, ""))}</span><b>${esc(l.n)}</b><i>${esc(l.en)}</i><span class="lg-s">${esc(l.sub)}</span><span class="lg-n">${l.beats.length} ${tr("段")}</span></button>`).join("") +
       (MO.length ? `<h4 class="ch-race mo-h">✦ ${tr("关键时刻")}</h4><p class="hint">${tr("那些被反复讲述的瞬间。播放时间轴走到这里会自动停下，也可以直接点开。")}</p><div class="mo-list">${MO.map((m) => `<button class="mo-card" data-mo="${m.id}"><span class="mo-y">${esc(fmt(m.t, hasDay(m.t)))}</span><b>${esc(m.h)}</b>${m.line ? `<i>${esc(m.line)}</i>` : ""}</button>`).join("")}</div>` : "");
     // 人物（延迟生成 65+ 幅复杂 SVG 肖像，避免首屏卡顿）
     if (typeof requestIdleCallback === "function") requestIdleCallback(ensureCharsBuilt, { timeout: 2500 });
     else setTimeout(ensureCharsBuilt, 1200);
     // 战役
-    $("#battles").innerHTML = `<p class="hint">${tr("选一场战役进入战场：分阶段推演兵力移动，你会以一个普通人的视角经历它。")}</p>` + [...BATTLES].sort((a, b) => a.t - b.t).map((b) => `<button class="bt-card" data-b="${b.id}"><span class="bt-y">${esc(b.age)}</span><b>${esc(b.n)}</b><i>${esc(b.en)}</i><span class="bt-s"><em class="w">${esc(b.sides.w)}</em> ${tr("对")} <em class="e">${esc(b.sides.e)}</em></span><span class="bt-go">${tr("进入战场 ▸")}</span></button>`).join("");
+    $("#battles").innerHTML = `<p class="hint">${tr("选一场战役进入战场：分阶段推演兵力移动，你会以一个普通人的视角经历它。")}</p>` + [...BATTLES].sort((a, b) => a.t - b.t).map((b) => `<button class="bt-card has-art" data-b="${b.id}"><span class="bt-art">${btCrest(b.id)}</span><span class="bt-y">${esc(b.age)}</span><b>${esc(b.n)}</b><i>${esc(b.en)}</i><span class="bt-s"><em class="w">${esc(b.sides.w)}</em> ${tr("对")} <em class="e">${esc(b.sides.e)}</em></span><span class="bt-go">${tr("进入战场 ▸")}</span></button>`).join("");
     document.addEventListener("click", (e) => {
       const mo = e.target.closest("[data-mo]"); if (mo) { e.preventDefault(); if (mo.dataset.mo) { if (innerWidth <= 860) document.body.classList.remove("panel-open"); openMoment(mo.dataset.mo); } return; }
       const b = e.target.closest("[data-b]"); if (b && b.dataset.b) { e.preventDefault(); closeMoment(); return openBattle(b.dataset.b); }
@@ -1159,7 +1208,7 @@
     const lg = D.LEGENDS.find((l) => l.id === id); if (!lg) return;
     pause(); reading = { id, k }; const b = lg.beats[k];
     $("#legends").hidden = true; const r = $("#reader"); r.hidden = false;
-    r.innerHTML = `<button class="rd-back">← ${tr("全部传说")}</button><div class="rd-head"><i>${esc(lg.en)}</i><h3>${esc(lg.n)}</h3><p>${esc(lg.sub)}</p></div>
+    r.innerHTML = `<button class="rd-back">← ${tr("全部传说")}</button><div class="rd-head">${window.ME_LG_ART ? `<div class="rd-med">${window.ME_LG_ART(lg.id)}</div>` : ""}<i>${esc(lg.en)}</i><h3>${esc(lg.n)}</h3><p>${esc(lg.sub)}</p></div>
       <ol class="rd-dots">${lg.beats.map((x, i) => `<li><button data-beat="${i}" class="${i === k ? "on" : i < k ? "past" : ""}" title="${esc(x.h)}"></button></li>`).join("")}</ol>
       <article class="rd-beat" key="${k}"><div class="rd-d">${esc(fmt(b.t, hasDay(b.t)))}${placeName(b.at) ? " · " + esc(placeName(b.at)) : ""}</div><h4>${esc(b.h)}</h4><p>${esc(b.p)}</p></article>
       <div class="rd-nav">${k > 0 ? `<button data-beat="${k - 1}">‹ ${tr("上一段")}</button>` : "<span></span>"}<span class="rd-k">${k + 1} / ${lg.beats.length}</span>${k < lg.beats.length - 1 ? `<button data-beat="${k + 1}" class="pri">${tr("下一段")} ›</button>` : `<button class="pri rd-back">${tr("读完了 · 回到列表")}</button>`}</div>
@@ -1201,7 +1250,7 @@
         if (tr.f === "hill" && tr.pts.length > 4) { const c = centroid(tr.pts); [0.74, 0.48, 0.25].forEach((sc) => el("path", { d: cr(tr.pts.map((p) => [lerp(c[0], p[0], sc), lerp(c[1], p[1], sc)]), true), class: "bt-hill-in" }, scene)); }
         if (tr.f === "water" && tr.pts.length > 4) { const c = centroid(tr.pts); [0.85, 0.68].forEach((sc) => el("path", { d: cr(tr.pts.map((p) => [lerp(c[0], p[0], sc), lerp(c[1], p[1], sc)]), true), class: "bt-water-in" }, scene)); }
         if (tr.f === "cliff" || tr.f === "dark") { seed = tr.pts.length * 31; const g = el("g", { class: "bt-hatch" + (tr.f === "dark" ? " dk" : "") }, scene); const xs = tr.pts.map((p) => p[0]), ys = tr.pts.map((p) => p[1]); for (let i = 0; i < 160; i++) { const x = lerp(Math.min(...xs), Math.max(...xs), rnd()), y = lerp(Math.min(...ys), Math.max(...ys), rnd()); if (inPoly(x, y, tr.pts)) el("path", { d: `M${x - 7},${y + 5}L${x},${y - 6}L${x + 7},${y + 5}M${x},${y - 6}L${x},${y + 3}` }, g); } }
-        if (tr.f === "forest") { seed = tr.pts.length * 19; const g = el("g", { class: "bt-trees" }, scene); const xs = tr.pts.map((p) => p[0]), ys = tr.pts.map((p) => p[1]); for (let i = 0; i < 110; i++) { const x = lerp(Math.min(...xs), Math.max(...xs), rnd()), y = lerp(Math.min(...ys), Math.max(...ys), rnd()), r = 4.5 + rnd() * 3.5; if (inPoly(x, y, tr.pts)) el("circle", { cx: x.toFixed(1), cy: y.toFixed(1), r: r.toFixed(1) }, g); } }
+        if (tr.f === "forest") { seed = tr.pts.length * 19; const g = el("g", { class: "bt-trees" }, scene); const xs = tr.pts.map((p) => p[0]), ys = tr.pts.map((p) => p[1]); for (let i = 0; i < 110; i++) { const x = lerp(Math.min(...xs), Math.max(...xs), rnd()), y = lerp(Math.min(...ys), Math.max(...ys), rnd()), r = 4.5 + rnd() * 3.5; if (inPoly(x, y, tr.pts)) { el("circle", { cx: (x + 1.4).toFixed(1), cy: (y + 1.4).toFixed(1), r: r.toFixed(1), class: "bt-tsh" }, g); el("circle", { cx: x.toFixed(1), cy: y.toFixed(1), r: r.toFixed(1) }, g); el("circle", { cx: (x - r * 0.28).toFixed(1), cy: (y - r * 0.28).toFixed(1), r: (r * 0.45).toFixed(1), class: "bt-thi" }, g); } } }
         if (tr.f === "marsh") { const g = el("g", { class: "bt-reeds" }, scene); seed = 99; const xs = tr.pts.map((p) => p[0]), ys = tr.pts.map((p) => p[1]); for (let i = 0; i < 90; i++) { const x = lerp(Math.min(...xs), Math.max(...xs), rnd()), y = lerp(Math.min(...ys), Math.max(...ys), rnd()); if (inPoly(x, y, tr.pts)) el("path", { d: `M${x - 5},${y}h10M${x - 2},${y - 4}v4M${x + 2},${y - 3}v3` }, g); } }
       }
       else if (tr.k === "line") {
@@ -1233,12 +1282,12 @@
       const hs = u.kind === "hero" && CB ? CH.HEROES[b.id + "." + u.id] : null;
       if (hs) { el("ellipse", { rx: 8 + hs.length * 9, ry: 5, cy: 8, class: "hb hb-sh" }, body); hs.forEach((id, i) => { const gg = el("g", { transform: `translate(${((i - (hs.length - 1) / 2) * 20).toFixed(1)},8)` }, body), bb = el("g", { class: "bob", style: `animation-delay:-${i * 0.2}s` }, gg); el("use", { href: "#chb-" + id, transform: "scale(.8)" }, bb); }); }
       else if (u.kind === "hero") { el("circle", { r: 7, class: "hb" }, body); el("path", { d: "M0,-7V-22L12,-18L0,-14", class: "flag" }, body); }
-      else if (u.kind === "nazgul") { el("path", { d: "M-18,-4Q-8,-12 0,0Q8,-12 18,-4Q8,-6 0,6Q-8,-6 -18,-4Z", class: "naz" }, body); }
-      else if (u.kind === "eagle") { for (let i = 0; i < 5; i++) el("path", { d: `M${-w / 2 + i * (w / 4) - 10},${(i % 2) * 10 - 4}q10,-10 10,0q0,-10 10,0`, class: "eag" }, body); }
-      else if (u.kind === "ship") { for (let i = 0; i < 4; i++) el("path", { d: `M-14,${-h / 2 + i * (h / 4)}h28l-6,8.5h-16z M0,${-h / 2 + i * (h / 4)}v-14l11,9.5z`, class: "shp" }, body); }
+      else if (u.kind === "nazgul") { el("path", { d: "M-22,-4Q-10,-15 0,-2Q10,-15 22,-4Q10,-6 2,3L0,9L-2,3Q-10,-6 -22,-4Z", class: "naz" }, body); el("path", { d: "M0,-2Q1,-8 4,-10L2,-5Z", fill: "#2a2028" }, body); el("circle", { cx: 3, cy: -9, r: 1, fill: "#ff5a2a" }, body); }
+      else if (u.kind === "eagle") { for (let i = 0; i < 5; i++) { const ex = -w / 2 + i * (w / 4) - 8, ey = (i % 2) * 10 - 4; el("path", { d: `M${ex - 11},${ey}Q${ex - 5},${ey - 8} ${ex},${ey - 2}Q${ex + 5},${ey - 8} ${ex + 11},${ey}Q${ex + 4},${ey - 1} ${ex},${ey + 4}Q${ex - 4},${ey - 1} ${ex - 11},${ey}Z`, class: "eag" }, body); } }
+      else if (u.kind === "ship") { for (let i = 0; i < 4; i++) { const sy = -h / 2 + i * (h / 4); el("path", { d: `M-15,${sy}Q-17,${sy - 4} -13,${sy - 5}L-12,${sy}H13Q15,${sy - 3} 16,${sy - 5}Q16,${sy + 3} 11,${sy + 8}H-11Z M0,${sy}v-15Q11,${sy - 9} 1,${sy - 2}Z`, class: "shp" }, body); } }
       else if (u.kind === "forest") { seed = 5; for (let i = 0; i < 60; i++) el("circle", { cx: (rnd() - 0.5) * w, cy: (rnd() - 0.5) * h, r: 6 + rnd() * 6, class: "hu" }, body); }
       else if (u.kind === "troll") { el("rect", { x: -11, y: -11, width: 22, height: 22, rx: 3, class: "blk tr" }, body); el("path", { d: "M-6,-6L6,6M6,-6L-6,6", class: "tri" }, body); }
-      else if (u.kind === "beast") { el("ellipse", { rx: w / 2, ry: h / 2, class: "blk" }, body); for (let i = 0; i < 3; i++) { const bx = (i - 1) * (w / 3.2); el("path", { d: `M${bx - 7},4Q${bx - 7},-6 ${bx},-7Q${bx + 6},-6 ${bx + 7},4Z`, class: "bst" }, body); el("path", { d: `M${bx - 5},-5h10v-5h-10z`, fill: "#a83220", stroke: "#2a1008", "stroke-width": 0.7 }, body); el("path", { d: `M${bx - 7},1q-4,1 -6,-2M${bx + 7},1q4,1 6,-2`, stroke: "#f4ead0", "stroke-width": 1.2, fill: "none" }, body); } }
+      else if (u.kind === "beast") { el("ellipse", { rx: w / 2, ry: h / 2, class: "blk" }, body); for (let i = 0; i < 3; i++) { const bx = (i - 1) * (w / 3.2); el("path", { d: `M${bx - 8},4Q${bx - 8},-7 ${bx},-8Q${bx + 7},-7 ${bx + 8},4Z`, class: "bst" }, body); el("path", { d: `M${bx - 5.5},-6h11v-5.5h-11z`, fill: "#a83220", stroke: "#2a1008", "stroke-width": 0.7 }, body); el("path", { d: `M${bx},-11.5v-4l4,1.6Z`, fill: "#e6b83c" }, body); el("path", { d: `M${bx - 7.5},1q-4.5,1.2 -6.5,-2.5M${bx + 7.5},1q4.5,1.2 6.5,-2.5`, stroke: "#f8f0d8", "stroke-width": 1.35, fill: "none" }, body); } }
       else { el("rect", { x: -w / 2, y: -h / 2, width: w, height: h, rx: 2.5, class: "blk" }, body); if (u.kind === "cav") el("path", { d: `M${-w / 2 + 4},${-4}l6,4l-6,4M${-w / 2 + 12},${-4}l6,4l-6,4`, class: "chev" }, body); if (u.kind === "arc" || u.kind === "elf") el("path", { d: `M${-w / 2 + 2},${h / 2 + 4}h${w - 4}`, class: "arcl" }, body); }
       const tp = !hs && CB && CH.TROOPS ? CH.TROOPS[b.id + "." + u.id] : null;
       let top = hs ? -42 : u.kind === "hero" ? -26 : -(u.h || 24) / 2 - 6;

@@ -56,7 +56,7 @@
     armenelos: () => KIND.man() + tower(0, -2, 2.6, 8, "#fffefa", "#2a4a7a"),
     tirion: () => hill(10, 7, "#c8d0a0") + tower(-3, -2, 2.6, 7, "#fffefa", "#e0c060") + tower(0, -2, 3, 13, "#ffffff", "#c8d8e8") + glow(0, -16, 3, "#ffffff"),
     formenos: () => R(-6, -4, 12, 8, "#a8a4a0") + cren(-6, -4, 12, "#a8a4a0") + tower(0, -4, 3.6, 6, "#a8a4a0", "#6a6a7a", false),
-    taniquetil: () => "",
+    taniquetil: () => P("M-13,4L0,-17L13,4Z", "#f4f2ec", INK, 0.7) + P("M0,-17L13,4H2Z", "#d8d4c8", "none", 0) + P("M-4.5,-9.5L0,-17L4.5,-9.5L1.5,-11L0,-8.5L-1.8,-11Z", "#ffffff") + R(-2.2, -20.5, 4.4, 3.5, "#fffefa", INK, 0.5) + P("M-2.8,-20.5Q0,-24.5 2.8,-20.5Z", "#e8c458", INK, 0.5) + glow(0, -21, 5, "#fff8c8"),
     twotrees: () => "",
     bree: () => R(-6, -1, 5, 5, "#c8a878") + P("M-7,-1L-3.5,-4.6L0,-1Z", "#7a5a3a") + R(1, 0, 5, 4, "#c8a878") + P("M0,0L3.5,-3.4L7,0Z", "#7a5a3a") + P("M-9,4.4Q0,2 9,4.4", "none", INK, 0.6) + R(-0.8, -6.6, 1.6, 2, "#c8a878", INK, 0.3),
     buckland: () => KIND.hob() + P("M-11,6Q0,4 11,6", "none", "#6f8a96", 1.2),

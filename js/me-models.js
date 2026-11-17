@@ -105,22 +105,27 @@
 
   // ——模型——
   const M = {
-    minastirith() { // 七层白城 + 船头巨岩 + 白塔
-      let s = shd(0, 4, 19, 6) + crag(10, 4, 11, 30, "rock", 0.15) + snowcap(10, 4, 11, 30, 0.15);
-      for (let i = 0; i < 7; i++) s += cyl(-1, 4 - i * 3.6, 15.5 - i * 1.95, 3.6, "white", { cren: 1, win: i < 5 ? 5 - Math.floor(i / 2) : 0, wy: 0.45 });
-      s += path("M-1,-21L-4.2,4.6L-1,6.4L1.4,4.4Z", "url(#m-white)") + path("M-1,-21L1.4,4.4L-1,6.4Z", MAT.white[2]);
-      s += cyl(-1, -21.2, 1.7, 13, "white", { band: 1 }) + cone(-1, -34.2, 1.9, 4.4, "silver") + glow(-1, -37.6, 2.2, "w");
-      s += arch(-1, 4.9, 2.4, 3.2) + tree(-4.6, -21.6, 1.1, "silver", "white") + flag(-1, -38, "#ffffff", 4);
+    minastirith() { // 七层白城（首层黑石外墙）+ 船头巨岩 + 埃克塞理安白塔 + 圣白树
+      let s = shd(0, 4, 20, 6.5) + crag(10, 4, 11.5, 31, "rock", 0.15) + snowcap(10, 4, 11.5, 31, 0.15);
+      for (let i = 0; i < 7; i++) {
+        const mat = i === 0 ? "dark" : "white";
+        s += cyl(-1, 4 - i * 3.55, 15.8 - i * 1.98, 3.55, mat, { cren: 1, win: i < 5 ? 5 - Math.floor(i / 2) : 0, wy: 0.45, lit: i === 0 ? 0 : 1 });
+      }
+      s += path("M-1,-21.5L-4.8,4.8L-1,6.8L1.8,4.6Z", "url(#m-white)") + path("M-1,-21.5L1.8,4.6L-1,6.8Z", MAT.white[2]);
+      s += cyl(-1, -21.2, 1.8, 13.5, "white", { band: 1, win: 2 }) + cone(-1, -34.7, 2.1, 4.8, "silver") + glow(-1, -38.2, 2.8, "w");
+      s += arch(-1, 4.9, 2.5, 3.4) + tree(-4.8, -21.6, 1.25, "silver", "white") + flag(-1, -39, "#eef4ff", 4.5);
       return s;
     },
-    baraddur() { // 黑塔 + 魔眼
-      let s = shd(0, 4, 17, 6) + slab(15, 4.6, "dark", 2);
-      s += path("M-15,4.6L-9,3.4M6,5.4L12,3.6M-4,6.2L1,4.8", "none", 'stroke="#ff7a1a" stroke-width=".6"');
-      s += box(0, 3, 16, 7, 6, "dark") + box(0, -4, 12, 8, 5, "dark") + box(0, -12, 8.4, 10, 4, "dark") + box(0, -22, 5.6, 8, 3, "dark");
-      [[-8, -4], [8, -4], [-6, -12], [6, -12], [-4.2, -22], [4.2, -22]].forEach(([x, y]) => (s += path(`M${x - 1.2},${y}L${x},${y - 4}L${x + 1.2},${y}Z`, "url(#m-dark)")));
-      s += path("M-2.8,-30L-4.4,-37L-1.2,-31ZM2.8,-30L4.4,-37L1.2,-31Z", "url(#m-dark)");
-      for (let i = 0; i < 4; i++) s += `<rect x="${-5 + i * 3.3}" y="${-1 - (i % 2) * 7}" width=".6" height="1.2" fill="#ff8a2a"/>`;
-      s += arch(0, 3, 3, 4, "#ff6a1a") + glow(0, -32.6, 7.5) + `<ellipse class="meye" cx="0" cy="-32.6" rx="2.6" ry="1.5" fill="#ffb02a" stroke="#ff5a00" stroke-width=".4"/><ellipse cx="0" cy="-32.6" rx=".45" ry="1.3" fill="#1a0400"/>`;
+    baraddur() { // 黑塔 + 熔岩护城壕 + 飞扶壁 + 烈焰魔眼
+      let s = shd(0, 4, 18, 6.4) + `<ellipse cx="0" cy="4.2" rx="16.5" ry="5.2" fill="url(#m-lava)" opacity=".55"/>` + slab(15, 4.6, "dark", 2);
+      s += path("M-15,4.6L-9,3.4M6,5.4L12,3.6M-4,6.2L1,4.8", "none", 'stroke="#ff7a1a" stroke-width=".7"');
+      s += box(0, 3, 16, 7, 6, "dark") + box(0, -4, 12, 8, 5, "dark") + box(0, -12, 8.4, 10, 4, "dark") + box(0, -22, 5.6, 8.5, 3, "dark");
+      [[-8.4, -4], [8.4, -4], [-6.2, -12], [6.2, -12], [-4.4, -22], [4.4, -22]].forEach(([x, y]) => (s += path(`M${x - 1.3},${y}L${x},${y - 4.6}L${x + 1.3},${y}Z`, "url(#m-dark)")));
+      s += path("M-2.8,-30.5L-4.8,-38.5L-1.2,-31.5ZM2.8,-30.5L4.8,-38.5L1.2,-31.5ZM0,-30.5L0,-36.5", "url(#m-dark)");
+      for (let i = 0; i < 5; i++) s += `<rect x="${-5.4 + i * 2.7}" y="${-1 - (i % 3) * 6}" width=".65" height="1.35" fill="#ff8a2a"/>`;
+      s += arch(0, 3, 3.2, 4.2, "#ff6a1a") + glow(0, -33.6, 8.5) +
+        `<path class="meye" d="M-3.6,-33.6Q0,-36.4 3.6,-33.6Q0,-30.8 -3.6,-33.6Z" fill="#ff9418" stroke="#ffe070" stroke-width=".35"/>` +
+        `<ellipse class="meye" cx="0" cy="-33.6" rx="2.1" ry="1.25" fill="#ffd858"/><ellipse cx="0" cy="-33.6" rx=".45" ry="1.2" fill="#180300"/>`;
       return s;
     },
     isengard() { // 环墙 + 欧散克
@@ -131,19 +136,22 @@
       s += wallArc(15, 5, 3, 3, "rock", true) + arch(0, 7.6, 2.4, 2.6);
       return s;
     },
-    rivendell() { // 峡谷、瀑布、精灵楼阁
-      let s = shd(0, 4, 18, 6) + crag(-11, 4, 9, 22, "rock", 0.1) + crag(12, 4, 9, 24, "rock", -0.1);
-      s += path("M-3,-14Q-1,-4 -2.4,4H2.4Q1,-4 3,-14Z", "url(#m-fall)", "") + water(0, 5, 6, 1.6);
-      s += pine(-15, 4, 9) + pine(16, 4, 10) + tree(-7, 3.4, 2.4, "dgreen") + tree(8, 3.6, 2.2, "dgreen");
-      s += gable(-7.6, -2, 6, 4, 3, "white", "blue", 2.8) + gable(7.4, 1, 6.4, 4, 3, "white", "blue", 3) + cyl(4, -4, 1.4, 9, "white", { win: 2 }) + cone(4, -13, 1.8, 4.6, "blue");
-      s += path("M-4.6,-3.4Q0,-6 4.6,-3.4", "none", 'stroke="#f4f2ea" stroke-width="1"') + `<circle cx="0" cy="-11" r="5" fill="url(#m-glow-w)" opacity=".5"/>`;
+    rivendell() { // 幽谷：秋林、双瀑、拱桥与最后庇护所暖灯
+      let s = shd(0, 4, 19, 6) + crag(-11.5, 4, 9.5, 23, "rock", 0.1) + crag(12, 4, 9.5, 25, "rock", -0.1);
+      s += path("M-3.4,-15Q-1.2,-4 -2.8,4H2.8Q1.2,-4 3.4,-15Z", "url(#m-fall)", "") + `<circle cx="0" cy="4.2" r="2.6" fill="#fff" opacity=".55"/>` + water(0, 5.2, 7.2, 1.8);
+      s += pine(-15.5, 4, 9.5) + pine(16, 4, 10.5) + tree(-8.5, 3.4, 2.5, "gold") + tree(9, 3.6, 2.3, "red") + tree(-5.2, 3.8, 2, "dgreen");
+      s += gable(-7.6, -2, 6.2, 4.2, 3.2, "white", "blue", 3) + gable(7.4, 1, 6.6, 4.2, 3.2, "white", "blue", 3.1) + cyl(4, -4, 1.5, 9.5, "white", { win: 2, lit: 1 }) + cone(4, -13.5, 1.9, 4.8, "blue");
+      s += path("M-4.8,-3.4Q0,-6.4 4.8,-3.4", "none", 'stroke="#f7f4ec" stroke-width="1.15"') + glow(0, -9, 5.5, "w");
       return s;
     },
-    lorien() { // 金叶巨树与弗来特
-      let s = shd(0, 4, 17, 6);
-      const T = (x, y, r, h) => path(`M${x - 0.9},${y}C${x - 0.6},${y - h * 0.5} ${x - 0.4},${y - h * 0.8} ${x},${y - h}C${x + 0.4},${y - h * 0.8} ${x + 0.8},${y - h * 0.5} ${x + 1},${y}Z`, "url(#m-silver)") + `<circle cx="${x}" cy="${y - h - r * 0.4}" r="${r}" fill="url(#m-s-gold)" ${EDGE}/>` + `<circle cx="${x - r * 0.7}" cy="${y - h + r * 0.3}" r="${r * 0.6}" fill="url(#m-s-gold)" ${EDGE}/>` + `<circle cx="${x + r * 0.75}" cy="${y - h + r * 0.25}" r="${r * 0.62}" fill="url(#m-s-gold)" ${EDGE}/>`;
-      s += T(-9, 3, 5, 12) + T(9, 3.4, 5.4, 13) + T(0, 4.6, 7, 21);
-      s += path("M-5,-15H5L6,-14H-6Z", "url(#m-silver)") + glow(0, -16, 3.4, "s") + glow(-6, -8, 1.6, "s") + glow(6, -10, 1.6, "s");
+    lorien() { // 卡拉斯加拉松：银皮梅隆巨树与金色树屋平台
+      let s = shd(0, 4, 18, 6) + `<ellipse cx="0" cy="4.2" rx="14.5" ry="4.4" fill="none" stroke="#9ec8dc" stroke-width=".7" opacity=".7"/>`;
+      const T = (x, y, r, h) => path(`M${x - 1},${y}C${x - 0.6},${y - h * 0.5} ${x - 0.4},${y - h * 0.8} ${x},${y - h}C${x + 0.4},${y - h * 0.8} ${x + 0.8},${y - h * 0.5} ${x + 1.1},${y}Z`, "url(#m-silver)") +
+        `<ellipse cx="${x}" cy="${y - h - r * 0.25}" rx="${r * 1.18}" ry="${r * 0.68}" fill="url(#m-s-gold)" ${EDGE}/>` +
+        `<ellipse cx="${x - r * 0.72}" cy="${y - h + r * 0.22}" rx="${r * 0.72}" ry="${r * 0.45}" fill="url(#m-s-gold)" ${EDGE}/>` +
+        `<ellipse cx="${x + r * 0.75}" cy="${y - h + r * 0.2}" rx="${r * 0.74}" ry="${r * 0.45}" fill="url(#m-s-gold)" ${EDGE}/>`;
+      s += T(-9.4, 3, 5, 12.5) + T(9.4, 3.4, 5.4, 13.5) + T(0, 4.6, 7.2, 22);
+      s += path("M-5.4,-15.5H5.4L6.4,-14.3H-6.4Z", "url(#m-silver)") + gable(0, -15.5, 4.6, 2.2, 2, "white", "gold", 1.8) + glow(0, -17, 4.2, "s") + glow(-6.5, -8.5, 1.8, "s") + glow(6.5, -10, 1.8, "s");
       return s;
     },
     erebor() { // 孤山与山门
@@ -158,11 +166,14 @@
       s += tree(-8, 4, 2.2, "dgreen") + tree(8.4, 4.2, 2.2, "dgreen") + water(0, 6.8, 10, 1.8);
       return s;
     },
-    edoras() { // 青丘与金殿
+    edoras() { // 青丘与金殿梅杜塞尔德（双马首山墙）
       let s = shd(0, 4, 18, 6) + hill(0, 4, 16, 14, "green");
       s += path("M-14,3.6Q-8,-9 0,-9.6Q8,-9 14,3.6", "none", 'stroke="#7a5228" stroke-width=".6" stroke-dasharray=".8 .6"');
+      s += path("M0,4.2Q-2,-1 0,-9.2", "none", 'stroke="#d8ccb0" stroke-width=".9"');
       s += gable(-8, 0.6, 3.6, 2.4, 2, "wood", "thatch", 1.8) + gable(8, 1, 3.6, 2.4, 2, "wood", "thatch", 1.8) + gable(-4, -4, 3.4, 2.2, 2, "wood", "thatch", 1.6) + gable(5, -4, 3.4, 2.2, 2, "wood", "thatch", 1.6);
-      s += gable(0, -9.4, 7.6, 4, 5, "wood", "gold", 4.4) + path("M-1.2,-9.4V-11.6H1.2V-9.4Z", "#2a1a10", "") + glow(0, -15, 3, "w") + flag(-3.8, -13.8, "#2e7a2a", 4) + flag(3.8, -13.8, "#2e7a2a", 4);
+      s += gable(0, -9.4, 8, 4.2, 5.2, "wood", "gold", 4.6) + path("M-1.2,-9.4V-11.8H1.2V-9.4Z", "#2a1a10", "") +
+        path("M-0.8,-17.8L1.4,-20.2M0.8,-17.8L-1.4,-20.2", "none", 'stroke="#fff4c2" stroke-width=".65"') +
+        glow(0, -15, 3.4, "w") + flag(-4.2, -13.8, "#2e7a2a", 4.2) + flag(4.2, -13.8, "#2e7a2a", 4.2);
       return s;
     },
     helmsdeep() { // 深谷要塞
@@ -290,7 +301,9 @@
   M.nargothrond = () => shd(0, 4, 18, 6) + crag(0, 4, 15, 17, "sand", 0.08) + water(0, 7, 13, 2.2) + arch(-5, 4, 3.2, 5.4, "#1e120a") + arch(0, 4, 4.2, 6.8, "#1e120a") + arch(5, 4, 3.2, 5.4, "#1e120a") + glow(0, 1.4, 3.2) + path("M-4,7.5Q0,4 4,7.5", "none", 'stroke="#d8c8a8" stroke-width="1.2"');
   M.thranduil = () => shd(0, 4, 18, 6) + crag(2, 4, 12, 14, "rock", -0.1) + tree(-10, 4, 3.4, "dgreen") + tree(-6, 1, 3, "green") + tree(9, 3, 3.2, "dgreen") + tree(5, -7, 2.5, "gold") + arch(1, 4, 4.4, 6, "#24180c") + glow(1, 1.5, 3) + water(-2, 7.2, 10, 1.6) + path("M-5,6.8Q1,4.2 6,6.8", "none", 'stroke="#c8a870" stroke-width="1.1"');
   M.alqualonde = () => shd(0, 4, 18, 6) + water(2, 5, 15, 3.8) + crag(-8, 4, 7, 15, "white", 0.2) + path("M-7,4Q-2,-6 4,4", "none", 'stroke="#eef2f6" stroke-width="2.4"') + cyl(-2, 2, 1.6, 11, "white", { win: 2 }) + cone(-2, -9, 2, 3.5, "silver") + glow(-2, -11, 3, "s") + path("M3,4.2Q6,6 10,4.2L11,1Q10,-1 9,1L9,3Q6,2 3,4.2Z", "url(#m-white)") + path("M7,3.5V-3L10,1Z", "url(#m-silver)");
-  M.sirionhavens = M.mithlond; M.belegost = M.erebor; M.nogrod = M.erebor;
+  M.sirionhavens = M.mithlond;
+  M.belegost = () => shd(0, 4, 18, 6) + crag(-7, 4, 9, 19, "sand", 0.25) + crag(2, 4, 14, 27, "red", -0.05) + box(0, 4, 9, 6.5, 2, "stone") + arch(0, 4, 3.6, 5, "#24140a") + glow(0, 1.5, 3.2) + dome(-4, -2.5, 1.8, "gold") + dome(4, -2.5, 1.8, "gold") + flag(0, -3, "#c85a24", 4);
+  M.nogrod = () => shd(0, 4, 18, 6) + crag(0, 4, 15, 28, "rock", 0.05) + box(0, 4, 8.5, 6.5, 2, "dark") + arch(0, 4, 3.4, 5, "#ff7820") + cyl(-4.5, 1, 1.2, 9, "dark") + cyl(4.5, 1, 1.2, 9, "dark") + smoke(-4.5, -9, 0) + smoke(4.5, -9, -1.2) + glow(0, 1.5, 3.6);
   M.dale = () => shd(0, 4, 17, 6) + hill(0, 4, 14, 8, "green") + gable(-6, 3, 5, 3.4, 3, "stone", "red", 2.8) + gable(5, 3, 5, 3.4, 3, "stone", "blue", 2.8) + cyl(0, 2, 2.2, 11, "stone", { cren: 1, win: 2 }) + cone(0, -9, 2.6, 4.2, "gold") + flag(0, -14, "#2a6a8a", 4);
   M.ciritungol = () => shd(0, 4, 16, 6) + crag(-6, 4, 7, 20, "dark", 0.15) + crag(6, 4, 7, 18, "dark", -0.15) + cyl(0, -4, 3.2, 11, "dark", { cren: 1, win: 2, lit: 1 }) + cone(0, -15, 2.4, 5, "dark") + glow(0, -10, 2.5, "g");
   M.henneth = () => shd(0, 4, 17, 6) + crag(0, 4, 13, 15, "rock", 0.05) + tree(-9, 3, 2.6, "green") + tree(9, 3, 2.6, "green") + arch(0, 2, 3.6, 6, "#1a2830") + path("M-2.2,-4Q-1,0 -2,4.5H2Q1,0 2.2,-4Z", "url(#m-fall)", "") + water(0, 5.8, 9, 2);
@@ -305,7 +318,7 @@
   M.dunharrow = () => shd(0, 4, 17, 6) + crag(-7, 4, 9, 20, "rock", 0.15) + crag(7, 4, 9, 22, "rock", -0.15) + path("M-10,4L6,0L-6,-4L5,-8L0,-11", "none", 'stroke="#d8ccb0" stroke-width="1.1"') + arch(0, -10, 3.2, 5, "#0d0a08") + glow(0, -12, 3.2, "g") + `<circle cx="-8" cy="2" r="1.4" fill="#8a8274"/><circle cx="7" cy="-1" r="1.4" fill="#8a8274"/>`;
   M.amonhen = () => shd(0, 4, 17, 6) + hill(0, 4, 14, 12, "dgreen") + tree(-9, 3, 2.4, "dgreen") + tree(9, 3, 2.4, "dgreen") + slab(5.5, 1.8, "stone", 1.2) + cyl(-3.2, -7.5, 0.7, 4.5, "stone") + cyl(3.2, -7.5, 0.7, 4.5, "stone") + box(0, -8, 4.4, 3.2, 1.4, "stone") + path("M-5,-12H5L4,-13.4H-4Z", "url(#m-stone)");
   M.eregion = () => shd(0, 4, 18, 6) + hill(0, 4, 14, 8, "green") + cyl(0, 1, 7.5, 3.2, "white", { cren: 1, win: 4 }) + dome(0, -2.2, 4.8, "silver") + cyl(-6, 1, 1.5, 10, "white", { win: 2 }) + cone(-6, -9, 1.9, 3.6, "blue") + cyl(6, 1, 1.5, 10, "white", { win: 2 }) + cone(6, -9, 1.9, 3.6, "blue") + glow(0, -7, 3.8, "s");
-  M.twotrees = () => shd(0, 4, 20, 6.5) + hill(0, 4, 16, 9, "green") + glow(-5, -13, 7, "s") + glow(5, -13, 7, "w") + tree(-5, -2, 5.2, "silver", "white") + tree(5, -2, 5.4, "gold", "wood") + dome(0, 1, 3.6, "gold");
+  M.twotrees = () => "";
   M.tharbad = () => shd(0, 4, 18, 6) + `<path d="M-16,4.5Q0,1 16,4.5Q0,7.5 -16,4.5Z" fill="url(#m-water)"/>` + box(-9, 2.5, 9, 3.2, 1.8, "stone") + box(9, 2.5, 9, 3.2, 1.8, "stone") + arch(-8, 2.5, 2.6, 2.2, "#24546e") + arch(8, 2.5, 2.6, 2.2, "#24546e") + cyl(-11, -0.5, 2, 5, "stone", { cren: 1 });
   M.bywater = () => shd(0, 4, 16, 5.5) + hill(-3, 4, 11, 8, "green") + water(5, 4.8, 8, 2.2) + gable(-3, 2.5, 6.5, 3.8, 3, "wood", "thatch", 2.8) + `<circle cx="-3" cy="1" r="1.4" fill="#3a8a3a"/>` + smoke(-1, -4.5);
   M.buckland = () => shd(0, 4, 16, 5.5) + water(-9, 4.5, 5, 2.5) + hill(2, 4, 12, 10, "green") + `<circle cx="0" cy="0.5" r="2" fill="#c8a040" stroke="#5a3a20" stroke-width=".4"/><circle cx="5" cy="1.5" r="1.5" fill="#3a8a3a" stroke="#5a3a20" stroke-width=".4"/><circle cx="2" cy="-3.5" r="1.4" fill="#ffe8a0"/>` + tree(9, 3, 2.4, "dgreen");
