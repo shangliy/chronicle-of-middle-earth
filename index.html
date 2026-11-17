@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>中洲纪年 · 指环王版</title>
+  <meta name="description" content="可交互的中洲世界地图、编年史、传说导读与主要战役推演。非官方爱好者作品。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=IM+Fell+English:ital@0;1&family=Noto+Serif+SC:wght@400;600;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/me.css" />
+  <script>
+    (function () {
+      var q = new URLSearchParams(location.search).get("lang"), m = null;
+      try { m = localStorage.getItem("me-lang"); } catch (e) {}
+      var l = q || m || (/^zh/i.test(navigator.language || "") ? "zh" : "en");
+      l = l === "en" ? "en" : "zh"; window.ME_LANG = l;
+      document.documentElement.lang = l === "en" ? "en" : "zh-CN";
+      if (l === "en") document.write('<script src="js/me-en.js"><\/script>');
+      var sq = new URLSearchParams(location.search).get("style"), sm = null;
+      try { sm = localStorage.getItem("me-style"); } catch (e) {}
+      var st = sq || sm; if (st !== "parch" && st !== "h3") st = "paint"; window.ME_STYLE = st;
+      document.documentElement.classList.add("st-" + st);
+    })();
+  </script>
+</head>
+<body data-era="trees">
+  <!-- 封面 -->
+  <div id="intro" class="intro">
+    <div class="intro-in">
+      <div class="intro-ring" aria-hidden="true">
+        <svg viewBox="-100 -100 200 200">
+          <defs>
+            <linearGradient id="ir-gold" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#fff4b8"/><stop offset=".28" stop-color="#f0c450"/>
+              <stop offset=".55" stop-color="#b87a14"/><stop offset=".8" stop-color="#f6d878"/><stop offset="1" stop-color="#6e4208"/>
+            </linearGradient>
+            <radialGradient id="ir-glow" cx=".5" cy=".5" r=".5">
+              <stop offset=".5" stop-color="#ff9a20" stop-opacity="0"/>
+              <stop offset=".76" stop-color="#ff8a18" stop-opacity=".45"/>
+              <stop offset=".9" stop-color="#ffcc50" stop-opacity=".2"/>
+              <stop offset="1" stop-color="#ff6a00" stop-opacity="0"/>
+            </radialGradient>
+            <path id="ir-txt" d="M 0,-64 A 64,64 0 1,1 -0.1,-64" />
+          </defs>
+          <circle r="92" fill="url(#ir-glow)"/>
+          <g class="ir-spin">
+            <circle r="82" fill="none" stroke="rgba(240,196,80,.28)" stroke-width=".8" stroke-dasharray="2 6"/>
+            <path d="M0,-88L2,-80L0,-76L-2,-80ZM0,88L2,80L0,76L-2,80ZM-88,0L-80,2L-76,0L-80,-2ZM88,0L80,2L76,0L80,-2Z" fill="#e8c060" opacity=".65"/>
+          </g>
+          <circle r="64" fill="none" stroke="#2a1204" stroke-width="20" opacity=".65"/>
+          <circle r="64" fill="none" stroke="url(#ir-gold)" stroke-width="16"/>
+          <circle r="71.5" fill="none" stroke="#fff6c8" stroke-width=".9" opacity=".65"/>
+          <circle r="56.5" fill="none" stroke="#5a3006" stroke-width="1.2" opacity=".8"/>
+          <circle r="64" fill="none" stroke="#fffae0" stroke-width="2" stroke-dasharray="1.5 5 4 3 1 6 5 2 3 7" opacity=".85" class="ir-runes"/>
+          <circle r="64" fill="none" stroke="#ff6a10" stroke-width="4.5" stroke-dasharray="1.5 5 4 3 1 6 5 2 3 7" opacity=".45" class="ir-runes"/>
+          <path d="M0,-28L3.5,-6L22,-12L8,2L28,6L8,10L22,24L3.5,14L0,36L-3.5,14L-22,24L-8,10L-28,6L-8,2L-22,-12L-3.5,-6Z" fill="#f6d878" opacity=".22"/>
+          <circle cy="6" r="4" fill="#fff4c8" opacity=".45"/>
+        </svg>
+      </div>
+      <p class="intro-k">商海时报 · 特别版 · 非官方爱好者作品</p>
+      <h1>中洲纪年</h1>
+      <p class="intro-en">A Chronicle of Middle-earth</p>
+      <p class="intro-p">从双圣树的光，到魔戒在末日火山中熔化——七千多年的大陆、王国、传说与战争，铺在一张会随时间变化的地图上。拖动时间，看贝烈瑞安德沉入大海、努门诺尔升起又覆灭；跟着至尊戒走完它的路；看六十多位 Q 版人物在大陆上迁徙、远征、定居；走进战场，亲身经历那几场决定世界的战役。</p>
+      <div class="intro-btns">
+        <button data-start="begin" class="pri">从头开始 ▸<small>自动播放全部纪元</small></button>
+        <button data-start="war">直接去魔戒大战<small>跟着弗罗多出发</small></button>
+        <button data-start="battle">身临战场 ⚔<small>六场主要战役</small></button>
+        <button data-start="kids" class="kid">小朋友寻宝 🧒<small>跟着弗罗多找地方、集贴纸</small></button>
+      </div>
+      <p class="intro-note">空格 播放/暂停 · ← → 逐个事件 · 滚轮/双指 缩放地图 · 点击地名查看历史</p>
+    </div>
+  </div>
+
+  <header class="top">
+    <a class="brand" href="index.html">商海时报</a>
+    <b class="ttl">中洲纪年<small>指环王版</small></b>
+    <nav>
+      <a href="index.html">首页</a><a href="family.html">家族版</a><a href="fashion.html">时尚版</a>
+    </nav>
+    <button id="kidsBtn" class="lang kidb" aria-label="小朋友模式">🧒 小朋友</button>
+    <button id="styleBtn" class="lang sty" aria-label="Map style / 地图风格"></button>
+    <button id="langBtn" class="lang" aria-label="Language / 语言">EN</button>
+    <button id="panelToggle" class="ptog" aria-label="切换侧栏">☰</button>
+  </header>
+
+  <main class="stage">
+    <aside class="panel" id="panel">
+      <div id="tabs" class="tabs" role="tablist">
+        <button data-tab="chron" class="on">编年</button>
+        <button data-tab="chars">人物</button>
+        <button data-tab="legends">传说</button>
+        <button data-tab="battles">战役</button>
+      </div>
+      <div class="pane" data-pane="chron"><div id="chron" class="chron"></div></div>
+      <div class="pane" data-pane="chars" hidden><div id="chars" class="chars"></div></div>
+      <div class="pane" data-pane="legends" hidden><div id="legends" class="legends"></div><div id="reader" class="reader" hidden></div></div>
+      <div class="pane" data-pane="battles" hidden><div id="battles" class="battles"></div></div>
+      <p class="disc">非官方爱好者作品，与托尔金遗产委员会、Middle-earth Enterprises、华纳兄弟等均无关联。地图为原创示意图、不按比例；文字为原创中文概述。</p>
+    </aside>
+
+    <div class="mapwrap">
+      <svg id="map" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" role="img" aria-label="中洲地图"></svg>
+      <div id="mini" class="h3mini" aria-label="小地图"></div>
+      <div class="mapframe" aria-hidden="true"><i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i></div>
+      <svg class="compass" viewBox="-60 -60 120 120" aria-hidden="true">
+        <circle r="48" fill="rgba(239,228,200,.35)" stroke="#5a4326" stroke-width="1.2"/>
+        <circle r="44" fill="none" stroke="#5a4326" stroke-width=".6"/>
+        <circle r="41" fill="none" stroke="#5a4326" stroke-width="1.8" stroke-dasharray=".8 2.78"/>
+        <circle r="34" fill="none" stroke="#8a6a3a" stroke-width=".6" stroke-dasharray="2 2"/>
+        <g opacity=".65">
+          <path d="M0,-38L2.2,-4L0,0ZM38,0L4,2.2L0,0ZM0,38L-2.2,4L0,0ZM-38,0L-4,-2.2L0,0Z" fill="#7a5a32" transform="rotate(22.5)"/>
+          <path d="M0,-38L-2.2,-4L0,0ZM38,0L4,-2.2L0,0ZM0,38L2.2,4L0,0ZM-38,0L-4,2.2L0,0Z" fill="#d8c498" stroke="#5a4326" stroke-width=".4" transform="rotate(22.5)"/>
+          <path d="M0,-38L2.2,-4L0,0ZM38,0L4,2.2L0,0ZM0,38L-2.2,4L0,0ZM-38,0L-4,-2.2L0,0Z" fill="#7a5a32" transform="rotate(67.5)"/>
+          <path d="M0,-38L-2.2,-4L0,0ZM38,0L4,-2.2L0,0ZM0,38L2.2,4L0,0ZM-38,0L-4,2.2L0,0Z" fill="#d8c498" stroke="#5a4326" stroke-width=".4" transform="rotate(67.5)"/>
+        </g>
+        <g transform="rotate(45)">
+          <path d="M0,-34L4,-4L0,0ZM34,0L4,4L0,0ZM0,34L-4,4L0,0ZM-34,0L-4,-4L0,0Z" fill="#9a3a2a"/>
+          <path d="M0,-34L-4,-4L0,0ZM34,0L4,-4L0,0ZM0,34L4,4L0,0ZM-34,0L-4,4L0,0Z" fill="#e2c896" stroke="#5a4326" stroke-width=".5"/>
+        </g>
+        <path d="M0,-47L5.5,-6L0,0ZM47,0L6,5.5L0,0ZM0,47L-5.5,6L0,0ZM-47,0L-6,-5.5L0,0Z" fill="#4a341c"/>
+        <path d="M0,-47L-5.5,-6L0,0ZM47,0L6,-5.5L0,0ZM0,47L5.5,6L0,0ZM-47,0L-6,5.5L0,0Z" fill="#f4e8c8" stroke="#4a341c" stroke-width=".6"/>
+        <path d="M0,-53L3,-46L0,-48L-3,-46Z" fill="#c99a2e" stroke="#4a341c" stroke-width=".4"/>
+        <circle r="6.5" fill="#4a341c"/><circle r="4.5" fill="#d8a838" stroke="#fff2b8" stroke-width=".5"/><circle r="1.6" fill="#4a341c"/>
+        <text y="-50" text-anchor="middle" font-size="8.5" font-weight="700" font-family="Cinzel,serif" fill="#4a341c">N</text>
+        <text y="56" text-anchor="middle" font-size="6.5" font-family="Cinzel,serif" fill="#6b5232">S</text>
+        <text x="53" y="2.5" text-anchor="middle" font-size="6.5" font-family="Cinzel,serif" fill="#6b5232">E</text>
+        <text x="-53" y="2.5" text-anchor="middle" font-size="6.5" font-family="Cinzel,serif" fill="#6b5232">W</text>
+      </svg>
+      <div class="zoom"><button id="zin" aria-label="放大">＋</button><button id="zout" aria-label="缩小">－</button><button id="zfit" aria-label="本纪元全图">⌂</button></div>
+      <div class="legend-key"><span class="k-elf">▲ 精灵</span><span class="k-man">■ 人类</span><span class="k-dwarf">◆ 矮人</span><span class="k-hob">● 霍比特</span><span class="k-dark">✕ 暗影</span><span class="k-ring">◉ 至尊戒</span></div>
+      <div id="scalebar" class="scalebar"><i></i><b></b></div>
+      <div id="eraFlash" class="era-flash"></div>
+      <div id="follow" class="follow" hidden></div>
+      <div id="toast" class="toast"></div>
+      <div id="debut" class="debut-box" aria-live="polite"></div>
+      <div id="card" class="card" hidden></div>
+    </div>
+  </main>
+
+  <footer id="tm" class="tm">
+    <div class="tm-ctl">
+      <button id="tmPrev" aria-label="上一个事件">‹</button>
+      <button id="tmPlay" class="play" aria-label="播放"></button>
+      <button id="tmNext" aria-label="下一个事件">›</button>
+      <button id="tmSpeed" class="spd">1×</button>
+      <div class="tm-date"><b id="tmDate"></b><span id="tmEra"></span><em id="tmCal"></em></div>
+    </div>
+    <div id="tmTrack" class="tm-track">
+      <div id="tmBands" class="tm-bands"></div>
+      <div class="tm-rail"><div id="tmFill" class="tm-fill"></div></div>
+      <div id="tmTicks" class="tm-ticks"></div>
+      <div id="tmThumb" class="tm-thumb"></div>
+      <div id="tmHover" class="tm-hover"></div>
+    </div>
+  </footer>
+
+  <!-- 战场 -->
+  <section id="battle" class="battle" hidden>
+    <div class="b-top">
+      <div><b id="bTitle"></b><span id="bEn"></span></div>
+      <div class="b-ctl"><span id="bK"></span><button id="bAuto">自动推进</button><button id="bSound">声音 关</button><button id="bClose" aria-label="关闭">×</button></div>
+    </div>
+    <div class="b-body">
+      <div class="b-field">
+        <svg id="bsvg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
+        <div id="bOverlay" class="b-overlay"></div>
+        <div id="bBanner" class="b-banner" hidden></div>
+        <div id="bTactics" class="b-tactics" hidden></div>
+        <div class="b-key"><span class="w">■ 西方/自由人民</span><span class="e">■ 黑暗势力</span><span class="y">★ 你（点击友军随行 · 点击敌军突击）</span></div>
+      </div>
+      <div class="b-side">
+        <div id="bDots" class="b-dots"></div>
+        <div id="bText" class="b-text"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 关键时刻 -->
+  <section id="moment" class="moment" hidden></section>
+
+  <script src="js/me-world.js"></script>
+  <script src="js/me-data.js"></script>
+  <script src="js/me-battles.js"></script>
+  <script src="js/me-chars.js"></script>
+  <script src="js/me-portrait.js"></script>
+  <script src="js/me-deco.js"></script>
+  <script src="js/me-h3.js"></script>
+<script src="js/me-models.js"></script>
+<script src="js/me-relief.js"></script>
+  <script src="js/me-life.js"></script>
+  <script src="js/me-bio.js"></script>
+  <script src="js/me-legends.js"></script>
+  <script src="js/me-moments.js"></script>
+  <script src="js/me-scene.js"></script>
+  <script src="js/me-i18n.js"></script>
+  <script src="js/me.js"></script>
+  <script src="js/me-kids.js"></script>
+</body>
+</html>
