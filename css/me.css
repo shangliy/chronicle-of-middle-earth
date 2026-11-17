@@ -1555,3 +1555,197 @@ body[data-era="fo"] .mapwrap::before {
 .bt-trees .bt-thi { fill: rgba(126, 164, 82, .52) !important; stroke: none !important; }
 .bu .eag { fill: #8c6230; stroke: #ffe498; stroke-width: 1.25; }
 .bu .bst { fill: #6e665a; stroke: #282018; stroke-width: .9; }
+
+/* —— 6. 趣味探索与沉浸体验：彩绘风物明信片、至尊戒幽影界、红皮书手札、暗湖猜谜与吟游琴音 —— */
+.pal-btn { color: #bfe6ff; }
+.cdx-btn { color: #f6dc96; position: relative; }
+.cdx-btn em {
+  font-style: normal; font-size: 10px; margin-left: 3px; padding: 0 5px;
+  border-radius: 999px; background: rgba(232, 184, 72, .25); color: #ffe89a;
+  font-family: var(--cinzel);
+}
+.cdx-btn em:empty { display: none; }
+.mus-btn.on {
+  background: linear-gradient(180deg, #3a6e4c, #21462e) !important;
+  border-color: #88dca2 !important; color: #f2fff6 !important;
+  box-shadow: 0 0 12px rgba(110, 220, 150, .35) !important;
+}
+@media (max-width: 1040px) {
+  .pal-btn span, .cdx-btn span, .mus-btn span { display: none; }
+}
+@media (max-width: 640px) {
+  .mus-btn { display: none; }
+}
+
+/* 彩绘地点明信片顶图 */
+.pc-hero {
+  position: relative; margin: -6px -8px 10px; border-radius: 6px; overflow: hidden;
+  box-shadow: 0 4px 14px rgba(38, 22, 6, .25), inset 0 0 0 1px rgba(120, 92, 48, .35);
+}
+.pc-hero svg { display: block; width: 100%; height: auto; }
+.pc-hero .ph-ruin { filter: grayscale(.82) opacity(.78); }
+.ph-badge {
+  position: absolute; left: 8px; top: 8px; padding: 2px 8px; border-radius: 999px;
+  font-size: 10.5px; font-weight: 600; letter-spacing: .06em;
+  background: rgba(24, 34, 26, .76); color: #e8f6dc; border: 1px solid rgba(210, 236, 190, .4);
+  backdrop-filter: blur(3px);
+}
+.ph-badge.ruin { background: rgba(42, 42, 48, .8); color: #dce0e8; border-color: rgba(200, 206, 218, .4); }
+.ph-badge.dk { background: rgba(52, 14, 8, .85); color: #ffc89c; border-color: rgba(255, 132, 64, .5); }
+
+.pc-acts { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 4px; }
+.pc-acts.col { flex-direction: column; }
+.pc-act {
+  background: linear-gradient(180deg, #faf2dc, #ead8b2); border: 1px solid #b89860;
+  color: var(--ink); border-radius: 5px; padding: 5px 10px; font-size: 12px; font-weight: 600;
+  transition: transform .15s, border-color .15s, background .15s;
+}
+.pc-act:hover { border-color: var(--red); color: var(--red); transform: translateY(-1px); }
+.pc-act.rdl { background: linear-gradient(180deg, #2b3848, #19222e); color: #ffe8a2; border-color: #6a88a8; }
+.pc-act.wraith { background: linear-gradient(180deg, #2e1c28, #160c14); color: #ffd494; border-color: #a85c32; }
+
+/* 至尊戒可点交互与持戒人小卡 */
+.ring-clickable { pointer-events: auto !important; cursor: pointer; }
+.ring-clickable:hover .ring-o { stroke: #ffffff; filter: drop-shadow(0 0 6px #ffd048); }
+.wonders .won { cursor: pointer; }
+.wonders .won:hover .lz { filter: drop-shadow(0 0 5px #ffe28a); }
+.ring-bearer {
+  display: flex; align-items: center; gap: 10px; padding: 7px 9px; margin: 8px 0;
+  width: 100%; text-align: left; color: var(--ink);
+  background: rgba(255, 248, 228, .75); border: 1px solid #cdb482; border-radius: 6px; cursor: pointer;
+}
+.ring-bearer:hover { border-color: var(--red); }
+.ring-bearer .rb-pt { width: 46px; flex: none; }
+.ring-bearer small { display: block; font-size: 10.5px; color: var(--red); letter-spacing: .08em; }
+.ring-bearer b { display: block; font-size: 15px; }
+.ring-bearer i { font-size: 11px; color: var(--muted); font-family: var(--fell); }
+
+/* 幽影视界（戴上至尊戒） */
+body.wraith-mode #map {
+  filter: invert(.9) hue-rotate(175deg) saturate(1.45) contrast(1.18) brightness(.86) !important;
+  transition: filter .9s ease;
+}
+.wraith-veil {
+  position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, transparent 36%, rgba(8, 18, 28, .62) 78%, rgba(4, 8, 16, .9) 100%);
+  box-shadow: inset 0 0 90px rgba(120, 210, 255, .28);
+  display: grid; place-items: center;
+}
+.wraith-veil[hidden] { display: none !important; }
+.wv-ring {
+  width: min(74vmin, 560px); height: min(74vmin, 560px);
+  animation: irspin 36s linear infinite; opacity: .82;
+  filter: drop-shadow(0 0 12px rgba(255, 120, 30, .55));
+}
+.wv-off {
+  pointer-events: auto; position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(180deg, #34180e, #180904); color: #ffdca0;
+  border: 1px solid #eb8a38; border-radius: 999px; padding: 6px 18px; font-size: 12.5px; font-weight: 700;
+  box-shadow: 0 0 22px rgba(255, 118, 32, .55); letter-spacing: .08em;
+}
+.wv-off:hover { background: #9b2a1d; color: #fff; }
+
+/* 制图师坐标读数与海面水纹 */
+.map-coords {
+  position: absolute; left: 118px; bottom: 48px; z-index: 2; pointer-events: none;
+  font-size: 11px; color: #4a351e; font-family: var(--fell); letter-spacing: .04em;
+  background: rgba(244, 234, 206, .78); padding: 2px 8px; border-radius: 3px;
+  border: 1px solid rgba(168, 140, 94, .45);
+}
+.map-coords:empty { display: none; }
+.st-h3 .map-coords { background: rgba(24, 18, 12, .82); color: #e8d6ac; border-color: #9a7024; }
+@media (max-width: 860px) { .map-coords { display: none; } }
+.pulse.sea-rip circle { stroke: rgba(232, 248, 255, .75); stroke-width: 1.4; }
+
+/* 西境红皮书（探索图鉴 & 暗湖猜谜） */
+.codex .cdx-in { max-width: 740px; background: linear-gradient(165deg, #fbf4e2, #ede0c0); color: var(--ink); border: 2px solid #b89248; }
+.cdx-head {
+  padding: 20px 24px 0; border-bottom: 1px solid #cfb98c;
+  background: radial-gradient(ellipse at 50% 0%, rgba(218, 172, 74, .22), transparent 70%);
+}
+.cdx-head .mo-k { color: var(--red); }
+.cdx-head h2 { margin: 4px 0 14px; font-size: 24px; color: #2c1c0e; letter-spacing: .08em; }
+.cdx-in .cdx-x { color: var(--ink2); background: rgba(255, 248, 230, .8); }
+.cdx-tabs { display: flex; gap: 8px; }
+.cdx-tabs button {
+  background: rgba(255, 250, 236, .6); border: 1px solid #c8b286; border-bottom: 0;
+  border-radius: 6px 6px 0 0; padding: 8px 16px; font-size: 13.5px; font-weight: 700; color: var(--ink2);
+}
+.cdx-tabs button.on { background: #fbf4e2; color: var(--red); box-shadow: inset 0 2px 0 var(--red); }
+.cdx-body { padding: 20px 24px 26px; }
+.cdx-sum { display: flex; gap: 20px; align-items: center; margin-bottom: 16px; }
+.cdx-ring-pct {
+  width: 108px; height: 108px; flex: none; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fffaf0, #ead8ae);
+  border: 3px solid #c89a3c; box-shadow: inset 0 0 0 3px rgba(255, 250, 236, .8), 0 6px 16px rgba(50, 30, 6, .15);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.cdx-ring-pct b { font-size: 28px; font-family: var(--cinzel); color: var(--red); line-height: 1.05; }
+.cdx-ring-pct small { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.cdx-bars { flex: 1; display: grid; gap: 9px; }
+.cb-hd { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 3px; }
+.cb-tr { height: 7px; border-radius: 999px; background: rgba(120, 96, 56, .18); overflow: hidden; }
+.cb-tr i { display: block; height: 100%; border-radius: 999px; transition: width .5s ease; }
+.cdx-cta { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 14px 0 18px; }
+.cdx-cta button { padding: 9px 18px; border-radius: 5px; border: 1px solid #b89658; background: #faf2dc; font-weight: 700; }
+.cdx-cta button.pri { background: linear-gradient(145deg, #a62e1f, #741c11); border-color: #c85a3a; color: #fff; }
+.cdx-sh { margin: 8px 0 10px; font-size: 14px; letter-spacing: .12em; color: var(--ink2); border-bottom: 1px dotted #cbb68a; padding-bottom: 5px; }
+.cdx-seals { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+.seal {
+  display: flex; align-items: center; gap: 10px; padding: 9px 11px; border-radius: 7px;
+  background: rgba(255, 251, 240, .72); border: 1px solid #d4c19a; transition: transform .2s;
+}
+.seal.off { opacity: .48; filter: grayscale(.85); }
+.seal.on { border-color: var(--sc, #b07d1e); box-shadow: 0 4px 12px rgba(60, 38, 8, .12); }
+.seal-ic { width: 42px; height: 42px; flex: none; color: var(--sc, #8a6a30); }
+.seal-tx b { display: block; font-size: 13.5px; color: #2c1c0e; }
+.seal-tx small { display: block; font-size: 11.5px; color: var(--ink2); line-height: 1.4; }
+
+/* 黑暗中的猜谜对决台 */
+.rdl-stage {
+  display: grid; grid-template-columns: 92px 1fr 92px; gap: 14px; align-items: center;
+  padding: 14px 16px; border-radius: 8px; margin-bottom: 14px;
+  background: radial-gradient(ellipse at 50% 60%, #1c2c34, #090e12); color: #e6eef2;
+  box-shadow: inset 0 0 0 1px rgba(150, 210, 230, .24), 0 8px 20px rgba(0, 0, 0, .28);
+}
+.rdl-fighter { text-align: center; }
+.rdl-fighter .rf-pt { width: 82px; margin: 0 auto 4px; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .5)); }
+.rdl-fighter b { font-size: 12.5px; color: #f4df9e; }
+.rdl-vs { text-align: center; }
+.rdl-candles { display: flex; justify-content: center; gap: 6px; margin-bottom: 8px; font-size: 16px; }
+.rdl-candles i { font-style: normal; opacity: .28; filter: grayscale(1); transition: transform .2s, opacity .2s; }
+.rdl-candles i.lit { opacity: 1; filter: none; }
+.rdl-candles i.cur { opacity: 1; filter: none; transform: scale(1.28); }
+.rdl-speech {
+  font-size: 13.5px; line-height: 1.65; color: #d6ecf4; padding: 8px 12px;
+  background: rgba(255, 255, 255, .06); border: 1px solid rgba(160, 216, 236, .22); border-radius: 6px;
+}
+.rdl-card {
+  padding: 16px 18px; border-radius: 8px; background: rgba(255, 252, 242, .86);
+  border: 1px solid #cbb68a; text-align: center;
+}
+.rdl-qno { font-size: 11.5px; letter-spacing: .18em; color: var(--red); font-weight: 700; }
+.rdl-verse {
+  margin: 10px auto 16px; font: italic 16px/1.85 var(--serif); color: #2b1b0e;
+  white-space: pre-wrap; max-width: 520px;
+}
+.rdl-opts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; max-width: 520px; margin: 0 auto; }
+.rdl-opt {
+  padding: 10px 12px; border-radius: 6px; border: 1px solid #bfa778;
+  background: linear-gradient(180deg, #fffdf6, #efe2c2); font-size: 14px; font-weight: 600; color: var(--ink);
+  transition: transform .15s, border-color .15s;
+}
+.rdl-opt:hover:not(:disabled) { border-color: var(--red); transform: translateY(-1px); }
+.rdl-opt.ok { background: linear-gradient(180deg, #2e7d44, #1f5a30); border-color: #1f5a30; color: #fff; }
+.rdl-opt.bad { background: linear-gradient(180deg, #9b2a1d, #6e1c12); border-color: #6e1c12; color: #fff; }
+.rdl-next { margin-top: 14px; }
+.rdl-next button { padding: 8px 22px; border-radius: 5px; font-weight: 700; }
+.rdl-win { text-align: center; padding: 14px 10px 4px; }
+.rdl-win h3 { margin: 0 0 8px; font-size: 21px; color: var(--red); }
+.rdl-win p { margin: 0 auto 12px; max-width: 540px; line-height: 1.8; font-size: 14.5px; }
+@media (max-width: 600px) {
+  .cdx-sum { flex-direction: column; }
+  .rdl-stage { grid-template-columns: 64px 1fr 64px; gap: 8px; padding: 10px; }
+  .rdl-fighter .rf-pt { width: 58px; }
+  .rdl-opts { grid-template-columns: 1fr; }
+}

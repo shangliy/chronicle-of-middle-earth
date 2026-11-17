@@ -147,7 +147,7 @@
         <button type="button" data-set-style="parch">古卷羊皮</button>
       </div>
 
-      <p class="intro-note">空格 播放/暂停 · ← → 逐个事件 · 滚轮/双指 缩放地图 · 点击地名查看历史</p>
+      <p class="intro-note">空格 播放/暂停 · ← → 逐个事件 · R 真知晶石漫游 · / 快速搜索 · 点击至尊戒窥视幽影界</p>
     </div>
   </div>
 
@@ -177,7 +177,10 @@
       <button type="button" data-set-style="parch">羊皮纸</button>
     </div>
     <button id="styleBtn" class="lang sty" hidden aria-label="Map style / 地图风格"></button>
+    <button id="palantirBtn" class="lang pal-btn" title="真知晶石 · 随机漫游奇观 (R)">🔮 <span>漫游</span></button>
+    <button id="codexBtn" class="lang cdx-btn" title="西境红皮书 · 探索图鉴与咕噜猜谜">📖 <span>手札</span><em id="codexPct"></em></button>
     <button id="momentsBtn" class="lang mo-btn" title="浏览关键时刻">✦ 时刻</button>
+    <button id="musicBtn" class="lang mus-btn" aria-label="吟游琴音" title="开启/关闭中洲吟游竖琴氛围音">🎵 <span>琴音</span></button>
     <button id="kidsBtn" class="lang kidb" aria-label="小朋友模式">🧒 小朋友</button>
     <button id="langBtn" class="lang" aria-label="Language / 语言">EN</button>
     <button id="panelToggle" class="ptog" aria-label="切换侧栏" title="收起/展开侧栏">☰</button>
@@ -259,8 +262,16 @@
         <button id="zfit" aria-label="本纪元全图" title="本纪元全图">⌂</button>
         <button id="miniBtn" aria-label="切换小地图" title="显示/隐藏鹰眼小地图">🗺</button>
       </div>
-      <div class="legend-key"><span class="k-elf">▲ 精灵</span><span class="k-man">■ 人类</span><span class="k-dwarf">◆ 矮人</span><span class="k-hob">● 霍比特</span><span class="k-dark">✕ 暗影</span><span class="k-ring">◉ 至尊戒</span></div>
+      <div class="legend-key"><span class="k-elf">▲ 精灵</span><span class="k-man">■ 人类</span><span class="k-dwarf">◆ 矮人</span><span class="k-hob">● 霍比特</span><span class="k-dark">✕ 暗影</span><span class="k-ring" id="ringKeyBtn" title="定位并查看至尊戒">◉ 至尊戒</span></div>
       <div id="scalebar" class="scalebar"><i></i><b></b></div>
+      <div id="mapCoords" class="map-coords" aria-hidden="true"></div>
+      <div id="wraithVeil" class="wraith-veil" hidden>
+        <svg class="wv-ring" viewBox="-200 -200 400 400" aria-hidden="true">
+          <circle r="176" fill="none" stroke="rgba(255,140,42,.28)" stroke-width="1.6" stroke-dasharray="9 6 3 5 14 7 4 5"/>
+          <circle r="166" fill="none" stroke="rgba(255,232,170,.22)" stroke-width=".9" stroke-dasharray="4 8"/>
+        </svg>
+        <button type="button" id="wraithOffBtn" class="wv-off">◉ 摘下至尊戒 · 离开幽影界</button>
+      </div>
       <div id="eraFlash" class="era-flash"></div>
       <div id="follow" class="follow" hidden></div>
       <div id="toast" class="toast"></div>
@@ -309,6 +320,8 @@
 
   <!-- 关键时刻 -->
   <section id="moment" class="moment" hidden></section>
+  <!-- 西境红皮书 · 图鉴与猜谜 -->
+  <section id="codex" class="moment codex" hidden></section>
 
   <script src="js/me-world.js"></script>
   <script src="js/me-data.js"></script>
@@ -326,6 +339,7 @@
   <script src="js/me-scene.js"></script>
   <script src="js/me-i18n.js"></script>
   <script src="js/me.js"></script>
+  <script src="js/me-fun.js"></script>
   <script src="js/me-kids.js"></script>
 </body>
 </html>

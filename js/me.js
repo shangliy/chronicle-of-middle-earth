@@ -447,8 +447,8 @@
       g.addEventListener("click", (ev) => { ev.stopPropagation(); showChar(c.id); });
       RES.push({ c, x, y, from, to, g, inner, key: String(at), tf: "" });
     }));
-    // 至尊戒
-    L.ring = el("g", { class: "ring" }, svg);
+    // 至尊戒（可点击打开至尊戒编年与幽影界视角）
+    L.ring = el("g", { class: "ring ring-clickable" }, svg);
     const rs = el("g", { class: "sc" }, L.ring);
     el("circle", { r: 12, class: "ring-glow", filter: "url(#gold)" }, rs);
     el("circle", { r: 8.2, class: "ring-aura" }, rs);
@@ -456,8 +456,12 @@
     el("circle", { r: 5, class: "ring-o" }, rs);
     el("circle", { r: 5, class: "ring-runes" }, rs);
     el("text", { x: 12, y: -4, class: "ring-n" }, rs).textContent = tr("至尊戒");
+    L.ring.addEventListener("click", (ev) => { ev.stopPropagation(); if (window.__ME?.showRing) window.__ME.showRing(); });
     L.won = el("g", { class: "wonders" }, svg);
-    (LIFE.WONDERS || []).forEach((o) => lifeItem(o, L.won, "won k-" + o.k));
+    (LIFE.WONDERS || []).forEach((o) => {
+      const wg = lifeItem(o, L.won, "won k-" + o.k);
+      wg.addEventListener("click", (ev) => { ev.stopPropagation(); if (window.__ME?.showWonder) window.__ME.showWonder(o); });
+    });
     L.fx = el("g", { class: "fx" }, svg);
   }
   /* ——地标、生灵、奇观—— */
@@ -496,7 +500,14 @@
     (LIFE.LANDMARKS || []).forEach((m) => {
       const g = lifeItem(m, L.lm, "lm k-" + m.k);
       el("text", { class: "lm-n", y: 16, "text-anchor": "middle" }, g.firstChild).textContent = m.n;
-      g.addEventListener("click", (ev) => { ev.stopPropagation(); openCard(`<div class="pc-k">${tr("地标 · 典故")}</div><h3>${esc(m.n)}</h3><p>${esc(m.d)}</p>`); pulse(m.x, m.y); });
+      g.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        emitVisit("place", m.id);
+        const hero = placeHeroSvg({ id: m.id, k: "site", x: m.x, y: m.y }, { art: (LIFE.ART || {})[m.k] || "", badge: tr("地标 · 典故") });
+        const ridBtn = (m.id === "goblin" || m.id === "trolls") ? `<button class="pc-act rdl" data-open-riddle="1">🕯️ ${tr("黑暗中的猜谜")}</button>` : "";
+        openCard(`${hero}<div class="pc-k">${tr("地标 · 典故")}</div><h3>${esc(m.n)}</h3><p class="pc-d">${esc(m.d)}</p><div class="pc-acts"><button class="pc-act" data-zoom-xy="${m.x},${m.y}">🔍 ${tr("飞近细看")}</button>${ridBtn}</div>`);
+        pulse(m.x, m.y);
+      });
     });
   }
 
@@ -793,14 +804,53 @@
     addEventListener("resize", () => { updateSvgSize(); applyCam(); });
   }
 
-  /* ——脉冲与地名卡—— */
+  /* ——脉冲、探索事件与彩绘风物卡—— */
+  function emitVisit(type, id) {
+    try { window.dispatchEvent(new CustomEvent("me:visit", { detail: { type, id } })); } catch (e) {}
+  }
   function pulse(x, y, cls = "") {
     const g = el("g", { class: "pulse " + cls, transform: `translate(${x},${y})` }, L.fx);
     const s = el("g", { class: "sc" }, g); el("circle", { r: 10 }, s); el("circle", { r: 10, class: "p2" }, s);
     setTimeout(() => g.remove(), 2600);
   }
+  function placeHeroSvg(p, opts = {}) {
+    const u = "ph" + Math.random().toString(36).slice(2, 7);
+    const isDark = opts.dark || p.k === "dark";
+    const isRuin = !!opts.ruin;
+    const theme = isDark
+      ? { s0: "#160706", s1: "#4a140c", s2: "#9e3818", h1: "#2a120e", h2: "#180908", orb: "#ff7a20", star: 0 }
+      : p.aman
+      ? { s0: "#e8d69a", s1: "#f9eec4", s2: "#ffffff", h1: "#8aa466", h2: "#5e7c44", orb: "#fffbe0", star: 1 }
+      : isRuin
+      ? { s0: "#2a2e3a", s1: "#585e6c", s2: "#9aa0a8", h1: "#4e5248", h2: "#343830", orb: "#dce4f0", star: 1 }
+      : p.k === "elf"
+      ? { s0: "#14243e", s1: "#2e4e6e", s2: "#8ab2c4", h1: "#3a5a4a", h2: "#223a30", orb: "#f4f8ff", star: 1 }
+      : p.k === "hob"
+      ? { s0: "#8ec0dc", s1: "#d8ecc8", s2: "#fbf2c8", h1: "#7aa648", h2: "#527c2c", orb: "#fff6b8", star: 0 }
+      : p.k === "dwarf"
+      ? { s0: "#262832", s1: "#585258", s2: "#b89064", h1: "#524c48", h2: "#322c2a", orb: "#ffd284", star: 0 }
+      : { s0: "#4c6a88", s1: "#9ab0bd", s2: "#eedcb8", h1: "#6c7654", h2: "#464e38", orb: "#fff2c6", star: 0 };
+    const treesArt = p.id === "twotrees" ? `<circle cx="-11" cy="-16" r="14" fill="#ffe482" opacity=".32"/><circle cx="11" cy="-16" r="14" fill="#e0f0ff" opacity=".32"/><path d="M-11,4V-13M-11,-9L-16,-15M-11,-11L-6,-17" stroke="#8a6420" stroke-width="2.2" stroke-linecap="round"/><circle cx="-11" cy="-16" r="7.5" fill="#ffd24c" opacity=".9"/><circle cx="-15" cy="-14" r="5" fill="#ffea8a" opacity=".85"/><circle cx="-7" cy="-15" r="5" fill="#ffc436" opacity=".85"/><path d="M11,4V-13M11,-9L6,-15M11,-11L16,-17" stroke="#9aa8b8" stroke-width="2.2" stroke-linecap="round"/><circle cx="11" cy="-16" r="7.5" fill="#e6f2ff" opacity=".92"/><circle cx="7" cy="-14" r="5" fill="#ffffff" opacity=".88"/><circle cx="15" cy="-15" r="5" fill="#cfe4ff" opacity=".85"/>` : "";
+    const art = opts.art != null ? opts.art : (treesArt || (window.ME_ICON ? window.ME_ICON(p) : ""));
+    const stars = theme.star ? Array.from({ length: 14 }, (_, i) => `<circle cx="${18 + ((i * 53) % 252)}" cy="${10 + ((i * 29) % 42)}" r="${i % 3 === 0 ? 1.2 : 0.75}" fill="#fff" opacity=".75"/>`).join("") : "";
+    const badge = opts.badge ? `<span class="ph-badge${isDark ? " dk" : isRuin ? " ruin" : ""}">${esc(opts.badge)}</span>` : "";
+    return `<div class="pc-hero"><svg viewBox="0 0 288 106" aria-hidden="true"><defs>
+      <linearGradient id="${u}s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${theme.s0}"/><stop offset=".58" stop-color="${theme.s1}"/><stop offset="1" stop-color="${theme.s2}"/></linearGradient>
+      <radialGradient id="${u}o"><stop offset="0" stop-color="${theme.orb}" stop-opacity=".9"/><stop offset="1" stop-color="${theme.orb}" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="288" height="106" fill="url(#${u}s)"/>${stars}
+    <circle cx="${isDark ? 232 : 226}" cy="30" r="28" fill="url(#${u}o)"/>
+    <circle cx="${isDark ? 232 : 226}" cy="30" r="9" fill="${theme.orb}" opacity="${isRuin ? .55 : .85}"/>
+    <path d="M0,82 L48,54 L98,72 L156,48 L214,68 L258,52 L288,70 V106 H0 Z" fill="${theme.h1}" opacity=".68"/>
+    <path d="M0,88 Q72,72 144,84 T288,80 V106 H0 Z" fill="${theme.h2}"/>
+    <ellipse cx="144" cy="89" rx="44" ry="8" fill="#000" opacity=".25"/>
+    <g transform="translate(144,87) scale(1.82)" class="${isRuin ? "ph-ruin" : ""}">${art}</g>
+    <rect x="3" y="3" width="282" height="100" rx="4" fill="none" stroke="rgba(255,244,214,.38)" stroke-width="1"/>
+    </svg>${badge}</div>`;
+  }
   function showPlace(p) {
     if (window.ME_KIDS && window.ME_KIDS.place(p)) return;
+    emitVisit("place", p.id);
     const evs = D.EVENTS.filter((e) => e.at === p.id);
     const mos = MO.filter((m) => m.at === p.id || (p.id === "erech" && m.id === "paths-of-the-dead"));
     const lgs = [];
@@ -810,8 +860,13 @@
     const lm = (LIFE.LANDMARKS || []).find((m) => m.id === p.id);
     const desc = p.d || (lm && lm.d) || "";
     const kind = tr({ elf: "精灵", man: "人类", dwarf: "矮人", hob: "霍比特人", dark: "黑暗势力", site: "地标" }[p.k]);
-    let html = `<div class="pc-k">${esc(dot(kind, p.en))}</div><h3>${esc(p.tx.textContent)}</h3>`;
+    const ruin = p.ruin != null && T >= p.ruin && !(p.rebuilt && T >= p.rebuilt);
+    const dark = p.darkAt != null && T >= p.darkAt && !(p.lightAt && T >= p.lightAt);
+    const badge = dark ? tr("暗影笼罩") : ruin ? tr("已成废墟") : p.aman && T >= 3909.3 ? tr("移出世间") : tr("当世风物");
+    const riddleBtn = p.id === "gollumcave" ? `<button class="pc-act rdl" data-open-riddle="1">🕯️ ${tr("黑暗中的猜谜")}</button>` : "";
+    let html = placeHeroSvg(p, { ruin, dark, badge }) + `<div class="pc-k">${esc(dot(kind, p.en))}</div><h3>${esc(p.tx.textContent)}</h3>`;
     if (desc) html += `<p class="pc-d">${esc(desc)}</p>`;
+    html += `<div class="pc-acts"><button class="pc-act" data-zoom-xy="${p.x},${p.y}">🔍 ${tr("飞近细看")}</button>${riddleBtn}</div>`;
     if (evs.length || mos.length) {
       html += `<h5 class="cc-h">${tr("编年与关键时刻")}</h5><ul class="pc-ev">` +
         evs.map((e) => `<li data-t="${e.t}"><b>${esc(fmt(e.t, hasDay(e.t)))}</b>${esc(e.h)}</li>`).join("") +
@@ -832,6 +887,9 @@
   }
   function openCard(html) { const c = $("#card"); c.innerHTML = `<button class="x" aria-label="${tr("关闭")}">×</button>` + html; c.hidden = false; }
   $("#card").addEventListener("click", (e) => { if (e.target.closest(".x")) return ($("#card").hidden = true);
+    const zxy = e.target.closest("[data-zoom-xy]"); if (zxy) { const [zx, zy] = zxy.dataset.zoomXy.split(",").map(Number); flyTo(zx, zy, 240, 950); userMoved = Date.now(); pulse(zx, zy, "k-ring"); return; }
+    const rdl = e.target.closest("[data-open-riddle]"); if (rdl && window.__ME?.openCodex) { $("#card").hidden = true; return window.__ME.openCodex("riddle"); }
+    const wr = e.target.closest("[data-toggle-wraith]"); if (wr && window.__ME?.toggleWraith) { return window.__ME.toggleWraith(); }
     const bm = e.target.closest(".bio-more"); if (bm) { const open = bm.closest(".bio").classList.toggle("open"); bm.textContent = open ? tr("收起 ▴") : tr("展开完整传记 ▾"); return; }
     const fo = e.target.closest("[data-follow]"); if (fo) return followJ(fo.dataset.follow);
     const lg = e.target.closest("[data-lg]"); if (lg) { $("#card").hidden = true; setTab("legends"); return openLegend(lg.dataset.lg, +lg.dataset.beat || 0); }
@@ -1000,6 +1058,7 @@
   function showChar(id, jump) {
     const c = CI[id]; if (!c) return;
     if (window.ME_KIDS && window.ME_KIDS.char(c, jump)) return;
+    emitVisit("char", id);
     const js = charJourneys(id);
     if (jump && !whereIs(id)) {
       const opts = [...(c.homes || []).map((h) => h[1] + 1e-4), ...js.map((j) => joinT(j, id) + 1e-4)].sort((a, b) => a - b);
@@ -1011,7 +1070,12 @@
     const inB = (b) => b.units.some((u) => [...(CH.HEROES[b.id + "." + u.id] || []), ...((CH.TROOPS || {})[b.id + "." + u.id]?.lead || [])].includes(id));
     const bs = BATTLES.filter(inB).sort((a, b) => a.t - b.t);
     const homes = (c.homes || []).map(([at, from, to, hn]) => `<li data-home="${from}" data-at="${Array.isArray(at) ? at.join(",") : at}"><b>${esc(fmt(from))} — ${esc(fmt(to))}</b>${esc(hn || placeName(at))}</li>`).join("");
-    openCard(`<div class="cc"><div class="cc-pt">${PT(c)}</div><div><div class="pc-k">${esc(dot(RACE[c.r], c.en))}</div><h3>${esc(c.n)}</h3></div></div>` + (H3 && !PAINT ? statsHtml(c, bs.length, js.length) : "") + `<p class="cc-bio">${esc(c.bio)}</p>` + bioHtml(id) +
+    const bObj = (window.ME_BIO || {})[id];
+    const hay = `${c.bio || ""} ${(bObj && bObj.kin) || ""} ${(bObj && bObj.fate) || ""}`;
+    const rels = (CH.CHARS || []).filter((o) => o.id !== id && o.n.length >= 2 && hay.includes(o.n)).slice(0, 8);
+    const relHtml = rels.length ? `<h5 class="cc-h">${tr("相关亲友与宿敌")}</h5><div class="cc-who">${rels.map((o) => `<button data-c="${o.id}">${chSvg(o.id)}<span>${esc(o.n)}</span></button>`).join("")}</div>` : "";
+    const riddleBtn = (id === "bilbo" || id === "gollum") ? `<div class="pc-acts" style="margin-top:8px"><button class="pc-act rdl" data-open-riddle="1">🕯️ ${tr("进入黑暗猜谜对决")}</button></div>` : "";
+    openCard(`<div class="cc"><div class="cc-pt">${PT(c)}</div><div><div class="pc-k">${esc(dot(RACE[c.r], c.en))}</div><h3>${esc(c.n)}</h3></div></div>` + (H3 && !PAINT ? statsHtml(c, bs.length, js.length) : "") + `<p class="cc-bio">${esc(c.bio)}</p>` + riddleBtn + bioHtml(id) + relHtml +
       (homes ? `<h5 class="cc-h">${tr("居所")}</h5><ul class="pc-ev">${homes}</ul>` : "") +
       (bs.length ? `<h5 class="cc-h">${tr("参战")}</h5><div class="cc-js">${bs.map((x) => `<button class="go-b" data-b="${x.id}" style="--c:#8a2a1a">⚔ ${esc(x.n)}<small>${esc(x.age)}</small></button>`).join("")}</div>` : "") +
       (js.length ? `<h5 class="cc-h">${tr("足迹 · 点一下跟着走")}</h5><div class="cc-js">${js.map((j) => `<button data-follow="${j.id}" style="--c:${j.c}">▶ ${esc(j.n)}<small>${esc(fmt(j.P[0].t, hasDay(j.P[0].t)))}</small></button>`).join("")}</div>` : ""));
@@ -1173,6 +1237,7 @@
   let moCur = null;
   function openMoment(id, fromPlay) {
     const i = MOI[id]; if (i == null) return; const m = MO[i];
+    emitVisit("moment", id);
     const wasPlaying = fromPlay || (moCur && moCur.resume);
     lastMoId = id; pause(); moCur = { id, resume: !!wasPlaying };
     if (T <= m.t + 1e-6 || Math.abs(T - m.t) > 1e-5) setT(m.t + 2e-6, true);
@@ -1224,6 +1289,7 @@
   const SIDEC = { w: "w", e: "e", n: "n" };
   function openBattle(id) {
     const b = BATTLES.find((x) => x.id === id); if (!b) return;
+    emitVisit("battle", id);
     pause(); B.cur = b; B.k = -1; B.el.hidden = false; document.body.classList.add("in-battle");
     const s = B.svg; s.innerHTML = "";
     s.setAttribute("viewBox", "0 0 1000 600"); B.cam = { x: 0, y: 0, w: 1000 };
@@ -1699,7 +1765,7 @@
     if (h.get("m")) openMoment(h.get("m"));
     if (h.get("c")) { setTab("chars"); showChar(h.get("c"), true); }
     if (h.get("f")) followJ(h.get("f"));
-    window.__ME = { pulse, flyBox, PT, CI, openMoment, closeMoment, MO, setT, flyTo, openBattle, phase, openLegend, play, pause, followJ, showChar, setTab, get T() { return T; }, get follow() { return !!follow; }, cam, posOf, tAt, fmt, JR, RES };
+    window.__ME = { pulse, flyBox, PT, CI, openMoment, closeMoment, MO, setT, flyTo, openBattle, phase, openLegend, play, pause, followJ, showChar, showPlace, openCard, placeHeroSvg, setTab, svg, P, L, RING, RING_END, at, eraOf, hasDay, get T() { return T; }, get follow() { return !!follow; }, cam, posOf, tAt, fmt, JR, RES };
   }
   init();
 })();
