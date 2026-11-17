@@ -5,105 +5,178 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-d4a74a.svg)](LICENSE)
 ![Zero Dependencies](https://img.shields.io/badge/Build-Zero%20Dependencies-2d7646.svg)
-![Bilingual](https://img.shields.io/badge/Lang-%E4%B8%AD%E6%96%87%20%7C%20English-9b2a1d.svg)
+![Bilingual](https://img.shields.io/badge/Language-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87%20%7C%20English-9b2a1d.svg)
 
-本项目从 [`shangliy/chronicle-of-commerce`](https://github.com/shangliy/chronicle-of-commerce) 独立拆出为专属仓库，并在原版基础上进行了 **托尔金泥金手稿风（Illuminated Atlas Edition）UI 与程序化美术全面升级**。全站采用 **纯静态 HTML + CSS + SVG + Canvas + Web Audio** 构建，零外部图片资源、零打包依赖，开箱即用。
+**[简体中文](#简体中文) · [English](#english)**
 
 ---
 
-## ✨ 核心特性 (Features)
+<a id="简体中文"></a>
 
-- **🌍 跨纪元动态大陆地图**：从双树纪、第一纪元（贝烈瑞安德沉没前）、第二纪元（努门诺尔升起与陆沉）、第三纪元（魔戒圣战）直至第四纪元，海岸线、迷雾帷幕、王国疆域与天光随时间轴实时演变。
+## 简体中文
+
+本项目从 [`shangliy/chronicle-of-commerce`](https://github.com/shangliy/chronicle-of-commerce) 独立拆出为专属仓库，并在原版基础上完成了 **托尔金泥金手稿风（Illuminated Atlas Edition）UI 与程序化美术全面重绘**。全站采用 **纯静态 HTML + CSS + SVG + Canvas + Web Audio** 构建，零外部图片资源、零构建打包依赖，开箱即用。
+
+### ✨ 核心特性
+
+- **🌍 跨纪元动态大陆地图**：从双树纪、第一纪元（贝烈瑞安德沉没前）、第二纪元（努门诺尔升起与陆沉）、第三纪元（魔戒圣战）直至第四纪元，海岸线、迷雾帷幕、王国疆域纹章与天光随时间轴实时演变。
 - **🎨 三套程序化地图画风（一键无缝切换）**：
-  - **手绘山河 (`paint`，默认)**：分形噪声山脉光影浮雕（晨昏暖脊 + 幽谷冷影 + 末日火山熔岩辉光）、立体微缩地标建筑与迎风招展的阵营旗帜。
-  - **英雄冒险 (`h3`)**：致敬经典奇幻策略游戏的饱满地形贴图、金边石框 UI、英雄属性面板与中洲生态小物件。
+  - **手绘山河 (`paint`，默认)**：脊状多重分形（Ridged Multifractal）山脉光影浮雕（晨昏暖脊 + 幽谷冷影 + 火山岩浆辉光）、立体微缩地标建筑与动态阵营旗帜。
+  - **英雄冒险 (`h3`)**：致敬经典回合制奇幻策略游戏的饱满无缝地形贴图、金边石框界面、英雄四维属性面板与大陆生态物件。
   - **古卷羊皮 (`parch`)**：古典钢笔排线海岸、红黑双色衬线标注与泛黄羊皮纸卷轴质感。
 - **🧙 77 位人物泥金肖像与大陆足迹**：
-  - 程序化矢量半身像，配备 **六大阵营专属泥金画框**（精灵秘银星拱、矮人卡扎督姆几何符文框、人类刚铎金拱、霍比特夏尔暖铜框、迈雅圣光星环、暗影黑铁尖刺铆钉框）。
-  - 侧栏支持 **种族胶囊筛选** 与即时检索；点击「足迹」即可在地图上跟随魔戒远征队、五军、罗希林铁骑等行军与迁徙路线。
-- **📖 12 部引导式传说 & 37 个关键时刻插画**：
-  - 泥金首字下沉排版阅读器，翻页时镜头自动飞往事发地并同步拨动纪元时间。
-  - 37 幅 `1200×520` 宽银幕体积光场景插画（双圣树、芬国昐独战魔苟斯、甘道夫断桥阻炎魔、黑门决战等），时间轴播放至关键节点可自动驻留展示。
+  - 程序化矢量半身像，配备 **六大阵营专属泥金画框**（精灵秘银星拱、矮人卡扎督姆几何符文框、人类刚铎金拱、霍比特夏尔暖铜框、迈雅圣光星环、暗影黑铁尖刺铆钉框）及 **13 位核心角色专属信物细节**（如弗罗多的魔戒金链与刺针蓝光、费艾诺三宝钻、图林金龙盔与黑剑古山格、阿拉贡精灵宝石胸针等）。
+  - 侧栏支持 **种族胶囊筛选** 与即时检索；点击「足迹」即可在地图上跟随护戒同盟、五军、洛汗铁骑等行军与迁徙路线。
+- **📖 12 部引导式传说 & 37 幅关键时刻宽银幕插画**：
+  - 12 部传说卡片与阅读器扉页均配有专属 **泥金木刻圆章** 与泥金首字下沉排版，翻页时镜头自动飞往事发地并拨动纪元时间。
+  - 37 幅 `1200×520` 四层空气透视宽银幕插画（费艾诺三宝钻起誓、长湖镇史矛革火海、布茹伊能白马洪流、努门诺尔陆沉、甘道夫断桥阻炎魔、巨鹰救主、圣白树开花加冕等），时间轴播放至关键节点可自动驻留展示。
 - **⚔️ 6 场可交互战术沙盘推演**：
-  - 涵盖无尽眼泪之战、最后同盟之战、五军之战、圣盔谷之战、帕兰诺平原之战、黑门之战。
-  - 支持第一人称小兵视角抉择、点击友军随行/敌军突击、齐射/号角/冲锋战术指令，以及基于 Web Audio 合成的号角、箭雨与兵刃音效。
-- **🧒 小朋友寻宝模式**：大字号、语音朗读支持、十关地图寻宝问答与贴纸收集册。
+  - 涵盖无尽眼泪之战、最后同盟之战、五军之战、圣盔谷之战、帕兰诺平原之战、黑门之战，均配专属战旗纹章。
+  - 支持第一人称小兵视角抉择、点击友军随行/敌军突击、齐射/号角/冲锋战术指令，以及基于 Web Audio 实时合成的号角、箭雨与兵刃音效。
+- **🧒 小朋友寻宝模式**：大字号卡片、语音朗读支持、十关地图寻宝问答与贴纸收集册。
 - **🌐 中英双语完整覆盖**：顶栏一键切换 `中文 / EN`（或通过 `?lang=en` 访问）。
 
----
+### 🖼️ 独立版 UI 与美术升级亮点
 
-## 🖼️ 独立版 UI 与美术优化一览
+1. **都林星拱与流火至尊戒封面**（`index.html`, `css/me.css`）：移除原合集站无关链接，新增都林之门式精灵星拱背纹、浮动星尘与魔多余烬微粒、多层金属倒角 + 腾格瓦流线火字至尊戒、泥金章节牌匾按钮与封面画风直选器。
+2. **独立版顶栏与全画风鹰眼小地图**（`js/me.js`, `js/me-i18n.js`）：左置至尊戒立体徽章（随时返回封面），右置三段式画风切换器与 `✦ 时刻` 快捷入口；右上角鹰眼总览小地图现支持全部三种画风，带至尊戒脉冲金点定位与 `🗺` 显隐开关，左下角重绘努门诺尔十六风向航海罗盘。
+3. **关键时刻四层透视与定制叙事画卷**（`js/me-scene.js`）：升级天穹流云、远山雾影、受光建筑倒影与人物轮廓背光，并为十余幕核心名场面绘制专属叙事主体。
+4. **双圣树、3D 微缩地标与生灵奇观精修**（`js/me-models.js`, `js/me-life.js`, `js/me-relief.js`）：重绘埃泽洛哈绿丘上的银树与金树及光露双池；考据升级米那斯提力斯（首层黑石外墙 + 七层白城 + 白树）、巴拉都（熔岩壕沟 + 烈焰竖瞳）、瑞文戴尔金红秋林、罗斯洛立安梅隆巨树、阿刚那斯双王巨像、涝洛斯虹光瀑布及贝烈苟斯特/诺格罗德矮人山城；提升山脉分形渲染精度。
+5. **角色肖像补全与泥金藏书章**（`js/me-portrait.js`, `js/me.js`）：补齐原版缺失的「亡灵之王」幽绿半身立绘与埃瑞赫幽谷背景，新增 13 位主角专属武器信物，并为 12 部传说与 6 场战役绘制泥金圆章。
 
-1. **都林星拱与流火至尊戒封面 (`index.html`, `css/me.css`)**：移除原合集站外链，新增都林之门式精灵星拱背纹、浮动星尘与魔多余烬微粒、多层金属倒角 + 腾格瓦流线火字至尊戒徽章、泥金绘本章节牌匾按钮与封面画风直选器。
-2. **独立版专属顶栏与导航**：左置至尊戒立体徽章（随时返回封面）、三段式胶囊画风切换器（`手绘 / 英雄 / 羊皮纸`）、`✦ 时刻` 快捷入口、小朋友模式与中英切换。
-3. **种族专属肖像画框 (`js/me-portrait.js`)**：按人物所属种族（精灵/矮人/人类/霍比特/迈雅/暗影）生成不同金属质感与几何纹样的装帧画框。
-4. **地貌分形着色与贴图升级 (`js/me-relief.js`, `js/me-h3.js`)**：增强分形山脊受光暖调与背阴冷蓝灰对比，为火山口注入赤红岩浆漫射光，并恢复手绘模式下立体地标的动态微风旗帜。
-5. **全画风通用鹰眼小地图与十六风向航海罗盘 (`js/me.js`, `index.html`)**：将右上角鹰眼总览小地图扩展至全部三种画风（支持拖拽跳转、至尊戒脉冲金点定位，以及 `🗺` 按钮显隐切换），重绘左下角努门诺尔十六风向罗盘与四角古卷暗纹。
+### 🚀 快速运行
 
----
-
-## 🚀 快速运行 (Quick Start)
-
-无需安装任何依赖，直接在仓库根目录启动任意静态文件服务器即可：
+无需安装任何第三方依赖，在仓库根目录启动任意静态服务器即可：
 
 ```bash
+git clone https://github.com/shangliy/chronicle-of-middle-earth.git
 cd chronicle-of-middle-earth
 python3 -m http.server 8000
 ```
 
 随后在浏览器打开：<http://localhost:8000>
 
-### 常用 URL 参数 (Deep Links)
+#### 常用 URL 参数（深链接）
 
 | 参数示例 | 说明 |
 | :--- | :--- |
 | `?style=paint` / `?style=h3` / `?style=parch` | 指定地图画风（手绘山河 / 英雄冒险 / 古卷羊皮） |
-| `?lang=zh` / `?lang=en` | 指定界面与史料语言（中文 / 英文） |
-| `?kids=1` | 直接进入小朋友寻宝模式 |
-| `#t=6975` | 直接跳转到对应内部纪年刻度（例如魔戒圣战时期） |
+| `?lang=zh` / `?lang=en` | 指定界面与史料语言（简体中文 / 英文） |
+| `?kids=1` | 直接开启小朋友寻宝模式 |
+| `#t=6975` | 跳转至指定内部纪年刻度 |
+| `#l=ring&k=0` / `#m=bridge-of-khazad-dum` / `#b=pelennor` | 直达指定传说章节 / 关键时刻插画 / 战役推演 |
 
-### 键盘快捷键
+#### 键盘快捷键
 
 - `Space`：播放 / 暂停编年时间轴
-- `←` / `→`：跳至上一个 / 下一个历史事件（关键时刻弹窗与战役界面内同样适用）
-- `滚轮` / `双指捏合`：围绕光标位置无级缩放地图
+- `←` / `→`：切换上一个 / 下一个历史事件（关键时刻弹窗与战役界面内同样适用）
+- `滚轮` / `双指捏合`：围绕指针位置无级缩放地图
 - `Esc`：关闭当前人物卡、关键时刻弹窗或战场推演界面
+
+### 📜 声明与协议
+
+- **非官方爱好者作品**：本项目与托尔金遗产委员会（Tolkien Estate）、Middle-earth Enterprises、HarperCollins 或华纳兄弟（Warner Bros.）等均无关联。所有地图轮廓、人物插画、微缩建筑与场景均为程序化原创绘制，文字为原创概述。
+- **开源协议**：基于 [MIT License](LICENSE) 开源，原始版本拆自 [`shangliy/chronicle-of-commerce`](https://github.com/shangliy/chronicle-of-commerce)（Copyright (c) 2026 shangliy）。
 
 ---
 
-## 📁 目录结构 (Project Structure)
+<a id="english"></a>
+
+## English
+
+Extracted from [`shangliy/chronicle-of-commerce`](https://github.com/shangliy/chronicle-of-commerce) into its own standalone repository, **Chronicle of Middle-earth** has been comprehensively upgraded with a **Tolkien Illuminated Atlas UI and overhauled procedural artwork**. Built with **100% vanilla HTML + CSS + SVG + Canvas + Web Audio**, it requires zero external image assets, zero npm packages, and zero build steps.
+
+### ✨ Key Features
+
+- **🌍 Dynamic Multi-Age World Map**: Span over 7,000 years from the Years of the Trees and the First Age (before Beleriand sank beneath the waves), through the rise and Akallabêth of Númenor in the Second Age, to the War of the Ring and the Fourth Age—watching coastlines, realms, heraldic crests, and ambient lighting transform in real time.
+- **🎨 Three Procedural Map Editions (Instant Switching)**:
+  - **Painted Relief (`paint`, default)**: High-DPI ridged-multifractal mountain relief shading (warm sunlit ridges, cool alpine valley shadows, volcanic magma glow), 3D miniature landmarks, and waving faction flags.
+  - **Heroic Adventure (`h3`)**: Lush seamless Canvas terrain textures, gilded stone UI frames, RPG hero attribute panels, and adventure map objects inspired by classic turn-based fantasy strategy games.
+  - **Antique Parchment (`parch`)**: Classical pen-and-ink hatched coastlines, crimson-and-sepia serif cartography, and aged vellum grain.
+- **🧙 77 Illuminated Character Portraits & Living Journeys**:
+  - Procedurally generated half-body vector portraits framed in **six race-specific illuminated borders** (Elven mithril star-arch, Dwarven Khazad-dûm geometric runes, Gondorian gilded arch, Shire warm brass, Maiar celestial halo, and Shadow spiked black-iron), enriched with **13+ hero signature artifacts** (Frodo's Ring-chain, Sting & Phial; Fëanor's three Silmarils; Túrin's Dragon-helm & Gurthang; Aragorn's Elfstone brooch & White Tree, etc.).
+  - Filter characters by **Race Chips** or live search, and click **Journeys** to follow the Fellowship, the Five Armies, the Rohirrim, and First Age migrations across the map.
+- **📖 12 Guided Legends & 37 Widescreen Key Moment Dioramas**:
+  - Read 12 multi-part legends adorned with **bespoke gilded bookplate medallions** and illuminated drop-caps; each page turn flies the camera to the exact time and place on the map.
+  - Explore 37 widescreen (`1200×520`) 4-layer atmospheric illustrations (Oath of Fëanor, Smaug over burning Lake-town, White Horses at the Ford of Bruinen, Downfall of Númenor, Bridge of Khazad-dûm, Great Eagles at Mount Doom, Coronation beneath the blooming White Tree, and more).
+- **⚔️ 6 Interactive Tactical Battlefields**:
+  - Experience the *Nirnaeth Arnoediad*, *War of the Last Alliance*, *Battle of Five Armies*, *Helm's Deep*, *Pelennor Fields*, and the *Black Gate* on an illustrated war-table.
+  - Make first-person soldier choices, click allied units to ride alongside or enemy formations to charge, issue Volley / War-Horn / Charge tactical orders, and toggle synthesized Web Audio horns, rain, and clashing steel.
+- **🧒 Kids Treasure Hunt Mode**: Oversized friendly UI, speech synthesis read-aloud, a 10-stage map quest with Frodo, and a collectible sticker book.
+- **🌐 Full Bilingual Support (`中文 / EN`)**: Switch languages anytime from the top bar or via `?lang=en`.
+
+### 🖼️ Standalone UI & Procedural Art Highlights
+
+1. **Doors of Durin Star-Arch & Fiery One Ring Cover** (`index.html`, `css/me.css`): Standalone cover featuring Elven star-arch filigree, drifting Valinor starlight & Mordor embers, a 3D beveled One Ring with pulsing fire-script, illuminated chapter plaques, and a direct Map Edition selector.
+2. **Dedicated Top Bar & Universal Overview Minimap** (`js/me.js`, `js/me-i18n.js`): Left-mounted One Ring crest to return to the cover, 3-way segmented Map Edition switcher, `✦ Moments` quick-trigger, a 16-point Númenórean Mariner's Compass Rose, and an overview minimap supporting all three map editions with a pulsing golden One Ring tracker.
+3. **4-Layer Widescreen Dioramas & Hero Setpieces** (`js/me-scene.js`): Multi-stop skies, cloud banks, distant misty peaks, rim-lit architecture, water reflections, character rim-lighting, and custom narrative setpieces for iconic moments.
+4. **Sacred Two Trees, Canon-Faithful 3D Landmarks & Wonders** (`js/me-models.js`, `js/me-life.js`, `js/me-relief.js`): Repainted Telperion & Laurelin on Ezellohar with the Wells of Light and shimmering dew; upgraded 3D miniatures for Minas Tirith (canonical black outer First Wall + 6 white tiers + White Tree), Barad-dûr (lava moat + flying buttresses + Lidless Eye), Rivendell's autumn valley, Lothlórien's golden Mallorns, Edoras's horse-gabled Meduseld, Belegost & Nogrod, plus sculpted Argonath colossi, misty Rauros rainbow, Smaug, Balrog, and Mûmakil.
+5. **Complete Portrait Roster & Codex Medallions** (`js/me-portrait.js`, `js/me.js`): Added the spectral **King of the Dead** portrait & haunted Stone of Erech backdrop, 13 hero signature details, 12 Legend gilded medallions, and 6 Battle war-crests.
+
+### 🚀 Quick Start
+
+No dependencies or build tools required—serve the root directory with any static HTTP server:
+
+```bash
+git clone https://github.com/shangliy/chronicle-of-middle-earth.git
+cd chronicle-of-middle-earth
+python3 -m http.server 8000
+```
+
+Then open <http://localhost:8000> in your browser.
+
+#### URL Parameters & Deep Links
+
+| Example | Description |
+| :--- | :--- |
+| `?style=paint` / `?style=h3` / `?style=parch` | Map edition (`Painted Relief` / `Heroic Adventure` / `Antique Parchment`) |
+| `?lang=en` / `?lang=zh` | UI and lore language (`English` / `Chinese`) |
+| `?kids=1` | Launch directly in Kids Treasure Hunt mode |
+| `#t=6975` | Jump to a specific internal chronicle timestamp |
+| `#l=ring&k=0` / `#m=bridge-of-khazad-dum` / `#b=pelennor` | Deep-link to a Legend beat, Key Moment scene, or Tactical Battle |
+
+#### Keyboard Shortcuts
+
+- `Space`: Play / Pause timeline playback
+- `←` / `→`: Step to previous / next chronicle event (also navigates Key Moments and Battle acts)
+- `Mouse Wheel` / `Pinch`: Smooth zoom centered on cursor
+- `Esc`: Close active character card, Key Moment modal, or Battlefield view
+
+---
+
+## 📁 Project Structure | 目录结构
 
 ```text
 chronicle-of-middle-earth/
-├── index.html          # 独立版主入口（封面、顶栏、泥金侧栏、SVG 地图舞台、战场与时刻层）
-├── middle-earth.html   # 旧链接兼容跳转页（自动保留查询参数与 hash 跳转至 index.html）
-├── favicon.svg         # 至尊戒与埃兰迪尔之星矢量图标
+├── index.html          # Main entry (cover, top bar, illuminated sidebar, SVG map stage, battle & moment layers)
+├── middle-earth.html   # Legacy redirect stub preserving query & hash parameters
+├── favicon.svg         # One Ring & Star of Eärendil vector icon
 ├── css/
-│   └── me.css          # 全站样式表（含三种地图画风主题、小朋友模式与独立版泥金视觉升级）
+│   └── me.css          # Complete stylesheet (3 map edition themes, kids mode, illuminated UI & art rules)
 └── js/
-    ├── me-world.js     # 大陆海岸线、山脉、水系、森林、道路与多纪元陆沉几何数据
-    ├── me-data.js      # 纪元划分、城邦据点、王国疆域与编年史事件数据
-    ├── me-chars.js     # 77 位人物设定、Q 版矢量造型与行军迁徙轨迹
-    ├── me-bio.js       # 人物详细生平、称号、亲族与结局传记
-    ├── me-portrait.js  # 程序化矢量半身像生成器与六大种族泥金装帧画框
-    ├── me-legends.js   # 12 部引导式传说章节文本与镜头坐标
-    ├── me-moments.js   # 37 个关键历史时刻台词与配景元数据
-    ├── me-scene.js     # 关键时刻 1200×520 宽银幕体积光场景插画引擎
-    ├── me-battles.js   # 6 场主要战役分阶段兵力部署、移动与第一人称叙事数据
-    ├── me-relief.js    # 手绘风格分形噪声（Ridged Multifractal）山脉与火山浮雕渲染器
-    ├── me-h3.js        # Canvas 程序化无缝地形贴图与森林/冒险物件生成器
-    ├── me-models.js    # 米那斯提力斯、巴拉都、瑞文戴尔等 20+ 主要地标立体微缩模型
-    ├── me-deco.js      # 海怪、白船、巨鹰等古地图装饰纹样
-    ├── me-life.js      # 大陆生灵、自然奇观与风物细节
-    ├── me-en.js        # 全量英文史料、地名、传记与战役译文词典
-    ├── me-i18n.js      # 双语切换与地图画风状态同步器
-    ├── me-kids.js      # 小朋友寻宝模式逻辑与语音交互
-    └── me.js           # 核心交互控制器（镜头缩放、时间轴、小地图、检索筛选、Web Audio 战场）
+    ├── me-world.js     # Coastlines, mountain chains, rivers, forests, roads & multi-age sinking geometry
+    ├── me-data.js      # Ages, cities/strongholds, realms & chronicle events
+    ├── me-chars.js     # 77 characters, procedural chibi sprites, migrations & army marches
+    ├── me-bio.js       # Extended biographies, titles, kin & fates
+    ├── me-portrait.js  # Procedural half-body portrait engine, 6 race frames & hero signature artifacts
+    ├── me-legends.js   # 12 guided legends (bilingual chapters & camera coordinates)
+    ├── me-moments.js   # 37 key historical moments (quotes, narrative & scene metadata)
+    ├── me-scene.js     # 1200×520 4-layer widescreen diorama & hero setpiece renderer
+    ├── me-battles.js   # 6 tactical battles (phased unit deployments, movements & first-person choices)
+    ├── me-relief.js    # Ridged-multifractal mountain & volcanic relief shader
+    ├── me-h3.js        # Seamless Canvas terrain textures, forests & adventure map objects
+    ├── me-models.js    # 35+ 3D miniature landmark models (Minas Tirith, Barad-dûr, Rivendell, Lórien, etc.)
+    ├── me-deco.js      # Cartographic towns, roads, bridges, beacons & sea decorations
+    ├── me-life.js      # Lore landmarks (Argonath, Rauros), wildlife & timed map wonders (Smaug, Balrog, etc.)
+    ├── me-en.js        # Complete English translation dictionary for places, events, bios & battles
+    ├── me-i18n.js      # Bilingual DOM/data translator & map edition state sync
+    ├── me-kids.js      # Kids Treasure Hunt mode & speech synthesis
+    └── me.js           # Core engine (camera, timeline, universal minimap, codex medallions, Web Audio battles)
 ```
 
 ---
 
-## 📜 声明与致谢 (Disclaimer & License)
+## 📜 Disclaimer & License
 
-- **非官方爱好者作品**：本项目与托尔金遗产委员会（Tolkien Estate）、Middle-earth Enterprises、HarperCollins 或华纳兄弟（Warner Bros.）等均无关联。所有地图轮廓、人物插画、立体微缩模型与场景均为程序化原创矢量/像素绘制，文字为原创概述。
-- **开源协议**：基于 [MIT License](LICENSE) 开源。原始版本出自 [`shangliy/chronicle-of-commerce`](https://github.com/shangliy/chronicle-of-commerce)（Copyright (c) 2026 shangliy）。
+- **Unofficial Fan Work**: This project is an independent, non-commercial fan work and is not affiliated with or endorsed by the Tolkien Estate, Middle-earth Enterprises, HarperCollins, or Warner Bros. All map contours, character portraits, 3D miniatures, and scene illustrations are original procedural vector/pixel creations, and all narrative summaries are original text.
+- **License**: Released under the [MIT License](LICENSE). Originally extracted from [`shangliy/chronicle-of-commerce`](https://github.com/shangliy/chronicle-of-commerce) (`Copyright (c) 2026 shangliy`).
