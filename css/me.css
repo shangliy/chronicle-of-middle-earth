@@ -3,7 +3,7 @@
   --paper: #efe4c8; --paper2: #e5d6b2; --ink: #3a2a18; --ink2: #6b5232; --muted: #8a7353;
   --red: #9b2a1d; --gold: #c99a2e; --elf: #3f6d8c; --man: #7a3b2a; --dwarf: #6a5a3c; --hob: #5f7a33; --dark: #2a1a14; --ring: #c99a2e;
   --sea: #c9cdbf; --land: #ecdfbf;
-  --serif: "Noto Serif SC", "Songti SC", serif; --fell: "IM Fell English", "Noto Serif SC", serif; --cinzel: "Cinzel", "Noto Serif SC", serif;
+  --serif: "Noto Serif SC", "Noto Serif CJK SC", "Songti SC", "EB Garamond", serif; --fell: "IM Fell English", "EB Garamond", "Noto Serif SC", "Noto Serif CJK SC", serif; --cinzel: "Cinzel", "EB Garamond SC", "EB Garamond", "Noto Serif SC", "Noto Serif CJK SC", serif;
   --top: 46px; --tmh: 78px; --pw: 380px;
 }
 * { box-sizing: border-box; }
