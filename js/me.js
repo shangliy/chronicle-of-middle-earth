@@ -574,8 +574,15 @@
     const veiled = t >= 3909.3; L.aman.classList.toggle("veiled", veiled);
     if (MM) { MM.bel.classList.toggle("gone", t >= 587.5); MM.nu.classList.toggle("gone", t < 622 || t >= 3909.3); MM.aman.classList.toggle("veiled", veiled); }
     L.trees.classList.toggle("dead", t >= -40);
-    W.labels.forEach((lb) => lb.g && lb.g.classList.toggle("off", (lb.from != null && t < lb.from) || (lb.ta && t < 591)));
-    D.REALMS.forEach((r) => r.g.classList.toggle("on", t >= r.from && t < r.to));
+    W.labels.forEach((lb) => {
+      if (!lb.g) return;
+      const off = !!((lb.from != null && t < lb.from) || (lb.ta && t < 591));
+      if (lb._off !== off) { lb.g.classList.toggle("off", off); lb._off = off; }
+    });
+    D.REALMS.forEach((r) => {
+      const on = t >= r.from && t < r.to;
+      if (r._on !== on) { r.g.classList.toggle("on", on); r._on = on; }
+    });
     D.PLACES.forEach((p) => {
       const v = visible(p, t);
       if (p._v !== v) { p.g.classList.toggle("off", !v); if (p.mm) p.mm.style.display = v ? "" : "none"; p._v = v; }
