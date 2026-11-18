@@ -37,11 +37,13 @@
   - 涵盖无尽眼泪之战、最后同盟之战、五军之战、圣盔谷之战、帕兰诺平原之战、黑门之战，均配专属战旗纹章。
   - 支持第一人称小兵视角抉择、点击友军随行/敌军突击、齐射/号角/冲锋战术指令，以及基于 Web Audio 实时合成的号角、箭雨与兵刃音效。
 - **🔮 趣味探索、小游戏与沉浸式彩蛋**：
+  - **🔥 点燃刚铎七座烽火 (`B` 键 / 点击白山烽火台)**：从阿蒙丁到哈利费理安逐峰点燃白色山脉求援烽火，唤醒洛汗铁骑驰援帕兰诺。
+  - **🚪 叩响卡扎督姆西门（伊希尔丁月光密语）**：在摩瑞亚或红皮书手札中念诵精灵语密语 `Mellon`（朋友），亲手开启凯勒布理鹏与纳尔维锻造的星光石门。
   - **真知晶石漫游 (`🔮 漫游` / `R`)**：智能加权抽取尚未造访的关键时刻、名城与秘境地标，带晶石闪耀与镜头平滑漫游。
   - **至尊戒编年与「幽影视界」(`◉ 至尊戒` / `W`)**：实时查看当前纪年持戒人，戴上至尊戒即可进入反色幽蓝与魔戒火字旋转笼罩的幽影界（Unseen World）。
-  - **西境红皮书探索手札 (`📖 手札`)**：自动记录城邦地标、人物传记、关键时刻与战役探索进度，解锁 **8 枚原创 SVG 泥金火漆印章**。
+  - **西境红皮书探索手札 (`📖 手札`)**：自动记录城邦地标、人物传记、关键时刻与战役探索进度，解锁 **10 枚原创 SVG 泥金火漆印章**。
   - **🕯️ 黑暗中的猜谜（比尔博 vs 咕噜小游戏）**：内置于红皮书手札、比尔博/咕噜人物卡及咕噜暗湖地标中的原著六道经典谜语对决，配动态双人立绘舞台与咕噜台词反馈。
-  - **🎵 纪元自适应吟游竖琴与彩绘风物明信片**：零外部音频依赖的 Web Audio 竖琴/长笛氛围曲（随双树纪、精灵纪元、夏尔或魔戒大战自动变换调式与速度）；每座城邦、地标与 15 类动态奇观（史矛革、炎魔、亡灵大军、树人进军等）均配有随纪元状态变化的彩绘明信片插画横幅；移步地图实时显示与袋底洞的距离里格，轻点海面泛起水纹涟漪。
+  - **🎵 纪元自适应吟游竖琴、风物明信片与视角分享 (`🔗`)**：零外部音频依赖的 Web Audio 竖琴/长笛氛围曲；每座城邦、地标与 15 类动态奇观均配有彩绘明信片横幅；支持一键复制当前纪元与镜头坐标的永久分享链接。
 - **🧒 小朋友寻宝模式**：大字号卡片、语音朗读支持、十关地图寻宝问答与贴纸收集册。
 - **🌐 中英双语完整覆盖**：顶栏一键切换 `中文 / EN`（或通过 `?lang=en` 访问）。
 
@@ -82,6 +84,7 @@ python3 -m http.server 8000
 - `←` / `→`：切换上一个 / 下一个历史事件（关键时刻弹窗与战役界面内同样适用）
 - `R`：转动真知晶石，随机漫游一处中洲奇观
 - `W`：戴上 / 摘下至尊戒，切换幽影视界（Unseen World）
+- `B`：点燃白色山脉刚铎七座求援烽火台
 - `/` 或 `Ctrl/Cmd + K`：打开侧栏并聚焦快速搜索框
 - `滚轮` / `双指捏合`：围绕指针位置无级缩放地图
 - `Esc`：关闭当前卡片、红皮书手札、关键时刻弹窗或战场界面（幽影界开启时自动摘下魔戒）
@@ -115,12 +118,14 @@ Extracted from [`shangliy/chronicle-of-commerce`](https://github.com/shangliy/ch
 - **⚔️ 6 Interactive Tactical Battlefields**:
   - Experience the *Nirnaeth Arnoediad*, *War of the Last Alliance*, *Battle of Five Armies*, *Helm's Deep*, *Pelennor Fields*, and the *Black Gate* on an illustrated war-table.
   - Make first-person soldier choices, click allied units to ride alongside or enemy formations to charge, issue Volley / War-Horn / Charge tactical orders, and toggle synthesized Web Audio horns, rain, and clashing steel.
-- **🔮 Playful Exploration, Mini-Game & Immersive Easter Eggs**:
+- **🔮 Playful Exploration, Mini-Games & Immersive Easter Eggs**:
+  - **🔥 Light the Seven Beacons of Gondor (`B` / White Mountains Peaks)**: Ignite all seven warning fires sequentially from Amon Dîn to Halifirien to summon Rohan to the Pelennor.
+  - **🚪 Speak *"Mellon"* at the Doors of Durin**: Stand before the glowing *ithildin* West-gate of Moria (from Moria's card or the Red Book) and speak the Elvish password to swing open the twin stone doors.
   - **Palantír Fate Roamer (`🔮 Roam` / `R`)**: Weighted serendipity jump that prioritizes unvisited Key Moments, major strongholds, and lore landmarks with smooth camera flight.
   - **One Ring Chronicle & the Unseen World (`◉ One Ring` / `W`)**: Inspect who currently bears the Ruling Ring at any point on the timeline, or slip on the Ring to peer into spectral Wraith-sight ringed by rotating Black Speech fire-script.
-  - **Red Book of Westmarch Codex (`📖 Codex`)**: Persistently tracks your discovered places, character bios, Key Moments, and battles, unlocking **8 bespoke SVG Collector's Wax Seals**.
-  - **🕯️ Riddles in the Dark Mini-Game**: Challenge Gollum across all six canonical riddles beneath the Misty Mountains—complete with an animated portrait duel stage and Gollum's reactions—accessible from the Codex, Bilbo/Gollum's cards, or Gollum's Cave.
-  - **🎵 Era-Adaptive Bardic Harp & Illustrated Postcards**: Procedural Web Audio harp & flute ambience that shifts musical mode and tempo across Ages (Valinor, Eldar, Shire, War of the Ring); dynamic watercolour postcard banners on every place, landmark, and all 15 clickable map wonders (Smaug, Balrog, Oathbreakers, March of the Ents, etc.); live cartographer's distance from Bag End, and interactive sea ripples.
+  - **Red Book of Westmarch Codex (`📖 Codex`)**: Persistently tracks your discovered places, character bios, Key Moments, and battles, unlocking **10 bespoke SVG Collector's Wax Seals**.
+  - **🕯️ Riddles in the Dark Mini-Game**: Challenge Gollum across all six canonical riddles beneath the Misty Mountains—complete with an animated portrait duel stage and Gollum's reactions.
+  - **🎵 Era-Adaptive Bardic Harp, Postcards & Share Permalinks (`🔗`)**: Procedural Web Audio harp & flute ambience; dynamic watercolour postcard banners on every place, landmark, and all 15 clickable map wonders; and 1-click spatiotemporal URL sharing (`#t=...&x=...&y=...&w=...`).
 - **🧒 Kids Treasure Hunt Mode**: Oversized friendly UI, speech synthesis read-aloud, a 10-stage map quest with Frodo, and a collectible sticker book.
 - **🌐 Full Bilingual Support (`中文 / EN`)**: Switch languages anytime from the top bar or via `?lang=en`.
 
@@ -161,6 +166,7 @@ Then open <http://localhost:8000> in your browser.
 - `←` / `→`: Step to previous / next chronicle event (also navigates Key Moments and Battle acts)
 - `R`: Gaze into the Palantír and roam to a random wonder of Arda
 - `W`: Slip on / remove the One Ring to toggle the Unseen World (Wraith-sight)
+- `B`: Light the seven Warning Beacons of Gondor along the White Mountains
 - `/` or `Ctrl/Cmd + K`: Open the sidebar and focus quick search
 - `Mouse Wheel` / `Pinch`: Smooth zoom centered on cursor
 - `Esc`: Close active card, Red Book Codex, Key Moment modal, or Battlefield view (or exit Wraith-sight)

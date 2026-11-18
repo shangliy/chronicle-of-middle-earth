@@ -78,20 +78,36 @@
       const gap = era === "war" ? 1350 : era === "trees" ? 1050 : 860;
       timer = setTimeout(tick, gap + Math.random() * 260);
     }
-    function sfx(kind) {
-      if (!on) return;
-      ensure();
-      if (ctx.state === "suspended") ctx.resume();
+    function forcePluck(freq, dur = 1.6, vol = 0.12, type = "triangle", delay = 0) {
+      try {
+        ensure();
+        if (ctx.state === "suspended") ctx.resume();
+        const prev = on; on = true;
+        pluck(freq, dur, vol, type, delay);
+        on = prev;
+      } catch (e) {}
+    }
+    function sfx(kind, force = false) {
+      if (!on && !force) return;
+      try {
+        ensure();
+        if (ctx.state === "suspended") ctx.resume();
+      } catch (e) { return; }
+      const p = force ? forcePluck : pluck;
       if (kind === "chime") {
-        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => pluck(f, 1.4, 0.1, "sine", i * 0.07));
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => p(f, 1.4, 0.1, "sine", i * 0.07));
       } else if (kind === "palantir") {
-        [392, 493.88, 587.33, 739.99, 987.77].forEach((f, i) => pluck(f, 1.9, 0.11, "sine", i * 0.08));
+        [392, 493.88, 587.33, 739.99, 987.77].forEach((f, i) => p(f, 1.9, 0.11, "sine", i * 0.08));
       } else if (kind === "wraith") {
-        [146.83, 155.56, 220].forEach((f, i) => pluck(f, 2.8, 0.13, "sawtooth", i * 0.1));
+        [146.83, 155.56, 220].forEach((f, i) => p(f, 2.8, 0.13, "sawtooth", i * 0.1));
+      } else if (kind === "beacon") {
+        [293.66, 440, 587.33].forEach((f, i) => p(f, 1.5, 0.11, "triangle", i * 0.06));
+      } else if (kind === "doors") {
+        [196, 293.66, 392, 493.88, 587.33, 783.99].forEach((f, i) => p(f, 2.4, 0.12, "sine", i * 0.09));
       } else if (kind === "tap") {
-        pluck(587.33, 0.65, 0.08, "triangle");
+        p(587.33, 0.65, 0.08, "triangle");
       } else if (kind === "wrong") {
-        pluck(196, 0.8, 0.12, "sawtooth"); pluck(185, 0.9, 0.12, "sawtooth", 0.12);
+        p(196, 0.8, 0.12, "sawtooth"); p(185, 0.9, 0.12, "sawtooth", 0.12);
       }
     }
     function toggle() {
@@ -118,12 +134,14 @@
 
   /* ======================= 2. 西境红皮书探索记录与徽章系统 ======================= */
   const STORE_KEY = "me-redbook-v1";
-  const state = { places: [], chars: [], moments: [], battles: [], riddlesWon: false };
+  const state = { places: [], chars: [], moments: [], battles: [], riddlesWon: false, beaconsLit: false, doorsOpened: false };
   try {
     const raw = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
     if (raw && typeof raw === "object") {
       ["places", "chars", "moments", "battles"].forEach((k) => { if (Array.isArray(raw[k])) state[k] = raw[k]; });
       state.riddlesWon = !!raw.riddlesWon;
+      state.beaconsLit = !!raw.beaconsLit;
+      state.doorsOpened = !!raw.doorsOpened;
     }
   } catch (e) {}
 
@@ -137,8 +155,8 @@
   const TOTAL_BATTLES = BATTLES.length;
 
   function totalProgressPct() {
-    const got = state.places.length + state.chars.length + state.moments.length + state.battles.length * 3 + (state.riddlesWon ? 5 : 0);
-    const all = TOTAL_PLACES + TOTAL_CHARS + TOTAL_MOMENTS + TOTAL_BATTLES * 3 + 5;
+    const got = state.places.length + state.chars.length + state.moments.length + state.battles.length * 3 + (state.riddlesWon ? 5 : 0) + (state.beaconsLit ? 3 : 0) + (state.doorsOpened ? 3 : 0);
+    const all = TOTAL_PLACES + TOTAL_CHARS + TOTAL_MOMENTS + TOTAL_BATTLES * 3 + 11;
     return Math.min(100, Math.round((got / Math.max(1, all)) * 100));
   }
   function updateCodexBadge() {
@@ -170,6 +188,8 @@
     { id: "captain", zh: "西方统帅", en: "Captain of the West", descZh: "参与至少 3 场重大战役推演", descEn: "Command in at least 3 Great Battles", col: "#9b2a1d", ic: `<path d="M13,35L35,13M28,13H35V20M35,35L13,13M20,13H13V20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>`, ok: () => state.battles.length >= 3 },
     { id: "warlord", zh: "六战功勋", en: "Marshal of All Six Wars", descZh: "体验全部 6 场中洲决定性战役", descEn: "Experience all 6 decisive battles", col: "#7a2218", ic: `<path d="M14,32L13,18L20,24L24,14L28,24L35,18L34,32Z" fill="currentColor"/><path d="M14,35H34" stroke="currentColor" stroke-width="2.2"/>`, ok: () => state.battles.length >= 6 },
     { id: "riddler", zh: "袋底洞猜谜王", en: "Riddle-master in the Dark", descZh: "在暗湖猜谜对决中战胜咕噜", descEn: "Outwit Gollum in Riddles in the Dark", col: "#c48a18", ic: `<circle cx="24" cy="26" r="10" fill="none" stroke="currentColor" stroke-width="3"/><path d="M24,10L25.8,14.2L30,16L25.8,17.8L24,22L22.2,17.8L18,16L22.2,14.2Z" fill="currentColor"/>`, ok: () => state.riddlesWon },
+    { id: "beacon", zh: "白山烽火官", en: "Warden of the Beacons", descZh: "点燃刚铎七座白山求援烽火台", descEn: "Light all seven Warning Beacons of Gondor", col: "#d65a18", ic: `<path d="M14,36L24,24L34,36Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M24,10C29,16 30,21 24,25C18,21 19,16 24,10Z" fill="currentColor"/>`, ok: () => state.beaconsLit },
+    { id: "mellon", zh: "都林门客", en: "Friend of Durin", descZh: "在卡扎督姆西门说出精灵密语开启石门", descEn: "Speak 'Mellon' to open the Doors of Durin", col: "#4a78b0", ic: `<path d="M15,36V22A9,9 0 0,1 33,22V36" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M24,15L25.6,19.4L30,21L25.6,22.6L24,27L22.4,22.6L18,21L22.4,19.4Z" fill="currentColor"/>`, ok: () => state.doorsOpened },
   ];
 
   /* ======================= 3. 至尊戒编年卡与「幽影视界」(Unseen World) ======================= */
@@ -410,6 +430,7 @@
         </div>
         <div class="cdx-cta">
           <button type="button" class="pri cdx-go-unseen">🔮 ${L("真知晶石 · 带我去一处未探索的奇观", "Palantír · Guide Me to an Unseen Wonder")}</button>
+          <button type="button" data-cdx-beacons="1">🔥 ${L("点燃刚铎七座烽火", "Light the Seven Beacons")}</button>
         </div>
         <h4 class="cdx-sh">${L("中洲旅人火漆印章", "Collector's Wax Seals of Middle-earth")}</h4>
         <div class="cdx-seals">
@@ -420,7 +441,20 @@
               <div class="seal-tx"><b>${esc(EN ? s.en : s.zh)}</b><small>${esc(EN ? s.descEn : s.descZh)}</small></div>
             </div>`;
           }).join("")}
+        </div>
+        <div class="cdx-keys">
+          <b>⌨️ ${L("旅人秘籍与快捷键", "Cartographer's Shortcuts & Secrets")}</b>
+          <div class="cdx-klist">
+            <span><kbd>Space</kbd> ${L("播放/暂停", "Play/Pause")}</span>
+            <span><kbd>←</kbd><kbd>→</kbd> ${L("逐个事件", "Prev/Next Event")}</span>
+            <span><kbd>R</kbd> ${L("真知晶石漫游", "Palantír Roam")}</span>
+            <span><kbd>W</kbd> ${L("至尊戒幽影界", "Wraith-sight")}</span>
+            <span><kbd>B</kbd> ${L("点燃刚铎烽火", "Light Beacons")}</span>
+            <span><kbd>/</kbd> ${L("快速搜索", "Quick Search")}</span>
+          </div>
         </div>`;
+    } else if (codexTab === "doors") {
+      body = renderDoorsTab();
     } else {
       const bilbo = M.CI.bilbo, gollum = M.CI.gollum;
       const cur = RIDDLES[rState.idx];
@@ -473,11 +507,12 @@
         <div class="cdx-head">
           <div class="cdx-title">
             <span class="mo-k">✦ ${L("西境红皮书 · 巴金斯手札", "The Red Book of Westmarch")}</span>
-            <h2>${L("旅人探索图鉴与暗湖猜谜", "Explorer's Codex & Riddles in the Dark")}</h2>
+            <h2>${L("旅人探索图鉴、暗湖猜谜与都林西门", "Explorer's Codex, Riddles & Doors of Durin")}</h2>
           </div>
           <div class="cdx-tabs">
             <button type="button" class="${codexTab === "atlas" ? "on" : ""}" data-ctab="atlas">🗺️ ${L("探索图鉴", "Explorer's Codex")}</button>
             <button type="button" class="${codexTab === "riddle" ? "on" : ""}" data-ctab="riddle">🕯️ ${L("黑暗中的猜谜", "Riddles in the Dark")}</button>
+            <button type="button" class="${codexTab === "doors" ? "on" : ""}" data-ctab="doors">🚪 ${L("都林西门", "Doors of Durin")}</button>
           </div>
         </div>
         <div class="mo-body cdx-body">${body}</div>
@@ -519,8 +554,223 @@
       }
       if (e.target.closest("[data-rdl-reset]")) { resetRiddle(); return renderCodex(); }
       if (e.target.closest("[data-rdl-moment]")) { closeCodex(); return M.openMoment("riddles-in-the-dark"); }
+      if (e.target.closest("[data-cdx-beacons]")) { closeCodex(); return lightBeacons(); }
+      const spell = e.target.closest("[data-door-spell]");
+      if (spell) return tryDoorWord(spell.dataset.doorSpell);
+      if (e.target.closest("[data-door-submit]")) {
+        const inp = $("#doorInput");
+        if (inp) return tryDoorWord(inp.value);
+      }
+      if (e.target.closest("[data-door-bridge]")) { closeCodex(); return M.openMoment("bridge-of-khazad-dum"); }
+      if (e.target.closest("[data-door-reset]")) { dState.open = false; dState.shake = false; dState.msg = defaultDoorMsg(); return renderCodex(); }
+    });
+    $("#codex").addEventListener("keydown", (e) => {
+      if (e.target.id === "doorInput" && e.key === "Enter") {
+        e.preventDefault();
+        tryDoorWord(e.target.value);
+      }
     });
   }
+
+  /* ======================= 6B. 卡扎督姆西门 · 伊希尔丁月光密语 (Doors of Durin) ======================= */
+  function defaultDoorMsg() {
+    return L(
+      "甘道夫抚过冰冷的岩石，月光下浮现出凯勒布理鹏与纳尔维锻造的伊希尔丁银纹：「摩瑞亚之王都林之门：请说，朋友，然后进入。」",
+      "Under the moonlight, silver ithildin lines wrought by Celebrimbor and Narvi glimmer upon the grey stone: “The Doors of Durin, Lord of Moria. Speak, friend, and enter.”"
+    );
+  }
+  const dState = { open: false, shake: false, msg: defaultDoorMsg() };
+
+  function tryDoorWord(raw) {
+    const w = String(raw || "").trim().toLowerCase();
+    if (!w) return;
+    if (/^(mellon|friend|朋友|梅隆|麦隆)$/.test(w)) {
+      dState.open = true;
+      dState.shake = false;
+      dState.msg = L(
+        "✨ 「Mellon！」银色星纹骤然大放光明，两扇沉重的石门无声地向两侧缓缓洞开，露出了卡扎督姆深邃的石阶与黑柱大厅！已解锁「都林门客」火漆印章！",
+        "✨ “Mellon!” The ithildin star-lines blaze white-silver, and the twin stone doors swing silently inward, revealing the pillared darkness of Khazad-dûm! Unlocked the 'Friend of Durin' Wax Seal!"
+      );
+      if (!state.doorsOpened) { state.doorsOpened = true; saveState(); }
+      Bard.sfx("doors", true);
+    } else if (w === "edro") {
+      dState.open = false; dState.shake = true;
+      dState.msg = L("甘道夫高举手杖念诵诺多精灵语开锁咒：「Annon edhellen, edro hi ammen!」银纹微闪，石门却纹丝不动。", "Gandalf lifts his staff: “Annon edhellen, edro hi ammen!” The silver lines flicker faintly, yet the stone doors stir not.");
+      Bard.sfx("wrong", true);
+    } else if (w === "nogothrim") {
+      dState.open = false; dState.shake = true;
+      dState.msg = L("「Fennas nogothrim, lasto beth lammen!」山壁回荡着低沉余音，可古老时代并不需要复杂的口令……再仔细读读铭文？", "“Fennas nogothrim, lasto beth lammen!” Echoes roll off the cliff, yet in happier days no secret cipher was needed… read the inscription literally!");
+      Bard.sfx("wrong", true);
+    } else {
+      dState.open = false; dState.shake = true;
+      dState.msg = L(`你在门前念出「${raw.trim()}」，冰冷的岩壁毫无反应。梅里提醒道：「“请说，朋友，然后进入”——会不会直接用精灵语说“朋友”？」`, `You speak “${raw.trim()}”, and the grey cliff remains shut. Merry ponders: “What if it simply means: say the Elvish word for ‘friend’?”`);
+      Bard.sfx("wrong", true);
+    }
+    renderCodex();
+  }
+
+  function renderDoorsTab() {
+    return `
+      <div class="drs-wrap ${dState.open ? "is-open" : ""} ${dState.shake ? "is-shake" : ""}">
+        <div class="drs-stage">
+          <svg viewBox="0 0 520 270" class="drs-svg" aria-hidden="true">
+            <defs>
+              <radialGradient id="ithGlow" cx="50%" cy="52%" r="52%">
+                <stop offset="0%" stop-color="#cbe6ff" stop-opacity="${dState.open ? ".45" : ".22"}"/>
+                <stop offset="100%" stop-color="#0a1220" stop-opacity="0"/>
+              </radialGradient>
+              <linearGradient id="hallDeep" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#05080f"/>
+                <stop offset="70%" stop-color="#141c2b"/>
+                <stop offset="100%" stop-color="#2a1c14"/>
+              </linearGradient>
+            </defs>
+            <rect width="520" height="270" rx="8" fill="#0d1420"/>
+            <circle cx="260" cy="140" r="145" fill="url(#ithGlow)"/>
+            <!-- 两侧埃瑞吉安冬青古树 -->
+            <g stroke="#7aa8d6" stroke-opacity=".55" fill="none" stroke-linecap="round">
+              <path d="M86,252 Q92,168 78,94 M88,184 Q56,154 44,118 M84,142 Q112,102 132,74" stroke-width="3.2"/>
+              <path d="M434,252 Q428,168 442,94 M432,184 Q464,154 476,118 M436,142 Q408,102 388,74" stroke-width="3.2"/>
+            </g>
+            <!-- 门后卡扎督姆巨柱深渊（开门可见） -->
+            <clipPath id="doorArchClip"><path d="M168,250 V126 A92,92 0 0,1 352,126 V250 Z"/></clipPath>
+            <g clip-path="url(#doorArchClip)">
+              <rect x="166" y="30" width="188" height="222" fill="url(#hallDeep)"/>
+              ${[196, 226, 294, 324].map((x) => `<rect x="${x - 6}" y="46" width="12" height="196" fill="#1e293d" stroke="#5c789e" stroke-opacity=".3"/>`).join("")}
+              <ellipse cx="260" cy="242" rx="68" ry="18" fill="#ff7424" opacity="${dState.open ? ".42" : "0"}"/>
+              <path d="M222,250 L248,186 H272 L298,250 Z" fill="#2c3a52" opacity=".75"/>
+            </g>
+            <!-- 双扇伊希尔丁月光石门 -->
+            <g clip-path="url(#doorArchClip)">
+              <g class="drs-leaf left">
+                <rect x="166" y="32" width="94" height="220" fill="#162131" stroke="#9ed0ff" stroke-width="1.5"/>
+                <path d="M180,248 V130 A80,80 0 0,1 260,50" fill="none" stroke="#bfe2ff" stroke-width="1.6"/>
+                <path d="M206,246 V176 Q206,148 238,136" fill="none" stroke="#9ec8f0" stroke-width="1.2"/>
+              </g>
+              <g class="drs-leaf right">
+                <rect x="260" y="32" width="94" height="220" fill="#162131" stroke="#9ed0ff" stroke-width="1.5"/>
+                <path d="M340,248 V130 A80,80 0 0,0 260,50" fill="none" stroke="#bfe2ff" stroke-width="1.6"/>
+                <path d="M314,246 V176 Q314,148 282,136" fill="none" stroke="#9ec8f0" stroke-width="1.2"/>
+              </g>
+            </g>
+            <!-- 外拱铭文与都林七星、铁锤铁砧、费艾诺八芒星（随门开启渐隐为拱顶银辉） -->
+            <path d="M168,250 V126 A92,92 0 0,1 352,126 V250" fill="none" stroke="#d8eeff" stroke-width="2.6"/>
+            <path d="M160,250 V126 A100,100 0 0,1 360,126 V250" fill="none" stroke="#7fb4e8" stroke-width="1" stroke-dasharray="4 4"/>
+            <g class="drs-sigils" opacity="${dState.open ? ".2" : ".95"}" fill="none" stroke="#d8eeff" stroke-width="1.4">
+              <path d="M244,116 L248,106 L254,112 L260,102 L266,112 L272,106 L276,116 Z"/>
+              ${[-26, -18, -9, 0, 9, 18, 26].map((dx, i) => `<circle cx="${260 + dx}" cy="${94 - Math.cos(dx / 18) * 9}" r="${i === 3 ? 2.2 : 1.5}" fill="#ffffff" stroke="none"/>`).join("")}
+              <path d="M248,144 H272 M260,132 V154 M252,154 H268"/>
+              <polygon points="260,168 263,179 274,182 263,185 260,196 257,185 246,182 257,179" fill="#e6f4ff" stroke="none"/>
+            </g>
+            <text x="260" y="24" text-anchor="middle" fill="#bfe2ff" font-size="11.5" font-style="italic" letter-spacing="1.2">Ennyn Durin Aran Moria · pedo mellon a minno</text>
+            <line x1="60" y1="250" x2="460" y2="250" stroke="#4f6d92" stroke-width="2"/>
+          </svg>
+        </div>
+        <p class="drs-msg">${esc(dState.msg)}</p>
+        ${dState.open ? `
+          <div class="cdx-cta">
+            <button type="button" class="pri" data-door-bridge="1">✦ ${L("走入长厅 · 查看「卡扎督姆之桥」", "Enter Khazad-dûm · Bridge Diorama")}</button>
+            <button type="button" data-door-reset="1">↺ ${L("合上西门", "Close the Doors")}</button>
+          </div>
+        ` : `
+          <div class="drs-spells">
+            <button type="button" class="rdl-opt" data-door-spell="edro">🪄 Annon edhellen, edro hi ammen!</button>
+            <button type="button" class="rdl-opt" data-door-spell="nogothrim">🔨 Fennas nogothrim, lasto beth lammen!</button>
+            <button type="button" class="rdl-opt mellon-hint" data-door-spell="mellon">✨ Mellon（${L("辛达林语：朋友", "Sindarin: Friend")}）</button>
+          </div>
+          <div class="drs-inp">
+            <input id="doorInput" type="text" placeholder="${L("或亲手输入精灵语密语（例如 Mellon / 朋友）…", "Or type the Elvish password (e.g. Mellon / Friend)…")}" autocomplete="off" />
+            <button type="button" class="pri" data-door-submit="1">${L("吟诵密语", "Speak Word")}</button>
+          </div>
+        `}
+      </div>`;
+  }
+
+  /* ======================= 6C. 点燃刚铎七座白山烽火台 (Beacons of Gondor) & 视角分享 ======================= */
+  const BEACON_PEAKS = [
+    [648, 546, "阿蒙丁", "Amon Dîn"],
+    [626, 540, "埃兰纳赫", "Eilenach"],
+    [604, 534, "纳多尔", "Nardol"],
+    [588, 532, "埃瑞拉斯", "Erelas"],
+    [570, 530, "明-林蒙", "Min-Rimmon"],
+    [556, 530, "卡伦哈德", "Calenhad"],
+    [544, 526, "哈利费理安", "Halifirien"],
+  ];
+  let beaconTimers = [];
+
+  function lightBeacons() {
+    M.pause();
+    const intro = $("#intro");
+    if (intro && !intro.hidden) intro.hidden = true;
+    $("#codex").hidden = true;
+    $("#card").hidden = true;
+    if (M.T < 6000 || M.T > 7052) M.setT(7050.09, true);
+    M.flyTo(598, 534, 210, 950);
+
+    beaconTimers.forEach(clearTimeout);
+    beaconTimers = [];
+    $$(".bcn-blaze", M.svg).forEach((n) => n.remove());
+
+    BEACON_PEAKS.forEach(([x, y, zh, en], i) => {
+      beaconTimers.push(setTimeout(() => {
+        if (!M.L?.fx) return;
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        g.setAttribute("class", "bcn-blaze");
+        g.setAttribute("transform", `translate(${x},${y})`);
+        g.innerHTML = `<g class="sc">
+          <circle r="16" fill="#ff7a18" opacity=".32" class="bcn-halo"/>
+          <path d="M0,-3 Q-3,-14 1,-24 Q4,-15 0,-3 Z" fill="#544842" opacity=".45"/>
+          <path d="M-4.2,0 C-5,-8 -1,-14 0,-19 C1,-14 5,-8 4.2,0 Z" fill="#ff5a10"/>
+          <path d="M-2.4,-0.5 C-2.8,-6 -0.6,-10 0,-14 C0.6,-10 2.8,-6 2.4,-0.5 Z" fill="#ffd866"/>
+          <circle cy="-3" r="1.8" fill="#ffffff"/>
+          <text y="-21" text-anchor="middle" class="bcn-lbl">${esc(EN ? en : zh)}</text>
+        </g>`;
+        M.L.fx.appendChild(g);
+        M.pulse(x, y, "k-ring");
+        Bard.sfx("beacon", true);
+        setTimeout(() => g.remove(), 9500);
+
+        if (i === BEACON_PEAKS.length - 1) {
+          if (!state.beaconsLit) { state.beaconsLit = true; saveState(); }
+          M.pulse(578, 508, "k-ring");
+          const ts = $("#toast");
+          if (ts) {
+            ts.className = "toast on k-ring";
+            ts.innerHTML = `<div class="ts-d">${L("刚铎求援 · 白色山脉七烽连天", "The Warning Beacons of Gondor")}</div>
+              <b>🔥 ${L("烽火亮了！刚铎在呼救！", "The Beacons Are Lit! Gondor Calls for Aid!")}</b>
+              <p>${L("从阿蒙丁到哈利费理安，七座雪峰火光冲天。希奥顿王在金殿前仰望火光：「洛汗必将应召！」", "From Amon Dîn to Halifirien, seven mountain-fires leap across the night. In Edoras King Théoden answers: “And Rohan will answer!”")}</p>
+              <button class="go-b" data-b="pelennor">⚔ ${L("率洛汗铁骑驰援帕兰诺平原", "Ride to Battle of the Pelennor Fields")}</button>`;
+            setTimeout(() => ts.classList.remove("on"), 7200);
+          }
+        }
+      }, 280 + i * 360));
+    });
+  }
+
+  function shareCurrentView() {
+    const hash = M.getShareHash ? M.getShareHash() : location.hash;
+    try { history.replaceState(null, "", hash); } catch (e) {}
+    const u = new URL(location.href);
+    u.hash = hash;
+    const urlStr = u.toString();
+    const done = () => {
+      Bard.sfx("chime", true);
+      const ts = $("#toast");
+      if (ts) {
+        ts.className = "toast on k-ring";
+        ts.innerHTML = `<div class="ts-d">${L("时空坐标永久链接", "Shareable Atlas Permalink")}</div>
+          <b>🔗 ${L("已复制当前纪元与视角链接！", "Permalink Copied to Clipboard!")}</b>
+          <p style="word-break:break-all;font-size:11.5px;opacity:.85">${esc(urlStr)}</p>`;
+        setTimeout(() => ts.classList.remove("on"), 3600);
+      }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(urlStr).then(done).catch(done);
+    } else {
+      done();
+    }
+  }
+  if ($("#shareBtn")) $("#shareBtn").addEventListener("click", shareCurrentView);
 
   /* ======================= 7. 制图师坐标罗盘读数、海面点击涟漪与全局快捷键 ======================= */
   const coordsEl = $("#mapCoords");
@@ -580,8 +830,12 @@
       spinPalantir();
     } else if (e.key.toLowerCase() === "w" && !e.metaKey && !e.ctrlKey && !e.altKey && $("#moment")?.hidden && !document.body.classList.contains("in-battle")) {
       toggleWraith();
+    } else if (e.key.toLowerCase() === "b" && !e.metaKey && !e.ctrlKey && !e.altKey && $("#moment")?.hidden && !document.body.classList.contains("in-battle")) {
+      lightBeacons();
+    } else if (e.key === "?" && !e.metaKey && !e.ctrlKey && $("#moment")?.hidden && !document.body.classList.contains("in-battle")) {
+      openCodex("atlas");
     }
   });
 
-  Object.assign(M, { showRing, showWonder, toggleWraith, openCodex, spinPalantir, Bard });
+  Object.assign(M, { showRing, showWonder, toggleWraith, openCodex, spinPalantir, lightBeacons, shareCurrentView, Bard });
 })();

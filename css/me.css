@@ -260,7 +260,7 @@ body[data-era="war"] .mapwrap::after { content: ""; position: absolute; inset: 0
 .b-lead { font-size: 15px; line-height: 2; color: #e9dcbc; }
 .b-forces { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 13px; line-height: 1.6; margin: 14px 0; }
 .b-forces dt { font-weight: 700; } .b-forces dt.w { color: #9cc3e0; } .b-forces dt.e { color: #ef8a6a; } .b-forces dd { margin: 0; color: #cdbb92; }
-.b-you { position: relative; margin-top: 14px; padding: 12px 14px 12px 48px; background: rgba(240, 212, 138, .07); border-left: 3px solid #e0a85a; font-size: 14px; line-height: 1.9; color: #f0e2bd; font-style: italic; }
+.b-you { position: relative; margin-top: 14px; padding: 12px 14px 12px 58px; background: rgba(240, 212, 138, .07); border-left: 3px solid #e0a85a; font-size: 14px; line-height: 1.9; color: #f0e2bd; font-style: italic; }
 .b-you span { position: absolute; left: 12px; top: 10px; font-style: normal; font-weight: 900; color: #e0a85a; font-size: 18px; }
 .b-start { margin-top: 20px; width: 100%; padding: 12px; font-size: 16px; letter-spacing: .2em; border: 0; border-radius: 3px; }
 .b-ph { animation: fadein .6s; }
@@ -920,7 +920,7 @@ body[data-era="trees"] .advo { display: none; }
 .h3mini .gone, .h3mini .veiled { display: none; }
 @media (max-width: 860px) { .st-h3 .h3mini { display: none; } }
 /* 小地图占了右上角：卡片和人物登场下移 */
-.st-h3 .card { top: 112px; max-height: calc(100% - 128px); }
+.st-h3 .card { top: 112px; max-height: calc(100% - 158px); }
 .st-h3 .debut-box { top: 112px; }
 @media (max-width: 860px) { .st-h3 .card { top: 14px; max-height: 60%; } }
 /* —— 英雄属性 —— */
@@ -1439,7 +1439,7 @@ body[data-era="trees"] .advo { display: none; }
   .st-parch .mm-land { fill: #eadcc0; stroke: #5a4326; stroke-width: 3.5; }
   .st-parch .mm-aman { fill: #f3ead2; }
   .st-parch .mm-vp { stroke: #9b2a1d; fill: rgba(155, 42, 29, .08); }
-  body:not(.mini-shut) .card { top: 112px; max-height: calc(100% - 128px); }
+  body:not(.mini-shut) .card { top: 112px; max-height: calc(100% - 158px); }
   body:not(.mini-shut) .debut-box { top: 112px; }
 }
 @media (max-width: 860px) {
@@ -1748,4 +1748,72 @@ body.wraith-mode #map {
   .rdl-stage { grid-template-columns: 64px 1fr 64px; gap: 8px; padding: 10px; }
   .rdl-fighter .rf-pt { width: 58px; }
   .rdl-opts { grid-template-columns: 1fr; }
+}
+
+/* ======================= 7. 刚铎七座求援烽火、卡扎督姆西门、分享按钮与窄屏顶栏自适应 ======================= */
+.beacon { cursor: pointer; }
+.beacon:hover .bc-f { transform: scale(1.7); filter: drop-shadow(0 0 4px #ff9a20); }
+.pc-act.bcn { background: linear-gradient(180deg, #6e2412, #441308); color: #ffe4a8; border-color: #d86e28; }
+.pc-act.bcn:hover { background: #8e2c14; color: #fff; }
+.pc-act.drs { background: linear-gradient(180deg, #1b2d44, #0f1b2b); color: #d8eeff; border-color: #6ea4d8; }
+.pc-act.drs:hover { background: #264264; color: #fff; }
+
+.bcn-blaze { pointer-events: none; animation: bcnPop .45s ease-out; }
+@keyframes bcnPop { from { opacity: 0; transform: scale(.4); } to { opacity: 1; } }
+.bcn-blaze .bcn-halo { animation: rg 1.1s ease-in-out infinite; }
+.bcn-blaze .bcn-lbl {
+  font-family: var(--serif); font-size: 9.5px; font-weight: 700; fill: #fff3c4;
+  paint-order: stroke; stroke: #2b1106; stroke-width: 2.8px; stroke-linejoin: round;
+}
+
+/* 旅人快捷键条 */
+.cdx-keys {
+  margin-top: 14px; padding: 10px 12px; border-radius: 6px;
+  background: rgba(255, 250, 238, .68); border: 1px dashed #c8b284;
+}
+.cdx-keys > b { display: block; font-size: 12px; color: var(--ink2); margin-bottom: 7px; letter-spacing: .06em; }
+.cdx-klist { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 12px; color: var(--ink); }
+.cdx-klist kbd {
+  display: inline-block; padding: 1px 6px; border-radius: 4px; font: 600 11px/1.4 monospace;
+  background: #fffdf7; border: 1px solid #b89e6c; box-shadow: 0 1px 0 #b89e6c; color: #4a3319;
+}
+
+/* 卡扎督姆西门（伊希尔丁月光石门） */
+.drs-wrap { text-align: center; }
+.drs-stage {
+  border-radius: 8px; overflow: hidden; border: 1px solid #48688e;
+  box-shadow: 0 10px 26px rgba(8, 16, 30, .42); background: #0d1420;
+}
+.drs-svg { display: block; width: 100%; height: auto; }
+.drs-leaf { transition: transform 1.2s cubic-bezier(.22, .8, .22, 1); }
+.drs-wrap.is-open .drs-leaf.left { transform: translateX(-82px); }
+.drs-wrap.is-open .drs-leaf.right { transform: translateX(82px); }
+.drs-sigils { transition: opacity .9s ease; }
+.drs-wrap.is-shake .drs-stage { animation: drShake .38s ease; }
+@keyframes drShake {
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+.drs-msg {
+  margin: 12px auto; max-width: 580px; font-size: 13.5px; line-height: 1.75; color: var(--ink);
+  padding: 9px 14px; border-radius: 6px; background: rgba(255, 252, 242, .82); border: 1px solid #ccb88c;
+}
+.drs-spells { display: flex; flex-direction: column; gap: 7px; max-width: 500px; margin: 0 auto 12px; }
+.drs-spells .mellon-hint { border-color: #5b8cc0; background: linear-gradient(180deg, #f2f8ff, #dceafa); color: #193454; }
+.drs-inp { display: flex; gap: 8px; max-width: 500px; margin: 0 auto; }
+.drs-inp input {
+  flex: 1; padding: 8px 12px; border-radius: 5px; border: 1px solid #b59d6e;
+  background: #fffdf7; font: 13.5px var(--serif); color: var(--ink); outline: none;
+}
+.drs-inp input:focus { border-color: #3c6ea6; box-shadow: 0 0 0 2px rgba(60, 110, 166, .2); }
+.drs-inp button { padding: 8px 16px; border-radius: 5px; font-weight: 700; }
+
+/* 窄屏与移动端顶栏优雅折叠文字，避免横向拥挤 */
+@media (max-width: 1080px) {
+  .top .pal-btn span, .top .mus-btn span, .top .shr-btn span, .top .kidb span { display: none; }
+}
+@media (max-width: 720px) {
+  .top { gap: 6px; padding: 0 8px; }
+  .top .ttl small { display: none; }
+  .top .cdx-btn span { display: none; }
 }

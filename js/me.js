@@ -144,7 +144,13 @@
       el("path", { d, class: "road-b" }, g); el("path", { d, class: "road" }, g);
     });
     (DECO.BRIDGES || []).forEach(([x, y, a]) => el("path", { d: "M-3.4,-1.4Q0,-3.4 3.4,-1.4M-3.4,1.4Q0,3.4 3.4,1.4", class: "bridge", transform: `translate(${x},${y}) rotate(${a})` }, L.roads));
-    (DECO.BEACONS || []).forEach(([x, y], i) => { const g = el("g", { class: "beacon", transform: `translate(${x},${y})` }, L.roads); el("path", { d: "M-1.6,0L0,-2.6L1.6,0Z", class: "bc-b" }, g); el("path", { d: "M-1,-2.6Q0,-6 1,-2.6Z", class: "bc-f", style: `animation-delay:-${i * 0.3}s` }, g); });
+    (DECO.BEACONS || []).forEach(([x, y], i) => {
+      const g = el("g", { class: "beacon", "data-beacon": i, transform: `translate(${x},${y})` }, L.roads);
+      el("circle", { r: 6.5, fill: "transparent" }, g);
+      el("path", { d: "M-1.8,0L0,-3L1.8,0Z", class: "bc-b" }, g);
+      el("path", { d: "M-1.1,-2.8Q0,-6.8 1.1,-2.8Z", class: "bc-f", style: `animation-delay:-${i * 0.3}s` }, g);
+      g.addEventListener("click", (ev) => { ev.stopPropagation(); if (window.__ME?.lightBeacons) window.__ME.lightBeacons(i); });
+    });
   }
   /* ======== “英雄”风格（ME_STYLE=h3）：地形区块、森林、冒险物件、骑马英雄、小地图 ======== */
   let MM = null;
@@ -864,9 +870,11 @@
     const dark = p.darkAt != null && T >= p.darkAt && !(p.lightAt && T >= p.lightAt);
     const badge = dark ? tr("暗影笼罩") : ruin ? tr("已成废墟") : p.aman && T >= 3909.3 ? tr("移出世间") : tr("当世风物");
     const riddleBtn = p.id === "gollumcave" ? `<button class="pc-act rdl" data-open-riddle="1">🕯️ ${tr("黑暗中的猜谜")}</button>` : "";
+    const beaconBtn = (p.id === "minastirith" || p.id === "edoras") ? `<button class="pc-act bcn" data-light-beacons="1">🔥 ${tr("点燃刚铎烽火")}</button>` : "";
+    const doorsBtn = (p.id === "moria" || p.id === "eregion") ? `<button class="pc-act drs" data-open-doors="1">🚪 ${tr("叩响都林西门")}</button>` : "";
     let html = placeHeroSvg(p, { ruin, dark, badge }) + `<div class="pc-k">${esc(dot(kind, p.en))}</div><h3>${esc(p.tx.textContent)}</h3>`;
     if (desc) html += `<p class="pc-d">${esc(desc)}</p>`;
-    html += `<div class="pc-acts"><button class="pc-act" data-zoom-xy="${p.x},${p.y}">🔍 ${tr("飞近细看")}</button>${riddleBtn}</div>`;
+    html += `<div class="pc-acts"><button class="pc-act" data-zoom-xy="${p.x},${p.y}">🔍 ${tr("飞近细看")}</button>${beaconBtn}${doorsBtn}${riddleBtn}</div>`;
     if (evs.length || mos.length) {
       html += `<h5 class="cc-h">${tr("编年与关键时刻")}</h5><ul class="pc-ev">` +
         evs.map((e) => `<li data-t="${e.t}"><b>${esc(fmt(e.t, hasDay(e.t)))}</b>${esc(e.h)}</li>`).join("") +
@@ -889,6 +897,8 @@
   $("#card").addEventListener("click", (e) => { if (e.target.closest(".x")) return ($("#card").hidden = true);
     const zxy = e.target.closest("[data-zoom-xy]"); if (zxy) { const [zx, zy] = zxy.dataset.zoomXy.split(",").map(Number); flyTo(zx, zy, 240, 950); userMoved = Date.now(); pulse(zx, zy, "k-ring"); return; }
     const rdl = e.target.closest("[data-open-riddle]"); if (rdl && window.__ME?.openCodex) { $("#card").hidden = true; return window.__ME.openCodex("riddle"); }
+    const bcn = e.target.closest("[data-light-beacons]"); if (bcn && window.__ME?.lightBeacons) { $("#card").hidden = true; return window.__ME.lightBeacons(); }
+    const drs = e.target.closest("[data-open-doors]"); if (drs && window.__ME?.openCodex) { $("#card").hidden = true; return window.__ME.openCodex("doors"); }
     const wr = e.target.closest("[data-toggle-wraith]"); if (wr && window.__ME?.toggleWraith) { return window.__ME.toggleWraith(); }
     const bm = e.target.closest(".bio-more"); if (bm) { const open = bm.closest(".bio").classList.toggle("open"); bm.textContent = open ? tr("收起 ▴") : tr("展开完整传记 ▾"); return; }
     const fo = e.target.closest("[data-follow]"); if (fo) return followJ(fo.dataset.follow);
@@ -1330,7 +1340,7 @@
       else if (tr.k === "city") { const g = el("g", { class: "b-city", transform: `translate(${tr.x},${tr.y})` }, scene); el("circle", { r: tr.r * 1.08, class: "base" }, g); for (let i = 7; i >= 1; i--) { const rr = (tr.r * i) / 7; el("path", { d: `M0,${-rr}A${rr},${rr} 0 0,1 0,${rr}`, class: "tier" }, g); el("path", { d: `M0,${-rr}A${rr},${rr} 0 0,1 0,${rr}`, class: "tier-cren" }, g); } el("path", { d: `M-12,-14L${tr.r * 1.05},0L-12,14Z`, class: "prow" }, g); el("path", { d: `M-12,0L${tr.r * 1.05},0L-12,14Z`, fill: "rgba(0,0,0,.22)" }, g); el("circle", { cx: tr.r * 0.22, cy: 0, r: 6, fill: "#f6efe0", stroke: "#3a3022", "stroke-width": 1.2 }, g); el("circle", { cx: tr.r * 0.22, cy: 0, r: 2.6, fill: "#fff8d8" }, g); }
       else if (tr.k === "gate") { const g = el("g", { class: "b-gate", transform: `translate(${tr.x},${tr.y})` }, scene); el("rect", { x: -13, y: -8, width: 26, height: 16, rx: 2 }, g); el("path", { d: "M-7,-8V8M-2.5,-8V8M2.5,-8V8M7,-8V8M-13,0H13", class: "bars" }, g); el("circle", { cx: -11, cy: 0, r: 2.2, fill: "#d8c8a8" }, g); el("circle", { cx: 11, cy: 0, r: 2.2, fill: "#d8c8a8" }, g); }
       else if (tr.k === "peak") { const g = el("g", { class: "b-peak" + (tr.fire ? " fire" : ""), transform: `translate(${tr.x},${tr.y})` }, scene), h = tr.h; el("path", { d: `M${-h},${h * 0.5}L${-h * 0.35},${-h * 0.25}L-7,${-h * 0.55}L7,${-h * 0.55}L${h * 0.4},${-h * 0.2}L${h},${h * 0.5}L0,${h * 0.62}Z` }, g); el("path", { d: `M7,${-h * 0.55}L${h * 0.4},${-h * 0.2}L${h},${h * 0.5}L0,${h * 0.62}L0,${-h * 0.55}Z`, fill: "rgba(0,0,0,.28)", stroke: "none" }, g); el("path", { d: `M-7,${-h * 0.55}L-2,${h * 0.1}L${-h * 0.45},${h * 0.48}M7,${-h * 0.55}L4,${h * 0.15}L${h * 0.45},${h * 0.45}`, class: "ridge" }, g); if (tr.fire) { el("path", { d: `M0,${-h * 0.5}Q6,${-h * 0.1} 14,${h * 0.35}M-2,${-h * 0.5}Q-8,${-h * 0.15} -12,${h * 0.28}`, stroke: "#ff6a18", "stroke-width": 2.2, fill: "none" }, g); el("ellipse", { cx: 0, cy: -h * 0.52, rx: 7.5, ry: 3.4, class: "crater" }, g); } }
-      if (tr.n) { const c = tr.k === "poly" ? centroid(tr.pts) : tr.k === "line" ? tr.pts[Math.floor(tr.pts.length / 2)] : [tr.x, tr.y + (tr.r || tr.h || 10) + 14]; el("text", { x: c[0], y: c[1], class: "b-tn" + (tr.k === "line" ? " ln" : "") }, scene).textContent = tr.n; }
+      if (tr.n && tr.k !== "label") { const c = tr.k === "poly" ? centroid(tr.pts) : tr.k === "line" ? tr.pts[Math.floor(tr.pts.length / 2)] : [tr.x, tr.y + (tr.r || tr.h || 10) + 14]; el("text", { x: c[0], y: c[1], class: "b-tn" + (tr.k === "line" ? " ln" : "") }, scene).textContent = tr.n; }
       if (tr.k === "label") el("text", { x: tr.x, y: tr.y, class: "b-tn lb" }, scene).textContent = tr.n;
     });
     el("rect", { x: -200, y: -200, width: 1400, height: 1000, class: "bt-grid" }, scene);
@@ -1756,16 +1766,24 @@
       if (e.key === " ") { e.preventDefault(); playing ? pause() : play(); }
       if (e.key === "ArrowRight") stepEvent(1); if (e.key === "ArrowLeft") stepEvent(-1);
     });
-    // 深链接：#t= / #l=&k= / #b=
+    // 深链接：#t= / #x=&y=&w= / #l=&k= / #b= / #m= / #c= / #f=
     const h = new URLSearchParams(location.hash.slice(1));
     if ([...h.keys()].length) { $("#intro").hidden = true; }
-    if (h.get("t")) { setT(+h.get("t")); flyBox(eraOf(T).cam); }
+    if (h.get("t")) { setT(+h.get("t")); if (!h.get("x")) flyBox(eraOf(T).cam); }
+    if (h.get("x") && h.get("y")) { flyTo(+h.get("x"), +h.get("y"), +(h.get("w") || 420), 0); }
     if (h.get("l")) { setTab("legends"); openLegend(h.get("l"), +(h.get("k") || 0)); }
     if (h.get("b")) openBattle(h.get("b"));
     if (h.get("m")) openMoment(h.get("m"));
-    if (h.get("c")) { setTab("chars"); showChar(h.get("c"), true); }
+    if (h.get("c")) { setTab("chars"); showChar(h.get("c"), !h.get("x")); }
     if (h.get("f")) followJ(h.get("f"));
-    window.__ME = { pulse, flyBox, PT, CI, openMoment, closeMoment, MO, setT, flyTo, openBattle, phase, openLegend, play, pause, followJ, showChar, showPlace, openCard, placeHeroSvg, setTab, svg, P, L, RING, RING_END, at, eraOf, hasDay, get T() { return T; }, get follow() { return !!follow; }, cam, posOf, tAt, fmt, JR, RES };
+    const getShareHash = () => {
+      if (!$("#moment").hidden && moCur) return `#m=${encodeURIComponent(moCur.id)}`;
+      if (!B.el.hidden && B.cur) return `#b=${encodeURIComponent(B.cur.id)}`;
+      const hh = (cam.w * (ch || 600)) / (cw || 1000);
+      const cx = Math.round(cam.x + cam.w / 2), cy = Math.round(cam.y + hh / 2), w = Math.round(cam.w);
+      return `#t=${+T.toFixed(4)}&x=${cx}&y=${cy}&w=${w}`;
+    };
+    window.__ME = { pulse, flyBox, PT, CI, openMoment, closeMoment, MO, setT, flyTo, openBattle, phase, openLegend, play, pause, followJ, showChar, showPlace, openCard, placeHeroSvg, setTab, svg, P, L, RING, RING_END, at, eraOf, hasDay, getShareHash, get T() { return T; }, get follow() { return !!follow; }, cam, posOf, tAt, fmt, JR, RES };
   }
   init();
 })();

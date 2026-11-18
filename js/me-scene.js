@@ -270,6 +270,24 @@ window.ME_SCENE = (function () {
 
   /* —— 标志性关键时刻专属叙事主体（叠加/定制） —— */
   const HERO_SCENE = {
+    "bridge-of-khazad-dum": (c) => ({ gy: 368, x0: 415, x1: 790, s:
+      `<!-- 卡扎督姆巨柱长厅与深渊烈焰 -->
+       ${[110, 270, 930, 1090].map((x) => `<g opacity=".42" fill="${c.mid}"><rect x="${x - 26}" y="0" width="52" height="440"/><path d="M${x - 46},68 L${x},12 L${x + 46},68 Z"/></g>`).join("")}
+       <ellipse cx="600" cy="495" rx="540" ry="165" fill="#ff540c" opacity=".42"/>
+       <g opacity=".92">${flames(c)}</g>
+       <!-- 甘道夫白光护盾与炎魔暗影双翼、多股火鞭 -->
+       <circle cx="458" cy="278" r="108" fill="#e8f4ff" opacity=".22"/>
+       <circle cx="458" cy="278" r="68" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-opacity=".55" stroke-dasharray="8 5"/>
+       <path d="M558,155 Q572,265 552,375" stroke="#eef8ff" stroke-width="2.8" fill="none" opacity=".72"/>
+       <g transform="translate(748,255)">
+         <path d="M-18,22 C-95,-75 -175,-95 -205,-18 C-145,-12 -85,18 -26,46 Z M18,22 C95,-85 185,-95 225,-12 C155,-8 92,22 26,46 Z" fill="#120403" opacity=".86" stroke="#ff6a18" stroke-width="1.5" stroke-opacity=".55"/>
+         <path d="M46,-10 Q128,-82 96,-142 Q64,-182 14,-146 Q-24,-118 -92,-132" fill="none" stroke="#ff9e2c" stroke-width="4.2" stroke-linecap="round"/>
+         <path d="M46,-10 Q128,-82 96,-142 Q64,-182 14,-146 Q-24,-118 -92,-132" fill="none" stroke="#fff4b8" stroke-width="1.6" stroke-linecap="round"/>
+         <path d="M-38,4 L-112,-76 L-96,-84 L-26,-4 Z" fill="#ff6e1a" opacity=".9"/>
+       </g>
+       <!-- 都林之桥窄拱 -->
+       <path d="M0,332 L385,366 Q600,344 815,366 L1200,332 V520 L850,520 Q600,378 350,520 L0,520 Z" fill="${c.land}" stroke="${c.rim}" stroke-opacity=".45" stroke-width="1.8"/>` }),
+
     "feanor-oath": (c) => ({ gy: 462, x0: 280, x1: 920, s:
       `${clouds(c, 70, .2)}
        <path d="M0 390L240 240L520 310L600 180L680 310L960 240L1200 390V520H0Z" fill="${c.mid}" opacity=".68"/>

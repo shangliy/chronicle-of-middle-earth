@@ -129,6 +129,10 @@
     "攻击": "Attack", "防御": "Defense", "力量": "Power", "知识": "Knowledge", "等级": "Level", "士气": "Morale", "运气": "Luck",
     "巫师": "Wizard", "骑士": "Knight", "游侠": "Ranger", "战士": "Warrior", "冒险者": "Adventurer", "术士": "Warlock", "贤者": "Sage", "吟游诗人": "Bard", "领主": "Lord",
     "月": "Month", "周": "Week", "日": "Day", "小地图": "Minimap", "英雄属性": "Hero stats",
+    "空格 播放/暂停 · ← → 逐个事件 · R 真知晶石漫游 · W 幽影界 · B 点燃刚铎烽火 · / 搜索": "Space Play/Pause · ← → Events · R Palantír · W Unseen World · B Light Beacons · / Search",
+    "分享当前视角链接": "Share Permalink", "复制当前纪元与地图坐标的分享链接": "Copy shareable link to current Age & view",
+    "分享": "Share", "小朋友": "Kids",
+    "点燃刚铎烽火": "Light the Beacons", "叩响都林西门": "Doors of Durin",
   };
   const UI = window.ME_UI;
 
