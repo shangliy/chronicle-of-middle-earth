@@ -3,11 +3,14 @@
 > **阿尔达七千年历史地理、人物迁徙、传说导读与战役推演交互图集**  
 > *An Interactive Atlas, Chronicle, Guided Legends & Tactical Battlefields of Arda*
 
+[![Live Demo](https://img.shields.io/badge/Live%20Atlas-Play%20Online-e0a83c?style=flat&logo=githubpages&logoColor=white)](https://shangliy.github.io/chronicle-of-middle-earth/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-d4a74a.svg)](LICENSE)
 ![Zero Dependencies](https://img.shields.io/badge/Build-Zero%20Dependencies-2d7646.svg)
 ![Bilingual](https://img.shields.io/badge/Language-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87%20%7C%20English-9b2a1d.svg)
 
-**[简体中文](#简体中文) · [English](#english)**
+**[🌐 在线试玩 / Live Demo](https://shangliy.github.io/chronicle-of-middle-earth/) · [🇺🇸 English Edition](https://shangliy.github.io/chronicle-of-middle-earth/?lang=en) · [简体中文](#简体中文) · [English](#english)**
+
+[![Chronicle of Middle-earth Cover](og-cover.png)](https://shangliy.github.io/chronicle-of-middle-earth/)
 
 ---
 
@@ -50,9 +53,10 @@
 4. **双圣树、3D 微缩地标与生灵奇观精修**（`js/me-models.js`, `js/me-life.js`, `js/me-relief.js`）：重绘埃泽洛哈绿丘上的银树与金树及光露双池；考据升级米那斯提力斯（首层黑石外墙 + 七层白城 + 白树）、巴拉都（熔岩壕沟 + 烈焰竖瞳）、瑞文戴尔金红秋林、罗斯洛立安梅隆巨树、阿刚那斯双王巨像、涝洛斯虹光瀑布及贝烈苟斯特/诺格罗德矮人山城；提升山脉分形渲染精度。
 5. **角色肖像补全与泥金藏书章**（`js/me-portrait.js`, `js/me.js`）：补齐原版缺失的「亡灵之王」幽绿半身立绘与埃瑞赫幽谷背景，新增 13 位主角专属武器信物，并为 12 部传说与 6 场战役绘制泥金圆章。
 
-### 🚀 快速运行
+### 🚀 快速体验与本地运行
 
-无需安装任何第三方依赖，在仓库根目录启动任意静态服务器即可：
+- **在线直达**：<https://shangliy.github.io/chronicle-of-middle-earth/>（英文版直达：<https://shangliy.github.io/chronicle-of-middle-earth/?lang=en>）
+- **本地启动**（无需安装任何第三方依赖，在仓库根目录启动任意静态服务器即可）：
 
 ```bash
 git clone https://github.com/shangliy/chronicle-of-middle-earth.git
@@ -128,9 +132,10 @@ Extracted from [`shangliy/chronicle-of-commerce`](https://github.com/shangliy/ch
 4. **Sacred Two Trees, Canon-Faithful 3D Landmarks & Wonders** (`js/me-models.js`, `js/me-life.js`, `js/me-relief.js`): Repainted Telperion & Laurelin on Ezellohar with the Wells of Light and shimmering dew; upgraded 3D miniatures for Minas Tirith (canonical black outer First Wall + 6 white tiers + White Tree), Barad-dûr (lava moat + flying buttresses + Lidless Eye), Rivendell's autumn valley, Lothlórien's golden Mallorns, Edoras's horse-gabled Meduseld, Belegost & Nogrod, plus sculpted Argonath colossi, misty Rauros rainbow, Smaug, Balrog, and Mûmakil.
 5. **Complete Portrait Roster & Codex Medallions** (`js/me-portrait.js`, `js/me.js`): Added the spectral **King of the Dead** portrait & haunted Stone of Erech backdrop, 13 hero signature details, 12 Legend gilded medallions, and 6 Battle war-crests.
 
-### 🚀 Quick Start
+### 🚀 Live Demo & Quick Start
 
-No dependencies or build tools required—serve the root directory with any static HTTP server:
+- **Play Online**: <https://shangliy.github.io/chronicle-of-middle-earth/?lang=en> (Chinese UI: <https://shangliy.github.io/chronicle-of-middle-earth/?lang=zh>)
+- **Run Locally** (no dependencies or build tools required—serve the root directory with any static HTTP server):
 
 ```bash
 git clone https://github.com/shangliy/chronicle-of-middle-earth.git
