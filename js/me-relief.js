@@ -3,7 +3,7 @@
  * 以 <image> 贴在 SVG 里。为不阻塞首屏，按帧逐个生成。
  */
 (function () {
-  const PX = 2.4; // 每个地图单位的像素数（提升山脊雕刻锐度）
+  const PX = 1.65; // 兼顾山脊雕刻锐度与流畅缩放内存开销
   const H32 = (i, j) => { let n = (i * 374761393 + j * 668265263) | 0; n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
   const sm = (t) => t * t * (3 - 2 * t);
   function noise(x, y) {
@@ -70,7 +70,7 @@
       for (let gj = 0; gj < GH; gj++) for (let gi = 0; gi < GW; gi++) { const q = segDist(bb.x + gi, bb.y + gj, P), o = gj * GW + gi; GD[o] = q[0]; GU[o] = q[1]; GV[o] = q[2]; }
     }
     const bil = (A, gx, gy) => { const i0 = gx | 0, j0 = gy | 0, fx = gx - i0, fy = gy - j0, o = j0 * GW + i0; return A[o] * (1 - fx) * (1 - fy) + A[o + 1] * fx * (1 - fy) + A[o + GW] * (1 - fx) * fy + A[o + GW + 1] * fx * fy; };
-    for (let j = 0; j < Hh; j++) { if (j % 24 === 23) yield; for (let i = 0; i < W; i++) {
+    for (let j = 0; j < Hh; j++) { if (j % 8 === 7) yield; for (let i = 0; i < W; i++) {
       const x = bb.x + (i + 0.5) / PX, y = bb.y + (j + 0.5) / PX;
       let d, r;
       if (spec.peak) { d = Math.hypot((x - P[0][0]) * 0.9, (y - P[0][1] + h * 0.35) * 1.15); r = ridged(x * f0, y * f0); }

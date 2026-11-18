@@ -778,8 +778,9 @@
   if (M.svg && coordsEl) {
     let lastCoordAt = 0;
     M.svg.addEventListener("pointermove", (e) => {
+      if (M.svg.classList.contains("moving") || e.buttons) return;
       const now = performance.now();
-      if (now - lastCoordAt < 70) return;
+      if (now - lastCoordAt < 110) return;
       lastCoordAt = now;
       const ctm = M.svg.getScreenCTM();
       if (!ctm) return;

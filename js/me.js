@@ -83,12 +83,14 @@
   const cam = { x: 80, y: -80, w: 940 };
   let cw = 1, ch = 1;
   const L = {};
-  function chibiDefs() {
-    if (!CB) return "";
+  function ensureChibiDefs() {
+    if (!CB || document.getElementById("chb-defs")) return;
     let s = CH.CHARS.map((c) => `<g id="chb-${c.id}">${CB(c.look)}</g>`).join("");
     if (CI.aragorn) s += `<g id="chb-elessar">${CB({ ...CI.aragorn.look, hat: "crown", hc: "#e8ecf0", c: "#1a1a2e", t: "#c8c8d8", it: "sword", ic: "#e8f4ff" })}</g>`;
     Object.entries(CH.SOLDIERS || {}).forEach(([k, look]) => (s += `<g id="chb-sol-${k}">${CB(look)}</g>`));
-    return s + `<g id="chb-horse">${CB.horse()}</g><g id="chb-hull">${CB.hull}</g><g id="chb-sail">${CB.sail}</g>`;
+    s += `<g id="chb-horse">${CB.horse()}</g><g id="chb-hull">${CB.hull}</g><g id="chb-sail">${CB.sail}</g>`;
+    const holder = el("svg", { id: "chb-defs", width: 0, height: 0, "aria-hidden": "true", style: "position:absolute;width:0;height:0;overflow:hidden;pointer-events:none" }, document.body);
+    el("defs", {}, holder).innerHTML = s;
   }
   const DECO = window.ME_DECO || {};
   function scatter(poly, d, sd) { // 多边形内均匀撒点
@@ -251,18 +253,30 @@
     const st = H3.stats(c, { battles: nb, journeys: nj, chapters: (((window.ME_BIO || {})[c.id] || {}).chapters || []).length });
     return `<div class="h3-stats"><div class="h3-lv"><b>${tr("等级")} ${st.lvl}</b> · ${esc(tr(st.cls))}</div><div class="h3-row">${[["atk", "攻击"], ["def", "防御"], ["pow", "力量"], ["kno", "知识"]].map(([k, n]) => `<div class="h3-st"><i>${H3.ICON[k]}</i><small>${tr(n)}</small><b>${st[k]}</b></div>`).join("")}</div></div>`;
   }
+  function mkPaperPattern() {
+    const S2 = 160, c = document.createElement("canvas"); c.width = c.height = S2;
+    const g = c.getContext("2d"), img = g.createImageData(S2, S2), d = img.data;
+    let s = 1337;
+    for (let i = 0; i < d.length; i += 4) {
+      s = (s * 16807) % 2147483647;
+      const v = (s & 255) / 255;
+      d[i] = 108; d[i + 1] = 84; d[i + 2] = 48; d[i + 3] = Math.round(v * v * 72);
+    }
+    g.putImageData(img, 0, 0);
+    return `<pattern id="tx-paper" patternUnits="userSpaceOnUse" width="160" height="160"><image href="${c.toDataURL()}" width="160" height="160"/></pattern>`;
+  }
   function buildMap() {
+    ensureChibiDefs();
     const defs = el("defs", {}, svg);
     defs.innerHTML = `
-      <filter id="paper" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3"/><feColorMatrix values="0 0 0 0 0.45  0 0 0 0 0.36  0 0 0 0 0.2  0 0 0 0.22 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
-      <filter id="blur6"><feGaussianBlur stdDeviation="6"/></filter>
       <filter id="gold" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <radialGradient id="rg-tel"><stop offset="0" stop-color="#dfeaff" stop-opacity=".78"/><stop offset=".52" stop-color="#cfd8e6" stop-opacity=".28"/><stop offset="1" stop-color="#cfd8e6" stop-opacity="0"/></radialGradient>
+      <radialGradient id="rg-tla"><stop offset="0" stop-color="#ffe078" stop-opacity=".8"/><stop offset=".52" stop-color="#f0c85a" stop-opacity=".3"/><stop offset="1" stop-color="#f0c85a" stop-opacity="0"/></radialGradient>
       ${["elf", "man", "dwarf", "dark", "rohan"].map((c) => `<radialGradient id="rg-${c}"><stop offset="0" class="rg-${c}" stop-opacity=".55"/><stop offset=".75" class="rg-${c}" stop-opacity=".22"/><stop offset="1" class="rg-${c}" stop-opacity="0"/></radialGradient>`).join("")}
       <linearGradient id="beam" x1="1" x2="0" y1="0" y2="0"><stop offset="0" stop-color="#ff8a20" stop-opacity=".9"/><stop offset="1" stop-color="#ff5a10" stop-opacity="0"/></linearGradient>
       <marker id="jarrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5.2" markerHeight="5.2" orient="auto-start-reverse"><path d="M0,1L10,5L0,9L2.4,5Z" fill="context-stroke"/></marker>
-      ${chibiDefs()}
       <pattern id="seaHatch" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(-18)"><path d="M0 7h6" class="sea-h"/></pattern>
-      ${H3 ? H3.textures() : ""}`;
+      ${H3 ? H3.textures() : mkPaperPattern()}`;
     el("rect", { x: BX, y: BY, width: BW, height: BH, class: "sea" }, svg);
     el("rect", { x: BX, y: BY, width: BW, height: BH, fill: "url(#seaHatch)", opacity: 0.5, class: "sea-hatch" }, svg);
     seaDeco();
@@ -306,7 +320,7 @@
     { let d = ""; seed = 41; for (let i = 0; i < 60; i++) { const x = lerp(-900, -695, rnd()), y = lerp(-118, -72, rnd()); if (inPoly(x, y, W.land.ice)) d += `M${x.toFixed(1)},${y.toFixed(1)}l${(4 + rnd() * 5).toFixed(1)},${(-2 - rnd() * 3).toFixed(1)}`; } el("path", { d, class: "ice-h" }, L.bel); }
     // 双圣树（埃泽洛哈绿丘、泰尔佩瑞安银树与劳瑞林金树、瓦尔妲光露池）
     { const tp = D.PLACES.find((q) => q.id === "twotrees"); L.trees = el("g", { class: "trees2", transform: `translate(${tp.x},${tp.y - 4}) scale(1.65)` }, L.aman);
-      el("circle", { cx: -14, cy: -13, r: 32, class: "tglow tel" }, L.trees); el("circle", { cx: 14, cy: -13, r: 32, class: "tglow tla" }, L.trees);
+      el("circle", { cx: -14, cy: -13, r: 36, fill: "url(#rg-tel)", class: "tglow tel" }, L.trees); el("circle", { cx: 14, cy: -13, r: 36, fill: "url(#rg-tla)", class: "tglow tla" }, L.trees);
       el("path", { d: "M-25,6 Q0,-2 25,6 Q0,9 -25,6 Z", fill: "rgba(74,106,48,.58)", stroke: "rgba(42,60,24,.45)", "stroke-width": ".5" }, L.trees);
       // 库尔维恩恩光露银金双池
       el("ellipse", { cx: -18, cy: 5.2, rx: 4.2, ry: 1.5, fill: "#e8f4ff", stroke: "#7a90a4", "stroke-width": ".4", class: "tdew" }, L.trees);
@@ -322,7 +336,7 @@
       }); }
     L.veil = el("g", { class: "veil-l", transform: "translate(-1060,560)" }, L.aman);
     { const s2 = el("g", { class: "sc" }, L.veil); el("text", { class: "veil-n" }, s2).textContent = tr("已移出世界之圈 · 唯有精灵的船走笔直航道"); el("text", { class: "veil-en", y: 13 }, s2).textContent = "REMOVED FROM THE CIRCLES OF THE WORLD · SA 3319"; }
-    if (!H3) el("rect", { x: BX, y: BY, width: BW, height: BH, filter: "url(#paper)", class: "paper", "pointer-events": "none" }, svg);
+    if (!H3) el("rect", { x: BX, y: BY, width: BW, height: BH, fill: "url(#tx-paper)", class: "paper", "pointer-events": "none" }, svg);
     // 湖
     L.ter = el("g", { class: "terrain" }, svg);
     W.lakes.forEach((lk) => { const d = cr(lk.pts, true); el("path", { d, class: "lake" }, L.ter); el("path", { d, class: "lake-in" }, L.ter); });
@@ -563,17 +577,37 @@
   /* ——随时间更新地图—— */
   let T = D.EVENTS[0].t, seaTimed = null;
   const visible = (p, t) => (t >= (p.from ?? -1e9) && t < (p.to ?? 1e9)) || (p.again && t >= p.again[0] && t < p.again[1]);
+  function setSinkLayer(node, gone) {
+    if (node._gone === gone) return;
+    const wasVisible = node._gone === false;
+    node._gone = gone;
+    node.classList.toggle("gone", gone);
+    if (gone && wasVisible) {
+      node.classList.add("sinking");
+      clearTimeout(node._sinkTm);
+      node._sinkTm = setTimeout(() => node.classList.remove("sinking"), 2700);
+    } else if (!gone) {
+      clearTimeout(node._sinkTm);
+      node.classList.remove("sinking");
+    }
+  }
   function updateMap() {
     const t = T;
     if (!seaTimed) seaTimed = [...svg.querySelectorAll(".sea-o[data-from]")];
-    L.bel.classList.toggle("gone", t >= 587.5);
-    L.nu.classList.toggle("gone", t < 622 || t >= 3909.3);
-    L.roads.classList.toggle("off", t < 591); L.timed.forEach((g) => g.classList.toggle("off", t < +g.dataset.from));
-    L.tw.forEach((g) => g.classList.toggle("off", t < +g.dataset.from || t >= +g.dataset.to));
-    seaTimed.forEach((g) => g.classList.toggle("off", t < +g.dataset.from || t >= +g.dataset.to));
-    const veiled = t >= 3909.3; L.aman.classList.toggle("veiled", veiled);
-    if (MM) { MM.bel.classList.toggle("gone", t >= 587.5); MM.nu.classList.toggle("gone", t < 622 || t >= 3909.3); MM.aman.classList.toggle("veiled", veiled); }
-    L.trees.classList.toggle("dead", t >= -40);
+    const belGone = t >= 587.5, nuGone = t < 622 || t >= 3909.3, veiled = t >= 3909.3, roadsOff = t < 591, treesDead = t >= -40;
+    setSinkLayer(L.bel, belGone);
+    setSinkLayer(L.nu, nuGone);
+    if (L._roadsOff !== roadsOff) { L.roads.classList.toggle("off", roadsOff); L._roadsOff = roadsOff; }
+    L.timed.forEach((g) => { const off = t < +g.dataset.from; if (g._off !== off) { g.classList.toggle("off", off); g._off = off; } });
+    L.tw.forEach((g) => { const off = t < +g.dataset.from || t >= +g.dataset.to; if (g._off !== off) { g.classList.toggle("off", off); g._off = off; } });
+    seaTimed.forEach((g) => { const off = t < +g.dataset.from || t >= +g.dataset.to; if (g._off !== off) { g.classList.toggle("off", off); g._off = off; } });
+    if (L._veiled !== veiled) { L.aman.classList.toggle("veiled", veiled); L._veiled = veiled; }
+    if (MM) {
+      if (MM._bel !== belGone) { MM.bel.classList.toggle("gone", belGone); MM._bel = belGone; }
+      if (MM._nu !== nuGone) { MM.nu.classList.toggle("gone", nuGone); MM._nu = nuGone; }
+      if (MM._vl !== veiled) { MM.aman.classList.toggle("veiled", veiled); MM._vl = veiled; }
+    }
+    if (L._tdead !== treesDead) { L.trees.classList.toggle("dead", treesDead); L._tdead = treesDead; }
     W.labels.forEach((lb) => {
       if (!lb.g) return;
       const off = !!((lb.from != null && t < lb.from) || (lb.ta && t < 591));
@@ -639,7 +673,7 @@
       if (r.tf !== tf) { r.inner.setAttribute("transform", tf); r.tf = tf; }
     }));
     debutCheck(t, away);
-    MO.forEach((m) => m.g && m.g.classList.toggle("off", !(t >= m.t - 1e-6 && t < m.t + moSpan(m))));
+    MO.forEach((m) => { if (!m.g) return; const off = !(t >= m.t - 1e-6 && t < m.t + moSpan(m)); if (m._off !== off) { m.g.classList.toggle("off", off); m._off = off; } });
     const rr = t >= RING[0].t && t < RING_END ? at(RING, t) : null;
     L.ring.style.display = rr ? "" : "none";
     if (rr) L.ring.setAttribute("transform", `translate(${rr.pos[0].toFixed(1)},${(rr.pos[1] - 1).toFixed(1)})`);
@@ -650,24 +684,80 @@
     schedDc();
   }
 
-  /* ——镜头—— */
-  let camRaf = 0, moveTimer = 0, svgRect = null;
-  function updateSvgSize() { const r = svg.getBoundingClientRect(); svgRect = r; cw = r.width || 1; ch = r.height || 1; }
+  /* ——镜头（22% 溢出血位 #camStage GPU 矩阵合成 + 视口外大陆裁剪，停稳 130ms 后一次性提交 1:1 矢量 viewBox）—— */
+  const CAM_PAD = 0.22, CAM_SPAN = 1 + CAM_PAD * 2;
+  const mapWrap = svg.closest(".mapwrap") || svg.parentElement;
+  const camStage = document.getElementById("camStage") || svg.parentElement;
+  let camRaf = 0, moveTimer = 0, svgRect = null, baseCam = null, lastCssK = 0;
+  function updateSvgSize() { const r = mapWrap.getBoundingClientRect(); svgRect = r; cw = r.width || 1; ch = r.height || 1; }
   function markMoving() {
-    svg.classList.add("moving");
+    if (!svg.classList.contains("moving")) svg.classList.add("moving");
     clearTimeout(moveTimer);
-    moveTimer = setTimeout(() => { svg.classList.remove("moving"); schedDc(true); }, 140);
+    moveTimer = setTimeout(() => { svg.classList.remove("moving"); applyCam(true); schedDc(true); }, 130);
   }
-  function schedCam() { if (!camRaf) camRaf = requestAnimationFrame(() => { camRaf = 0; applyCam(); }); }
-  function applyCam() {
+  function schedCam() { if (!camRaf) camRaf = requestAnimationFrame(() => { camRaf = 0; applyCam(false); }); }
+  function setCull(node, offscreen) {
+    if (node && node._cull !== offscreen) { node.classList.toggle("cull", offscreen); node._cull = offscreen; }
+  }
+  function syncMiniAndBar(k, h) {
+    scaleBar(k);
+    if (MM) {
+      const vx = cam.x.toFixed(1), vy = cam.y.toFixed(1), vw = cam.w.toFixed(1), vh = h.toFixed(1);
+      if (MM._vx !== vx) { MM.vp.setAttribute("x", vx); MM._vx = vx; }
+      if (MM._vy !== vy) { MM.vp.setAttribute("y", vy); MM._vy = vy; }
+      if (MM._vw !== vw) { MM.vp.setAttribute("width", vw); MM._vw = vw; }
+      if (MM._vh !== vh) { MM.vp.setAttribute("height", vh); MM._vh = vh; }
+    }
+  }
+  function applyStageTransform(h, k) {
+    const s = baseCam.w / cam.w;
+    const tx = CAM_PAD * cw * (1 - s) + (baseCam.x - cam.x) * (cw / cam.w);
+    const ty = CAM_PAD * ch * (1 - s) + (baseCam.y - cam.y) * (cw / cam.w);
+    const left = -CAM_PAD * cw + tx, top = -CAM_PAD * ch + ty;
+    const right = left + s * CAM_SPAN * cw, bottom = top + s * CAM_SPAN * ch;
+    if (s >= 0.695 && s <= 2.95 && left <= 0.5 && right >= cw - 0.5 && top <= 0.5 && bottom >= ch - 0.5) {
+      camStage.style.transform = `translate3d(${tx.toFixed(2)}px,${ty.toFixed(2)}px,0) scale(${s.toFixed(5)})`;
+      syncMiniAndBar(k, h);
+      return true;
+    }
+    return false;
+  }
+  function applyCam(commit = true) {
     if (!svgRect || cw <= 1) updateSvgSize();
     const h = (cam.w * ch) / cw;
-    svg.setAttribute("viewBox", `${cam.x.toFixed(2)} ${cam.y.toFixed(2)} ${cam.w.toFixed(2)} ${h.toFixed(2)}`);
-    const k = cam.w / cw; svg.style.setProperty("--k", k.toFixed(4));
-    svg.style.setProperty("--icz", clamp(640 / cam.w, 0.8, 2.4).toFixed(3));
-    svg.classList.toggle("far", cam.w > 1150); svg.classList.toggle("near", cam.w < 620);
-    scaleBar(k); schedDc();
-    if (MM) { MM.vp.setAttribute("x", cam.x.toFixed(1)); MM.vp.setAttribute("y", cam.y.toFixed(1)); MM.vp.setAttribute("width", cam.w.toFixed(1)); MM.vp.setAttribute("height", h.toFixed(1)); }
+    const k = cam.w / cw;
+    if (!commit && baseCam && baseCam.cw === cw && baseCam.ch === ch && applyStageTransform(h, k)) return;
+
+    let bx = cam.x, by = cam.y, bw = cam.w, bh = h;
+    if (!commit && baseCam && cam.w > baseCam.w * 1.04) {
+      // 持续缩小时预留更宽基底视野，避免连续缩小时每几帧重复触发矢量重绘
+      bw = clamp(cam.w * 1.85, 180, BW);
+      bh = (bw * ch) / cw;
+      bx = cam.x + (cam.w - bw) * 0.5;
+      by = cam.y + (h - bh) * 0.5;
+    }
+    baseCam = { x: bx, y: by, w: bw, h: bh, cw, ch };
+    const vx0 = bx - CAM_PAD * bw, vy0 = by - CAM_PAD * bh, vw0 = CAM_SPAN * bw, vh0 = CAM_SPAN * bh;
+    setCull(L.aman, vx0 > -760 || vx0 + vw0 < -1340);
+    setCull(L.bel, vx0 > 310 || vx0 + vw0 < -920);
+    setCull(L.nu, vx0 > -260 || vx0 + vw0 < -600 || vy0 > 760 || vy0 + vh0 < 440);
+    svg.setAttribute("viewBox", `${vx0.toFixed(2)} ${vy0.toFixed(2)} ${vw0.toFixed(2)} ${vh0.toFixed(2)}`);
+    if (bx === cam.x && by === cam.y && bw === cam.w) {
+      camStage.style.transform = "translate3d(0,0,0) scale(1)";
+    } else {
+      applyStageTransform(h, k);
+    }
+    const baseK = bw / cw;
+    if (commit || !lastCssK || Math.abs(baseK - lastCssK) / lastCssK > 0.25) {
+      lastCssK = baseK;
+      svg.style.setProperty("--k", baseK.toFixed(4));
+      svg.style.setProperty("--icz", clamp(640 / bw, 0.8, 2.4).toFixed(3));
+      const isFar = bw > 1150, isNear = bw < 620;
+      if (svg._far !== isFar) { svg.classList.toggle("far", isFar); svg._far = isFar; }
+      if (svg._near !== isNear) { svg.classList.toggle("near", isNear); svg._near = isNear; }
+    }
+    syncMiniAndBar(k, h);
+    if (commit) schedDc();
   }
   /* ——标签避让：按重要性逐个放置，和已放置的文字重叠就先隐藏，放大后再出现—— */
   let dcAt = 0, dcTimer = 0, DC_U = null, DC_IC = null;
@@ -711,7 +801,7 @@
   function isAncHidden(anc) {
     for (let k = 0; k < anc.length; k++) {
       const a = anc[k], cl = a.classList;
-      if (cl.contains("off") || cl.contains("gone") || cl.contains("veiled") || a.style.display === "none") return true;
+      if (cl.contains("off") || cl.contains("gone") || cl.contains("veiled") || cl.contains("cull") || a.style.display === "none") return true;
     }
     return false;
   }
@@ -775,22 +865,37 @@
       if (!hit) { placed.push(r); if (txt) seen.push({ t: txt, x: cx, y: cy }); }
     }
   }
+  let sbBar = null, sbTxt = null, lastSbW = "", lastSbLg = -1;
   function scaleBar(k) { // 100 里格 ≈ 125 地图单位
-    const sb = document.getElementById("scalebar"); if (!sb) return;
+    if (!sbBar) {
+      const sb = document.getElementById("scalebar");
+      if (!sb) return;
+      sbBar = sb.querySelector("i"); sbTxt = sb.querySelector("b");
+    }
     let lg = 100; while (lg > 10 && (lg * 1.25) / k > 150) lg /= 2;
     if ((lg * 1.25) / k < 40) lg *= 2;
-    const px = (lg * 1.25) / k;
-    sb.querySelector("i").style.width = px.toFixed(0) + "px";
-    sb.querySelector("b").textContent = EN ? `${lg} leagues ≈ ${Math.round(lg * 3)} miles` : `${lg} 里格 ≈ ${Math.round(lg * 4.8)} 公里`;
+    const wStr = ((lg * 1.25) / k).toFixed(0) + "px";
+    if (lastSbW !== wStr) { sbBar.style.width = wStr; lastSbW = wStr; }
+    if (lastSbLg !== lg) {
+      sbTxt.textContent = EN ? `${lg} leagues ≈ ${Math.round(lg * 3)} miles` : `${lg} 里格 ≈ ${Math.round(lg * 4.8)} 公里`;
+      lastSbLg = lg;
+    }
   }
   let flyRaf = 0, userMoved = 0;
   function flyTo(x, y, w, ms = 1300) { // (x,y) 为目标中心
     cancelAnimationFrame(flyRaf);
+    if (!svgRect || cw <= 1) updateSvgSize();
     w = clamp(w, 180, BW);
     const h = (w * ch) / cw, s = { ...cam }, e = { x: x - w / 2, y: y - h / 2, w };
+    if (ms <= 0) { cam.x = e.x; cam.y = e.y; cam.w = e.w; applyCam(true); return; }
     const t0 = performance.now();
     markMoving();
-    const step = (now) => { const k = ease(clamp((now - t0) / ms, 0, 1)); cam.x = lerp(s.x, e.x, k); cam.y = lerp(s.y, e.y, k); cam.w = lerp(s.w, e.w, k); applyCam(); if (k < 1) { markMoving(); flyRaf = requestAnimationFrame(step); } };
+    const step = (now) => {
+      const k = ease(clamp((now - t0) / ms, 0, 1));
+      cam.x = lerp(s.x, e.x, k); cam.y = lerp(s.y, e.y, k); cam.w = lerp(s.w, e.w, k);
+      applyCam(k >= 1);
+      if (k < 1) { markMoving(); flyRaf = requestAnimationFrame(step); }
+    };
     flyRaf = requestAnimationFrame(step);
   }
   const flyBox = ([x, y, w]) => { const h = (w * ch) / cw; flyTo(x + w / 2, y + Math.min(h, w * 0.75) / 2 + (h > w * 0.75 ? 0 : 0), w); };
@@ -798,9 +903,14 @@
     const nw = clamp(cam.w * f, 180, BW), px = cam.x + (sx / cw) * cam.w, py = cam.y + (sy / cw) * cam.w;
     cam.x = px - (sx / cw) * nw; cam.y = py - (sy / cw) * nw; cam.w = nw; markMoving(); schedCam();
   }
+  function smoothZoomBtn(f) {
+    if (!svgRect || cw <= 1) updateSvgSize();
+    const nw = clamp(cam.w * f, 180, BW), h = (cam.w * ch) / cw;
+    flyTo(cam.x + cam.w / 2, cam.y + h / 2, nw, 220);
+  }
   function bindPan() {
     let drag = null; const pts = new Map();
-    svg.addEventListener("wheel", (e) => { e.preventDefault(); cancelAnimationFrame(flyRaf); userMoved = Date.now(); if (!svgRect) updateSvgSize(); zoomAt(Math.exp(e.deltaY * 0.0015), e.clientX - svgRect.left, e.clientY - svgRect.top); }, { passive: false });
+    svg.addEventListener("wheel", (e) => { e.preventDefault(); cancelAnimationFrame(flyRaf); userMoved = Date.now(); if (!svgRect) updateSvgSize(); zoomAt(Math.exp(clamp(e.deltaY, -120, 120) * 0.0016), e.clientX - svgRect.left, e.clientY - svgRect.top); }, { passive: false });
     svg.addEventListener("pointerdown", (e) => { if (!svgRect) updateSvgSize(); pts.set(e.pointerId, [e.clientX, e.clientY]); if (pts.size === 1) drag = { x: e.clientX, y: e.clientY, cx: cam.x, cy: cam.y, moved: false }; cancelAnimationFrame(flyRaf); });
     svg.addEventListener("pointermove", (e) => {
       if (!pts.has(e.pointerId)) return;
@@ -812,9 +922,9 @@
     });
     const up = (e) => { pts.delete(e.pointerId); if (!pts.size) drag = null; };
     svg.addEventListener("pointerup", up); svg.addEventListener("pointercancel", up);
-    $("#zin").onclick = () => zoomAt(0.7, cw / 2, ch / 2); $("#zout").onclick = () => zoomAt(1.4, cw / 2, ch / 2);
+    $("#zin").onclick = () => smoothZoomBtn(0.72); $("#zout").onclick = () => smoothZoomBtn(1.38);
     $("#zfit").onclick = () => flyBox(eraOf(T).cam);
-    addEventListener("resize", () => { updateSvgSize(); applyCam(); });
+    addEventListener("resize", () => { updateSvgSize(); applyCam(true); });
   }
 
   /* ——脉冲、探索事件与彩绘风物卡—— */

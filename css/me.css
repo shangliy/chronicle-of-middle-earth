@@ -28,9 +28,18 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* ——主区—— */
 .stage { position: fixed; top: var(--top); bottom: var(--tmh); left: 0; right: 0; display: flex; }
 .panel { width: var(--pw); flex: none; background: var(--paper); border-right: 1px solid #b9a37a; display: flex; flex-direction: column; min-height: 0; box-shadow: 4px 0 18px rgba(60, 40, 10, .18); z-index: 5; }
-.mapwrap { position: relative; flex: 1; min-width: 0; overflow: hidden; background: var(--sea); }
+.mapwrap { position: relative; flex: 1; min-width: 0; overflow: hidden; background: var(--sea); contain: layout paint style; }
+.st-paint .mapwrap { background: #183e54; }
+.st-h3 .mapwrap { background: #1c5d90; }
+.cam-stage {
+  position: absolute; left: -22%; top: -22%; width: 144%; height: 144%;
+  transform-origin: 0 0; will-change: transform;
+}
 #map { width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; user-select: none; }
 #map:active { cursor: grabbing; }
+.cull { display: none !important; }
+.sea-deco, .coast, .beach, .biomes, .relief, .terrain, .ice, .ice-h, .trees2, .edge, .jpath, .fx { pointer-events: none; }
+.beacon { pointer-events: auto; cursor: pointer; }
 
 /* ——地图元素—— */
 .sea { fill: var(--sea); } .sea-h { stroke: #9ea596; stroke-width: 1; fill: none; }
@@ -38,10 +47,11 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .coastline { fill: none; stroke: #5a4326; stroke-width: 1.4; }
 .land.coastline { fill: var(--land); }
 .ripple { fill: none; stroke: #8e9886; } .ripple.r0 { opacity: .12; } .ripple.r1 { opacity: .18; } .ripple.r2 { opacity: .3; }
-.paper { mix-blend-mode: multiply; }
+.paper { opacity: .26; pointer-events: none; }
 .era-layer { transition: opacity 2.6s ease, transform 4s ease; transform-origin: -250px 200px; }
 .bel.gone { opacity: 0; transform: translateY(18px) scale(.985); pointer-events: none; }
 .nu { transform-origin: -430px 600px; } .nu.gone { opacity: 0; transform: scale(.9); pointer-events: none; }
+.bel.gone:not(.sinking), .nu.gone:not(.sinking) { display: none; }
 .lake { fill: #bcc6bb; stroke: #5a4326; stroke-width: .9; }
 .river { fill: none; stroke: #6f8a96; stroke-linecap: round; opacity: .85; }
 .trees { fill: #7f8a55; stroke: #4c5530; stroke-width: .5; opacity: .85; }
@@ -54,7 +64,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .ember { fill: #ff7a2a; opacity: .75; animation: ember 3.2s ease-in-out infinite; }
 @keyframes ember { 50% { opacity: 1; fill: #ffb03a; } }
 
-.realm { opacity: 0; transition: opacity 1.4s; pointer-events: none; } .realm.on { opacity: 1; }
+.realm { display: none; pointer-events: none; } .realm.on { display: inline; animation: realmIn .8s ease; }
+@keyframes realmIn { from { opacity: 0; } to { opacity: 1; } }
 .rg-elf { stop-color: #4b84ad; } .rg-man { stop-color: #a8483a; } .rg-dwarf { stop-color: #8a6a3a; } .rg-dark { stop-color: #1d0e08; } .rg-rohan { stop-color: #5f8a3a; }
 .realm-n { font-family: var(--serif); font-weight: 600; text-anchor: middle; font-size: calc(11px * var(--k, 1)); letter-spacing: .25em; opacity: .7; paint-order: stroke; stroke: rgba(236, 223, 191, .7); stroke-width: calc(3px * var(--k, 1)); }
 .realm-n.c-elf { fill: #2a5574; } .realm-n.c-man { fill: #7a2b20; } .realm-n.c-dwarf { fill: #5a4426; } .realm-n.c-dark { fill: #1a0c06; } .realm-n.c-rohan { fill: #3e5e22; }
@@ -62,7 +73,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 .sc { transform: scale(var(--k, 1)); }
 .lbl .sc { transform: scale(calc(.45 + var(--k, 1) * .55)); }
-.lbl { transition: opacity .8s; pointer-events: none; } .lbl.off { opacity: 0; }
+.lbl { pointer-events: none; } .lbl.off { display: none; }
 .lbl-n { font-family: var(--serif); font-weight: 600; font-size: calc(var(--fs) * 1px); text-anchor: middle; fill: #5a4326; letter-spacing: .3em; opacity: .75; }
 .lbl-en { font-family: var(--cinzel); font-size: calc(var(--fs) * .45px); text-anchor: middle; fill: #7a6040; letter-spacing: .35em; opacity: .7; }
 .lbl-n.it { font-style: italic; font-weight: 400; letter-spacing: .15em; text-anchor: start; fill: #6b5232; }
@@ -71,7 +82,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .edge-n { font-family: var(--serif); font-size: 13px; fill: #4e6268; font-style: italic; }
 .edge-en { font-family: var(--cinzel); font-size: 8px; fill: #5c7074; letter-spacing: .3em; }
 
-.pl { cursor: pointer; transition: opacity .6s; } .pl.off { opacity: 0; pointer-events: none; }
+.pl { cursor: pointer; } .pl.off { display: none; }
 #map.far .pl.minor { display: none; }
 .pl .ic { stroke: #f4ead0; stroke-width: 1.2; }
 .pl.k-elf .ic { fill: var(--elf); } .pl.k-man .ic { fill: var(--man); } .pl.k-dwarf .ic { fill: var(--dwarf); } .pl.k-hob .ic { fill: var(--hob); } .pl.k-site .ic { fill: #6b5232; }
@@ -436,7 +447,7 @@ body[data-era="war"] .mapwrap::after { content: ""; position: absolute; inset: 0
 }
 
 /* ======== Q 版人物 · 迁徙 ======== */
-#map.moving * { animation-play-state: paused !important; }
+#map.moving .bob, #map.moving .bob2, #map.moving .li, #map.moving .fly path, #map.moving .graze, #map.moving .walk, #map.moving .trot, #map.moving .smk circle, #map.moving .ffly circle, #map.moving .bobsea, #map.moving .orbit, #map.moving .circle, #map.moving .sweep, #map.moving .swirl, #map.moving .march, #map.moving .crawl, #map.moving .sail, #map.moving .fall, #map.moving .lava, #map.moving .foam, #map.moving .ghost, #map.moving .burn path, #map.moving .h3flag, #map.moving .h3mill, #map.moving .h3glow, #map.moving .h3smoke, #map.moving .h3spark, #map.moving .meye, #map.moving .ring-glow, #map.moving .ring-aura, #map.moving .ring-runes, #map.moving .jpath, #map.moving .army-flag path, #map.moving .ember, #map.moving .bc-f, #map.moving .mo-halo, #map.moving .trees2, #map.moving .tdew { animation: none !important; }
 .tabs button { letter-spacing: .2em; }
 .jpath.mig { stroke-width: 9; stroke-dasharray: 2 10; opacity: .32; stroke-linecap: round; animation: migflow 1.6s linear infinite; }
 .jpath.mig.done { opacity: .16; animation: none; }
@@ -495,24 +506,24 @@ svg.far .res .sc, svg.far .jmk .sc { transform: scale(calc(var(--k, 1) * .72)); 
 }
 
 /* —— 阿门洲 —— */
-.aman { transition: opacity 1.4s ease, filter 1.4s ease; }
+.aman { transition: opacity 1.4s ease; }
 .aman-land { fill: #f3ead0; }
-.aman.veiled { opacity: .32; filter: blur(.6px) saturate(.4); }
-.aman .veil-l { opacity: 0; transition: opacity 1s; }
-.aman.veiled .veil-l { opacity: 1; }
+.aman.veiled { opacity: .32; }
+.aman .veil-l { display: none; }
+.aman.veiled .veil-l { display: inline; }
 .veil-n { font-family: var(--serif); font-size: 12px; fill: #3e5560; font-style: italic; text-anchor: middle; }
 .veil-en { font-size: 8px; letter-spacing: .14em; fill: #5b7078; text-anchor: middle; }
 .pl.veiled { opacity: .45; }
 .ice { fill: #eef3f4; stroke: #9fb4ba; stroke-width: 1; stroke-dasharray: 3 2; }
 .ice-h { stroke: #a9bfc5; stroke-width: .8; fill: none; }
-.tglow { opacity: .55; filter: url(#blur6); transition: opacity 1.2s; }
-.tglow.tel, .tcrown.tel { fill: #cfd8e6; } .tglow.tla, .tcrown.tla { fill: #f0c85a; }
+.tglow { opacity: .78; transition: opacity 1.2s; }
+.tcrown.tel { fill: #cfd8e6; } .tcrown.tla { fill: #f0c85a; }
 .tcrown { stroke: #6b5a3a; stroke-width: .6; transition: fill 1.2s; }
 .ttrunk { stroke: #6b5a3a; stroke-width: 2; }
 .trees2 { animation: tpulse 6s ease-in-out infinite; }
 @keyframes tpulse { 50% { opacity: .82; } }
 .trees2.dead { animation: none; }
-.trees2.dead .tglow { opacity: 0; } .trees2.dead .tcrown { fill: #5a5148; }
+.trees2.dead .tglow { display: none; } .trees2.dead .tcrown { fill: #5a5148; }
 
 /* —— 战场里的 Q 版士兵 —— */
 .bu.has-sol .blk { opacity: .35; }
@@ -525,7 +536,7 @@ svg.far .res .sc, svg.far .jmk .sc { transform: scale(calc(var(--k, 1) * .72)); 
 /* —— 地图细节 —— */
 .wave { fill: none; stroke: #8e9a90; stroke-width: .6; opacity: .55; stroke-linecap: round; }
 #map.far .wave { opacity: .3; }
-.sea-o { opacity: .85; transition: opacity .8s; } .sea-o.off { opacity: 0; }
+.sea-o { opacity: .85; } .sea-o.off { display: none; }
 .bobsea { animation: bobsea 5s ease-in-out infinite; }
 @keyframes bobsea { 50% { transform: translateY(1.4px) rotate(1.5deg); } }
 .lake-in { fill: none; stroke: #a5b2a8; stroke-width: 2.4; opacity: .7; transform-box: fill-box; transform-origin: center; transform: scale(.82); }
@@ -539,29 +550,29 @@ svg.far .res .sc, svg.far .jmk .sc { transform: scale(calc(var(--k, 1) * .72)); 
 .road-b { fill: none; stroke: #ecdfbf; stroke-width: 2.2; opacity: .8; }
 .road { fill: none; stroke: #8a5a32; stroke-width: .9; stroke-dasharray: 3.5 2; opacity: .75; stroke-linecap: round; }
 #map.far .road { stroke-width: 1.2; }
-.roads { transition: opacity .8s; } .roads.off { opacity: 0; }
+.roads.off { display: none; }
 .bridge { fill: none; stroke: #3a2a1a; stroke-width: .8; }
 .beacon .bc-b { fill: #6a5a40; } .beacon .bc-f { fill: #ff9a2a; opacity: .8; animation: flick 2.8s ease-in-out infinite; }
 body:not([data-era="war"]) .beacon .bc-f { display: none; }
 @keyframes flick { 50% { opacity: 1; fill: #ffcf4a; } }
 #map.far .beacon { display: none; }
 .tx path { fill: none; stroke-linecap: round; }
-.tx.off { opacity: 0; } .tx { transition: opacity .8s; }
+.tx.off { display: none; }
 .hills path { stroke: #8a6a42; stroke-width: .7; opacity: .7; }
 .hills.rock path { fill: #d8c8a0; stroke: #6a5232; }
 .marsh path { stroke: #5f7a6a; stroke-width: .6; opacity: .75; }
 .marsh.dead path { stroke: #4a5a48; }
 .waste path { stroke: #9a8662; stroke-width: 1; opacity: .6; }
 .waste.ash path { stroke: #3a3030; opacity: .5; } .waste.sand path { stroke: #b8995a; stroke-width: .6; }
-.grass path { stroke: #7f8a55; stroke-width: .45; opacity: 0; transition: opacity .6s; }
-#map.near .grass path { opacity: .7; }
-.fields { transition: opacity .8s; } .fields.off { opacity: 0; }
+.grass path { stroke: #7f8a55; stroke-width: .45; display: none; }
+#map.near .grass path { display: inline; opacity: .7; }
+.fields.off { display: none; }
 .fld { stroke: #6a7a3a; stroke-width: .35; opacity: .6; } .fld.f0 { fill: #b8c27a; } .fld.f1 { fill: #d8c878; } .fld.f2 { fill: #9fb26a; } .fld.f3 { fill: #c8b06a; }
 .tx-l .lbl-n { fill: #6a5232; font-size: calc(var(--fs) * 1px); }
 #map.far .tx-l { display: none; }
 /* 城市小插画 */
-.ic2 { filter: drop-shadow(0 1px .4px rgba(40, 25, 10, .45)); transform: scale(var(--icz, 1)); transition: transform .3s; }
-.pl:hover .ic2 { transform: scale(calc(var(--icz, 1) * 1.25)); }
+.ic2 { transform: scale(var(--icz, 1)); }
+.pl:hover .ic2 { transform: scale(calc(var(--icz, 1) * 1.25)); transition: transform .18s; }
 .pl .pl-n { transform: translateX(calc(11px * var(--icz, 1))); } .pl .pl-n.st { transform: translateX(calc(8px * var(--icz, 1))); }
 .pl.ruin .ic2 { filter: grayscale(1) opacity(.6); }
 .pl.dk .ic2 { filter: sepia(.8) brightness(.55) drop-shadow(0 0 2px rgba(255, 60, 20, .5)); }
@@ -668,7 +679,7 @@ body:not([data-era="war"]) .beacon .bc-f { display: none; }
 .ghost { animation: ffly 3s ease-in-out infinite; }
 
 .scalebar { position: absolute; left: 118px; bottom: 16px; z-index: 3; font-size: 10.5px; color: #4a3420; background: rgba(239, 228, 200, .85); border: 1px solid #b9a37a; border-radius: 3px; padding: 4px 8px 3px; pointer-events: none; }
-.scalebar i { display: block; height: 5px; border: 1px solid #4a3420; border-top: 0; background: repeating-linear-gradient(90deg, #4a3420 0 25%, transparent 25% 50%); margin-bottom: 2px; transition: width .2s; }
+.scalebar i { display: block; height: 5px; border: 1px solid #4a3420; border-top: 0; background: repeating-linear-gradient(90deg, #4a3420 0 25%, transparent 25% 50%); margin-bottom: 2px; }
 .scalebar b { font-weight: 500; font-family: "Noto Serif SC", serif; }
 @media (max-width: 860px) { .scalebar { display: none; } }
 @media (prefers-reduced-motion: reduce) { .graze, .walk, .trot, .smk circle, .ffly circle, .drift, .orbit, .circle, .sweep, .swirl, .march, .sail, .crawl, .fly path { animation: none !important; } .smk circle { opacity: .4; } }
@@ -709,9 +720,9 @@ html[lang="en"] .ch-era { letter-spacing: .06em; font-family: var(--cinzel); }
 }
 
 /* ======== 关键时刻 ======== */
-.moments .mo-mk { cursor: pointer; transition: opacity .6s; }
-.moments .mo-mk.off { opacity: 0; pointer-events: none; }
-.mo-mk path { fill: #f6d26a; stroke: #6a4a10; stroke-width: .8; filter: drop-shadow(0 0 3px rgba(255, 200, 80, .9)); }
+.moments .mo-mk { cursor: pointer; }
+.moments .mo-mk.off { display: none; }
+.mo-mk path { fill: #f6d26a; stroke: #6a4a10; stroke-width: .85; }
 .mo-mk .mo-halo { fill: none; stroke: #f6d26a; stroke-width: 1.2; opacity: .45; animation: moHalo 3.6s ease-in-out infinite; transform-origin: 0 0; }
 .mo-mk:hover path { fill: #fff3b8; }
 @keyframes moHalo { 0%, 100% { transform: scale(.85); opacity: .25; } 50% { transform: scale(1.25); opacity: .65; } }
@@ -794,9 +805,8 @@ html[lang="en"] .mo-text p { line-height: 1.7; font-size: 16px; }
   .mo-pt span { width: 52px; height: 65px; }
 }
 /* 标签避让 */
-#map .pl-n, #map .realm-n, #map .lbl > .sc, #map .lm-n, #map .rv-n, #map .jname, #map .ring-n { transition: opacity .35s; }
-#map .dc { opacity: 0 !important; }
-#map .pl:hover .pl-n.dc { opacity: 1 !important; }
+#map .dc { visibility: hidden; }
+#map .pl:hover .pl-n.dc { visibility: visible; }
 .pl .pl-n.lf { text-anchor: end; transform: translateX(calc(-11px * var(--icz, 1))); } .pl .pl-n.st.lf { transform: translateX(calc(-8px * var(--icz, 1))); }
 
 /* =====================================================================
@@ -819,7 +829,7 @@ html[lang="en"] .mo-text p { line-height: 1.7; font-size: 16px; }
 /* —— 湖河路 —— */
 .st-h3 .lake { fill: url(#tx-shallow); stroke: #e2c98a; stroke-width: 1.8; }
 .st-h3 .lake-in { stroke: #e8f6ff; opacity: .8; stroke-width: 1.2; stroke-dasharray: 4 3; }
-.st-h3 .river { stroke: #2f80c8; opacity: 1; filter: drop-shadow(0 0 .6px #e8f6ff); }
+.st-h3 .river { stroke: #2f80c8; opacity: 1; }
 .st-h3 .road-b { stroke: #6a4a24; stroke-width: 3.6; opacity: .55; }
 .st-h3 .road { stroke: #c8a468; stroke-width: 2.4; stroke-dasharray: none; opacity: 1; }
 .st-h3 #map.far .road { stroke-width: 2.8; }
@@ -856,16 +866,16 @@ html[lang="en"] .mo-text p { line-height: 1.7; font-size: 16px; }
 .st-h3 .rv-n { fill: #d8f0ff; stroke: rgba(10, 40, 80, .85); }
 .st-h3 .realm-n { opacity: .9; stroke: rgba(20, 12, 4, .7); }
 .st-h3 .edge-n { fill: #d8f0ff; } .st-h3 .edge-en { fill: #a8cce4; }
-.st-h3 .jname { stroke: rgba(20, 12, 4, .9); filter: brightness(1.6) saturate(1.2); }
+.st-h3 .jname { fill: #fff6d2; stroke: rgba(16, 10, 4, .94); stroke-width: 3.3px; }
 .st-h3 .res-n { fill: #fff6d0; stroke: rgba(26, 16, 6, .92); }
 .st-h3 .ring-n { fill: #ffe080; stroke: rgba(30, 18, 6, .9); }
 .st-h3 .veil-n { fill: #e8f6ff; }
 /* —— 城镇图标 —— */
-.st-h3 .ic2 { filter: drop-shadow(0 1px .6px rgba(0, 0, 0, .5)); transform: scale(calc(var(--icz, 1) * .74)); }
+.st-h3 .ic2 { transform: scale(calc(var(--icz, 1) * .74)); }
 .st-h3 .pl:hover .ic2 { transform: scale(calc(var(--icz, 1) * .9)); }
 .st-h3 .pl .pl-n { transform: translateX(calc(12px * var(--icz, 1))); } .st-h3 .pl .pl-n.lf { transform: translateX(calc(-12px * var(--icz, 1))); }
 .st-h3 .pl.ruin .ic2 { filter: grayscale(.85) brightness(.85); }
-.st-h3 .pl.dk .ic2 { filter: hue-rotate(-30deg) saturate(.6) brightness(.6) drop-shadow(0 0 2px rgba(255, 60, 20, .7)); }
+.st-h3 .pl.dk .ic2 { filter: hue-rotate(-30deg) saturate(.6) brightness(.6); }
 .h3flag { transform-box: fill-box; transform-origin: left center; animation: h3flag 1.6s ease-in-out infinite; }
 @keyframes h3flag { 0%, 100% { transform: skewY(0) scaleX(1); } 50% { transform: skewY(-8deg) scaleX(.86); } }
 .h3glow { animation: h3glow 2.4s ease-in-out infinite; }
@@ -877,7 +887,7 @@ html[lang="en"] .mo-text p { line-height: 1.7; font-size: 16px; }
 .h3spark { animation: h3glow 1.4s ease-in-out infinite; }
 /* —— 冒险物件 —— */
 .advo { pointer-events: none; }
-.aoi { transform: scale(clamp(.5, calc(var(--icz, 1) * .62), 1.05)); filter: drop-shadow(0 .6px .3px rgba(0, 0, 0, .45)); }
+.aoi { transform: scale(clamp(.5, calc(var(--icz, 1) * .62), 1.05)); }
 #map.far .advo { display: none; }
 body[data-era="trees"] .advo { display: none; }
 /* —— 时代色调 —— */
@@ -941,7 +951,6 @@ body[data-era="trees"] .advo { display: none; }
  * 红棕色衬线地名。全部为程序绘制的原创贴图。
  * ===================================================================== */
 .st-paint { --gold: #c89a4a; }
-.st-paint .mapwrap { background: #c9b07a; }
 .st-paint .sea { fill: url(#tx-water); }
 .st-paint .sea-hatch, .st-paint .paper, .st-paint .wave { display: none; }
 /* 大陆架：几层宽而淡的青绿色描边，越靠岸越亮 */
@@ -1105,8 +1114,8 @@ body[data-era="trees"] .advo { display: none; }
   .k-top { margin-bottom: 4px; } .k-stars { font-size: 16px; }
 }
 /* 主要地标立体模型 */
-.st-paint .ic2:has(.mdl) { transform: scale(calc(var(--icz, 1) * .95)); }
-.st-paint .pl.minor .ic2:has(.mdl) { transform: scale(calc(var(--icz, 1) * .72)); }
+.st-paint .pl.mdlp .ic2 { transform: scale(calc(var(--icz, 1) * .95)); }
+.st-paint .pl.minor.mdlp .ic2 { transform: scale(calc(var(--icz, 1) * .72)); }
 .st-paint .pl.mdlp .pl-n { transform: translateX(calc(17px * var(--icz, 1))); }
 .st-paint .pl.minor.mdlp .pl-n { transform: translateX(calc(12px * var(--icz, 1))); }
 .st-paint .pl.mdlp .pl-n.lf { transform: translateX(calc(-17px * var(--icz, 1))); }
@@ -1514,14 +1523,13 @@ body[data-era="fo"] .mapwrap::before {
 
 .realm-cr {
   opacity: .72; pointer-events: none;
-  filter: drop-shadow(0 1px 1px rgba(246, 234, 202, .75));
 }
 .realm-cr.c-elf { color: var(--elf); }
 .realm-cr.c-man { color: var(--man); }
 .realm-cr.c-rohan { color: #3a6828; }
 .realm-cr.c-dwarf { color: var(--dwarf); }
 .realm-cr.c-dark { color: var(--dark); }
-.st-h3 .realm-cr { color: #ffe49c; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .85)); }
+.st-h3 .realm-cr { color: #ffe49c; }
 #map.near .realm-cr { opacity: .28; }
 
 .lg-card.has-art, .bt-card.has-art {
