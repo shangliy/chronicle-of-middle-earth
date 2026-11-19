@@ -419,7 +419,7 @@ window.ME_SCENE = (function () {
     const gap = n > 1 ? Math.min(255, (a.x1 - a.x0) / (n - 1)) : 0, cx0 = (a.x0 + a.x1) / 2 - (gap * (n - 1)) / 2;
     const fig = figs.map((id, i) => {
       const x = n > 1 ? cx0 + i * gap : (a.x0 + a.x1) / 2, flip = n > 1 && i >= n / 2 ? -1 : 1, k = BIG[id] || 1;
-      return `<g class="sc-fig" style="animation-delay:${0.45 + i * 0.22}s">
+      return `<g class="sc-fig" style="animation-delay:${(0.14 + i * 0.1).toFixed(2)}s">
         <ellipse cx="${x}" cy="${a.gy + 4}" rx="${24 * sc}" ry="${5.5 * sc}" fill="#000" opacity=".46"/>
         <ellipse cx="${x}" cy="${a.gy - 42 * sc * k}" rx="${18 * sc * k}" ry="${26 * sc * k}" fill="${c.fog}" opacity=".12"/>
         <g filter="url(#${u}rim)"><use href="#chb-${id}" transform="translate(${x} ${a.gy}) scale(${sc * k * flip} ${sc * k})"/></g>

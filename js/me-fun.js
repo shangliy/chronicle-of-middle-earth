@@ -402,16 +402,20 @@
   function openCodex(tab) {
     if (tab) codexTab = tab;
     const box = $("#codex"); if (!box) return;
+    const wasOpen = !box.hidden;
     M.closeMoment(false);
-    box.hidden = false; box.classList.remove("on"); void box.offsetWidth; box.classList.add("on");
-    renderCodex();
+    if (M.hideToast) M.hideToast();
+    renderCodex(true);
+    box.classList.toggle("swapping", wasOpen);
+    if (!wasOpen) { box.classList.add("on"); box.hidden = false; }
   }
   function closeCodex() {
-    const box = $("#codex"); if (box) { box.hidden = true; box.innerHTML = ""; }
+    const box = $("#codex"); if (box) { box.hidden = true; box.classList.remove("on", "swapping"); box.innerHTML = ""; }
   }
 
-  function renderCodex() {
-    const box = $("#codex"); if (!box || box.hidden) return;
+  function renderCodex(force = false) {
+    const box = $("#codex"); if (!box || (!force && box.hidden)) return;
+    if (!force) box.classList.add("swapping");
     const pct = totalProgressPct();
     let body = "";
     if (codexTab === "atlas") {
@@ -733,15 +737,11 @@
         if (i === BEACON_PEAKS.length - 1) {
           if (!state.beaconsLit) { state.beaconsLit = true; saveState(); }
           M.pulse(578, 508, "k-ring");
-          const ts = $("#toast");
-          if (ts) {
-            ts.className = "toast on k-ring";
-            ts.innerHTML = `<div class="ts-d">${L("刚铎求援 · 白色山脉七烽连天", "The Warning Beacons of Gondor")}</div>
-              <b>🔥 ${L("烽火亮了！刚铎在呼救！", "The Beacons Are Lit! Gondor Calls for Aid!")}</b>
-              <p>${L("从阿蒙丁到哈利费理安，七座雪峰火光冲天。希奥顿王在金殿前仰望火光：「洛汗必将应召！」", "From Amon Dîn to Halifirien, seven mountain-fires leap across the night. In Edoras King Théoden answers: “And Rohan will answer!”")}</p>
-              <button class="go-b" data-b="pelennor">⚔ ${L("率洛汗铁骑驰援帕兰诺平原", "Ride to Battle of the Pelennor Fields")}</button>`;
-            setTimeout(() => ts.classList.remove("on"), 7200);
-          }
+          const html = `<div class="ts-d">${L("刚铎求援 · 白色山脉七烽连天", "The Warning Beacons of Gondor")}</div>
+            <b>🔥 ${L("烽火亮了！刚铎在呼救！", "The Beacons Are Lit! Gondor Calls for Aid!")}</b>
+            <p>${L("从阿蒙丁到哈利费理安，七座雪峰火光冲天。希奥顿王在金殿前仰望火光：「洛汗必将应召！」", "From Amon Dîn to Halifirien, seven mountain-fires leap across the night. In Edoras King Théoden answers: “And Rohan will answer!”")}</p>
+            <button class="go-b" data-b="pelennor">⚔ ${L("率洛汗铁骑驰援帕兰诺平原", "Ride to Battle of the Pelennor Fields")}</button>`;
+          if (M.showToast) M.showToast(html, "ring", 7200);
         }
       }, 280 + i * 360));
     });
@@ -755,14 +755,10 @@
     const urlStr = u.toString();
     const done = () => {
       Bard.sfx("chime", true);
-      const ts = $("#toast");
-      if (ts) {
-        ts.className = "toast on k-ring";
-        ts.innerHTML = `<div class="ts-d">${L("时空坐标永久链接", "Shareable Atlas Permalink")}</div>
-          <b>🔗 ${L("已复制当前纪元与视角链接！", "Permalink Copied to Clipboard!")}</b>
-          <p style="word-break:break-all;font-size:11.5px;opacity:.85">${esc(urlStr)}</p>`;
-        setTimeout(() => ts.classList.remove("on"), 3600);
-      }
+      const html = `<div class="ts-d">${L("时空坐标永久链接", "Shareable Atlas Permalink")}</div>
+        <b>🔗 ${L("已复制当前纪元与视角链接！", "Permalink Copied to Clipboard!")}</b>
+        <p style="word-break:break-all;font-size:11.5px;opacity:.85">${esc(urlStr)}</p>`;
+      if (M.showToast) M.showToast(html, "ring", 3600);
     };
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(urlStr).then(done).catch(done);

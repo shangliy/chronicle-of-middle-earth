@@ -576,17 +576,17 @@
 
   /* ——随时间更新地图—— */
   let T = D.EVENTS[0].t, seaTimed = null;
-  const visible = (p, t) => (t >= (p.from ?? -1e9) && t < (p.to ?? 1e9)) || (p.again && t >= p.again[0] && t < p.again[1]);
-  function setSinkLayer(node, gone) {
+  const visible = (p, t) => !!((t >= (p.from ?? -1e9) && t < (p.to ?? 1e9)) || (p.again && t >= p.again[0] && t < p.again[1]));
+  function setSinkLayer(node, gone, animate) {
     if (node._gone === gone) return;
     const wasVisible = node._gone === false;
     node._gone = gone;
     node.classList.toggle("gone", gone);
-    if (gone && wasVisible) {
+    if (gone && wasVisible && animate) {
       node.classList.add("sinking");
       clearTimeout(node._sinkTm);
       node._sinkTm = setTimeout(() => node.classList.remove("sinking"), 2700);
-    } else if (!gone) {
+    } else {
       clearTimeout(node._sinkTm);
       node.classList.remove("sinking");
     }
@@ -595,8 +595,9 @@
     const t = T;
     if (!seaTimed) seaTimed = [...svg.querySelectorAll(".sea-o[data-from]")];
     const belGone = t >= 587.5, nuGone = t < 622 || t >= 3909.3, veiled = t >= 3909.3, roadsOff = t < 591, treesDead = t >= -40;
-    setSinkLayer(L.bel, belGone);
-    setSinkLayer(L.nu, nuGone);
+    const animSink = playing || !!follow;
+    setSinkLayer(L.bel, belGone, animSink);
+    setSinkLayer(L.nu, nuGone, animSink);
     if (L._roadsOff !== roadsOff) { L.roads.classList.toggle("off", roadsOff); L._roadsOff = roadsOff; }
     L.timed.forEach((g) => { const off = t < +g.dataset.from; if (g._off !== off) { g.classList.toggle("off", off); g._off = off; } });
     L.tw.forEach((g) => { const off = t < +g.dataset.from || t >= +g.dataset.to; if (g._off !== off) { g.classList.toggle("off", off); g._off = off; } });
@@ -747,12 +748,12 @@
     } else {
       applyStageTransform(h, k);
     }
-    const baseK = bw / cw;
-    if (commit || !lastCssK || Math.abs(baseK - lastCssK) / lastCssK > 0.25) {
-      lastCssK = baseK;
-      svg.style.setProperty("--k", baseK.toFixed(4));
-      svg.style.setProperty("--icz", clamp(640 / bw, 0.8, 2.4).toFixed(3));
-      const isFar = bw > 1150, isNear = bw < 620;
+    const visK = k;
+    if (commit || !lastCssK || Math.abs(visK - lastCssK) / lastCssK > 0.25) {
+      lastCssK = visK;
+      svg.style.setProperty("--k", visK.toFixed(4));
+      svg.style.setProperty("--icz", clamp(640 / cam.w, 0.8, 2.4).toFixed(3));
+      const isFar = cam.w > 1150, isNear = cam.w < 620;
       if (svg._far !== isFar) { svg.classList.toggle("far", isFar); svg._far = isFar; }
       if (svg._near !== isNear) { svg.classList.toggle("near", isNear); svg._near = isNear; }
     }
@@ -887,14 +888,21 @@
     if (!svgRect || cw <= 1) updateSvgSize();
     w = clamp(w, 180, BW);
     const h = (w * ch) / cw, s = { ...cam }, e = { x: x - w / 2, y: y - h / 2, w };
-    if (ms <= 0) { cam.x = e.x; cam.y = e.y; cam.w = e.w; applyCam(true); return; }
+    if (ms <= 0) {
+      clearTimeout(moveTimer); svg.classList.remove("moving");
+      cam.x = e.x; cam.y = e.y; cam.w = e.w; applyCam(true); schedDc(true); return;
+    }
     const t0 = performance.now();
     markMoving();
     const step = (now) => {
       const k = ease(clamp((now - t0) / ms, 0, 1));
       cam.x = lerp(s.x, e.x, k); cam.y = lerp(s.y, e.y, k); cam.w = lerp(s.w, e.w, k);
-      applyCam(k >= 1);
-      if (k < 1) { markMoving(); flyRaf = requestAnimationFrame(step); }
+      if (k < 1) {
+        applyCam(false); markMoving(); flyRaf = requestAnimationFrame(step);
+      } else {
+        clearTimeout(moveTimer); svg.classList.remove("moving");
+        applyCam(true); schedDc(true);
+      }
     };
     flyRaf = requestAnimationFrame(step);
   }
@@ -1010,7 +1018,13 @@
     openCard(html);
     pulse(p.x, p.y);
   }
-  function openCard(html) { const c = $("#card"); c.innerHTML = `<button class="x" aria-label="${tr("关闭")}">×</button>` + html; c.hidden = false; }
+  function openCard(html) {
+    const c = $("#card"), wasHidden = c.hidden;
+    c.innerHTML = `<button class="x" aria-label="${tr("关闭")}">×</button>` + html;
+    c.scrollTop = 0;
+    if (wasHidden) { c.classList.remove("card-in"); c.hidden = false; c.classList.add("card-in"); }
+    else c.classList.remove("card-in");
+  }
   $("#card").addEventListener("click", (e) => { if (e.target.closest(".x")) return ($("#card").hidden = true);
     const zxy = e.target.closest("[data-zoom-xy]"); if (zxy) { const [zx, zy] = zxy.dataset.zoomXy.split(",").map(Number); flyTo(zx, zy, 240, 950); userMoved = Date.now(); pulse(zx, zy, "k-ring"); return; }
     const rdl = e.target.closest("[data-open-riddle]"); if (rdl && window.__ME?.openCodex) { $("#card").hidden = true; return window.__ME.openCodex("riddle"); }
@@ -1052,9 +1066,10 @@
   function setT(t, user) {
     const T_ = T; T = clamp(t, T0, T1 - 0.001);
     if (user || T < T_ - 1e-5) lastMoId = null;
+    let hitMo = null;
     if (playing && !user && moAuto && !follow) {
       const m = MO.find((x) => x.id !== lastMoId && x.t > T_ + 1e-9 && x.t <= T + 1e-9);
-      if (m) { lastMoId = m.id; T = m.t + 2e-6; pause(); setTimeout(() => openMoment(m.id, true), 0); }
+      if (m) { hitMo = m; lastMoId = m.id; T = m.t + 2e-6; pause(); }
     }
     const posPct = posOf(T) * 100 + "%";
     thumb.style.left = posPct; $("#tmFill").style.width = posPct;
@@ -1064,18 +1079,19 @@
     if (lastEra !== e.id) {
       tm.style.setProperty("--era", e.col); document.body.dataset.era = e.id;
       tmBands.forEach((b) => b.classList.toggle("cur", b.dataset.era === e.id));
-      if (lastEra && !reading && Date.now() - userMoved > 2500) flyBox(e.cam);
-      onEra(e);
+      if (!hitMo && lastEra && !reading && Date.now() - userMoved > 2500) flyBox(e.cam);
+      if (!hitMo) onEra(e);
       lastEra = e.id;
     }
     // 越过的事件：播放时弹出
     let idx = -1; D.EVENTS.forEach((ev, i) => { if (ev.t <= T + 1e-6) idx = i; });
     if (idx !== lastEvIdx) {
-      if ((playing || follow) && idx > lastEvIdx && idx >= 0) toast(D.EVENTS[idx]);
+      if (!hitMo && (playing || follow) && idx > lastEvIdx && idx >= 0) toast(D.EVENTS[idx]);
       lastEvIdx = idx; markChron(idx);
       tmTicks.forEach((k, i) => k.classList.toggle("past", i <= idx));
     }
     updateMap();
+    if (hitMo) openMoment(hitMo.id, true);
   }
   function onEra(e) {
     if (e.id === "fa" && lastEra === "trees") flash(tr("日月初升 · 第一纪元"));
@@ -1120,7 +1136,7 @@
     pumpDebut();
   }
   function pumpDebut() {
-    const box = $("#debut"); if (!box) return;
+    const box = $("#debut"); if (!box || !$("#moment").hidden) return;
     while (debutQ.length && box.children.length < (innerWidth <= 860 ? 1 : 2)) {
       const id = debutQ.shift(), c = CI[id]; if (!c) continue;
       const w = whereIs(id); if (w) pulse(w[0], w[1], "k-" + (c.r === "dark" ? "dark" : "ring"));
@@ -1129,7 +1145,7 @@
       box.appendChild(d); debutOn++;
       const hold = debutQ.length > 2 ? 3200 : 4600;
       setTimeout(() => d.classList.add("out"), hold);
-      setTimeout(() => { d.remove(); debutOn = Math.max(0, debutOn - 1); pumpDebut(); }, hold + 1300);
+      setTimeout(() => { d.remove(); debutOn = Math.max(0, debutOn - 1); pumpDebut(); }, hold + 600);
     }
   }
   const DUR = 240; // 1× 下整条时间轴约 4 分钟
@@ -1225,17 +1241,38 @@
       ${j.b ? `<button class="go-b wide" data-b="${j.b}">⚔ ${tr("进入战场推演")}</button>` : ""}`);
   }
 
-  let toastTimer = 0;
+  let toastTimer = 0, toastHover = false;
+  const toastEl = $("#toast");
+  function hideToast() {
+    clearTimeout(toastTimer); toastTimer = 0;
+    if (toastEl) toastEl.classList.remove("on");
+  }
+  function schedToastHide(ms) {
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { if (!toastHover) hideToast(); }, ms);
+  }
+  if (toastEl) {
+    toastEl.addEventListener("mouseenter", () => { toastHover = true; clearTimeout(toastTimer); });
+    toastEl.addEventListener("mouseleave", () => { toastHover = false; if (toastEl.classList.contains("on")) schedToastHide(1800); });
+    toastEl.addEventListener("click", (e) => { if (e.target.closest(".ts-x")) hideToast(); });
+  }
+  function showToast(innerHtml, kind = "ring", ms = 4800) {
+    if (!toastEl) return;
+    const wasOn = toastEl.classList.contains("on");
+    toastEl.innerHTML = `<button class="ts-x" type="button" aria-label="${tr("关闭")}">×</button><div class="${wasOn ? "toast-in" : ""}">${innerHtml}</div>`;
+    toastEl.className = "toast on k-" + kind;
+    schedToastHide(ms);
+  }
   function toast(ev) {
-    const t = $("#toast");
-    t.innerHTML = `<div class="ts-d">${esc(fmt(ev.t, hasDay(ev.t)))}${ev.at && placeName(ev.at) ? " · " + esc(placeName(ev.at)) : ""}</div><b>${esc(ev.h)}</b><p>${esc(ev.p)}</p>${ev.b ? `<button class="go-b" data-b="${ev.b}">⚔ ${tr("身临战场")}</button>` : ""}`;
-    t.className = "toast on k-" + ev.k; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("on"), Math.max(4500, ev.p.length * 70) / speed);
+    const html = `<div class="ts-d">${esc(fmt(ev.t, hasDay(ev.t)))}${ev.at && placeName(ev.at) ? " · " + esc(placeName(ev.at)) : ""}</div><b>${esc(ev.h)}</b><p>${esc(ev.p)}</p>${ev.b ? `<button class="go-b" data-b="${ev.b}">⚔ ${tr("身临战场")}</button>` : ""}`;
+    const ms = Math.max(2800, Math.max(4500, ev.p.length * 70) / Math.sqrt(speed));
+    showToast(html, ev.k, ms);
     const [x, y] = xy(ev.at); pulse(x, y, "k-" + ev.k);
   }
   function goEvent(ev, keepCam) {
     pause(); setT(ev.t + 1e-7); const [x, y] = xy(ev.at);
     if (!keepCam) { const z = ev.t < 591 ? 700 : ev.t < 4032 && x < 100 ? 900 : eraOf(ev.t).id === "war" ? 460 : 620; flyTo(x, y, z); userMoved = Date.now(); }
-    pulse(x, y, "k-" + ev.k); toast(ev);
+    toast(ev);
     const li = $(`#chron li[data-i="${D.EVENTS.indexOf(ev)}"]`); if (li && panelTab === "chron") li.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }
 
@@ -1366,12 +1403,15 @@
     const i = MOI[id]; if (i == null) return; const m = MO[i];
     emitVisit("moment", id);
     const wasPlaying = fromPlay || (moCur && moCur.resume);
-    lastMoId = id; pause(); moCur = { id, resume: !!wasPlaying };
+    lastMoId = id; pause(); hideToast(); moCur = { id, resume: !!wasPlaying };
     if (T <= m.t + 1e-6 || Math.abs(T - m.t) > 1e-5) setT(m.t + 2e-6, true);
-    const [x, y] = xy(m.at); flyTo(x, y, m.t > 6900 ? 260 : 520, 1600); pulse(x, y, "k-ring"); userMoved = Date.now();
+    const [x, y] = xy(m.at);
+    // 弹窗打开前一步到位定位镜头，避免后台持续飞镜与 SVG 重绘干扰弹窗渲染
+    flyTo(x, y, m.t > 6900 ? 260 : 520, 0); pulse(x, y, "k-ring"); userMoved = Date.now();
     const who = (m.who || []).filter((w) => CI[w]);
     const lg = m.legend && D.LEGENDS.find((l) => l.id === m.legend);
-    const box = $("#moment"); box.hidden = false; box.classList.remove("on"); void box.offsetWidth; box.classList.add("on");
+    const box = $("#moment"), wasOpen = !box.hidden;
+    // 先构建完整 DOM 再显示，切换时刻时保持深色遮罩稳定不闪黑/露底
     box.innerHTML = `<div class="mo-in" role="dialog" aria-modal="true" aria-label="${esc(m.h)}">
       <button class="mo-x" aria-label="${tr("关闭")}">×</button>
       <div class="mo-art">${window.ME_SCENE ? window.ME_SCENE(m, who) : ""}
@@ -1379,7 +1419,7 @@
       <div class="mo-body">
         ${m.line ? `<blockquote class="mo-line"><p>${esc(m.line)}</p>${m.by ? `<cite>—— ${esc(m.by)}</cite>` : ""}</blockquote>` : ""}
         ${who.length ? `<div class="mo-who">${who.map((w) => `<button class="mo-pt" data-c="${w}"><span>${PT(CI[w])}</span><b>${esc(CI[w].n)}</b></button>`).join("")}</div>` : ""}
-        <div class="mo-text">${(m.scene || []).map((p, k) => `<p style="animation-delay:${0.9 + k * 0.5}s">${esc(p)}</p>`).join("")}</div>
+        <div class="mo-text">${(m.scene || []).map((p, k) => `<p style="animation-delay:${(0.2 + k * 0.14).toFixed(2)}s">${esc(p)}</p>`).join("")}</div>
         <div class="mo-nav">
           <button class="mo-go" data-mo="${i > 0 ? MO[i - 1].id : ""}" ${i > 0 ? "" : "disabled"}>‹ ${tr("上一个时刻")}</button>
           ${lg ? `<button class="mo-lg" data-l="${lg.id}">❧ ${esc(lg.n)}</button>` : ""}
@@ -1387,12 +1427,14 @@
         </div>
         <label class="mo-auto"><input type="checkbox" ${moAuto ? "checked" : ""}/> ${tr("播放时遇到关键时刻自动停下")}</label>
       </div></div>`;
+    box.classList.toggle("swapping", wasOpen);
+    if (!wasOpen) { box.classList.add("on"); box.hidden = false; }
     box.querySelector(".mo-in").scrollTop = 0;
     history.replaceState(null, "", `#m=${id}`);
   }
   function closeMoment(resume) {
     const box = $("#moment"); if (box.hidden) return;
-    const r = resume && moCur && moCur.resume; box.hidden = true; box.innerHTML = ""; moCur = null;
+    const r = resume && moCur && moCur.resume; box.hidden = true; box.classList.remove("on", "swapping"); box.innerHTML = ""; moCur = null;
     if (location.hash.startsWith("#m=")) history.replaceState(null, "", location.pathname + location.search);
     if (r) play();
   }
@@ -1900,7 +1942,7 @@
       const cx = Math.round(cam.x + cam.w / 2), cy = Math.round(cam.y + hh / 2), w = Math.round(cam.w);
       return `#t=${+T.toFixed(4)}&x=${cx}&y=${cy}&w=${w}`;
     };
-    window.__ME = { pulse, flyBox, PT, CI, openMoment, closeMoment, MO, setT, flyTo, openBattle, phase, openLegend, play, pause, followJ, showChar, showPlace, openCard, placeHeroSvg, setTab, svg, P, L, RING, RING_END, at, eraOf, hasDay, getShareHash, get T() { return T; }, get follow() { return !!follow; }, cam, posOf, tAt, fmt, JR, RES };
+    window.__ME = { pulse, flyBox, PT, CI, openMoment, closeMoment, MO, setT, flyTo, openBattle, phase, openLegend, play, pause, followJ, showChar, showPlace, openCard, showToast, hideToast, placeHeroSvg, setTab, svg, P, L, RING, RING_END, at, eraOf, hasDay, getShareHash, get T() { return T; }, get follow() { return !!follow; }, cam, posOf, tAt, fmt, JR, RES };
   }
   init();
 })();
