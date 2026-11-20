@@ -269,7 +269,7 @@
     ensureChibiDefs();
     const defs = el("defs", {}, svg);
     defs.innerHTML = `
-      <filter id="gold" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <radialGradient id="rg-ring"><stop offset="0" stop-color="#ffe278" stop-opacity=".95"/><stop offset=".45" stop-color="#ffd25a" stop-opacity=".48"/><stop offset="1" stop-color="#ffaa20" stop-opacity="0"/></radialGradient>
       <radialGradient id="rg-tel"><stop offset="0" stop-color="#dfeaff" stop-opacity=".78"/><stop offset=".52" stop-color="#cfd8e6" stop-opacity=".28"/><stop offset="1" stop-color="#cfd8e6" stop-opacity="0"/></radialGradient>
       <radialGradient id="rg-tla"><stop offset="0" stop-color="#ffe078" stop-opacity=".8"/><stop offset=".52" stop-color="#f0c85a" stop-opacity=".3"/><stop offset="1" stop-color="#f0c85a" stop-opacity="0"/></radialGradient>
       ${["elf", "man", "dwarf", "dark", "rohan"].map((c) => `<radialGradient id="rg-${c}"><stop offset="0" class="rg-${c}" stop-opacity=".55"/><stop offset=".75" class="rg-${c}" stop-opacity=".22"/><stop offset="1" class="rg-${c}" stop-opacity="0"/></radialGradient>`).join("")}
@@ -470,7 +470,7 @@
     // 至尊戒（可点击打开至尊戒编年与幽影界视角）
     L.ring = el("g", { class: "ring ring-clickable" }, svg);
     const rs = el("g", { class: "sc" }, L.ring);
-    el("circle", { r: 12, class: "ring-glow", filter: "url(#gold)" }, rs);
+    el("circle", { r: 16, class: "ring-glow" }, rs);
     el("circle", { r: 8.2, class: "ring-aura" }, rs);
     el("circle", { r: 5, class: "ring-shd" }, rs);
     el("circle", { r: 5, class: "ring-o" }, rs);
@@ -685,16 +685,35 @@
     schedDc();
   }
 
-  /* ——镜头（22% 溢出血位 #camStage GPU 矩阵合成 + 视口外大陆裁剪，停稳 130ms 后一次性提交 1:1 矢量 viewBox）—— */
-  const CAM_PAD = 0.22, CAM_SPAN = 1 + CAM_PAD * 2;
+  /* ——镜头（28% 溢出血位 #camStage GPU 矩阵合成 + 对数惯性滚轮缩放，停稳后再提交 1:1 矢量 viewBox）—— */
+  const CAM_PAD = 0.28, CAM_SPAN = 1 + CAM_PAD * 2;
   const mapWrap = svg.closest(".mapwrap") || svg.parentElement;
   const camStage = document.getElementById("camStage") || svg.parentElement;
-  let camRaf = 0, moveTimer = 0, svgRect = null, baseCam = null, lastCssK = 0;
+  let camRaf = 0, moveTimer = 0, settleRaf = 0, settleDoneTimer = 0, svgRect = null, baseCam = null, lastCssK = 0;
   function updateSvgSize() { const r = mapWrap.getBoundingClientRect(); svgRect = r; cw = r.width || 1; ch = r.height || 1; }
-  function markMoving() {
+  function settleCam() {
+    moveTimer = 0;
+    const scaleChanged = baseCam && Math.abs(baseCam.w - cam.w) / Math.max(1, cam.w) > 0.03;
+    if (scaleChanged) {
+      svg.classList.add("settling");
+      clearTimeout(settleDoneTimer);
+      settleDoneTimer = setTimeout(() => { svg.classList.remove("settling"); schedDc(true); }, 210);
+    }
+    // 在 .moving（暂停 SVG 动画）状态下先提交 1:1 viewBox，再于下一帧恢复动画，避免重绘卡顿
+    applyCam(true);
+    cancelAnimationFrame(settleRaf);
+    settleRaf = requestAnimationFrame(() => {
+      settleRaf = 0;
+      svg.classList.remove("moving");
+      if (!scaleChanged) schedDc(true);
+    });
+  }
+  function markMoving(wait = 260) {
+    cancelAnimationFrame(settleRaf); settleRaf = 0;
+    clearTimeout(settleDoneTimer); svg.classList.remove("settling");
     if (!svg.classList.contains("moving")) svg.classList.add("moving");
     clearTimeout(moveTimer);
-    moveTimer = setTimeout(() => { svg.classList.remove("moving"); applyCam(true); schedDc(true); }, 130);
+    moveTimer = setTimeout(settleCam, wait);
   }
   function schedCam() { if (!camRaf) camRaf = requestAnimationFrame(() => { camRaf = 0; applyCam(false); }); }
   function setCull(node, offscreen) {
@@ -716,7 +735,7 @@
     const ty = CAM_PAD * ch * (1 - s) + (baseCam.y - cam.y) * (cw / cam.w);
     const left = -CAM_PAD * cw + tx, top = -CAM_PAD * ch + ty;
     const right = left + s * CAM_SPAN * cw, bottom = top + s * CAM_SPAN * ch;
-    if (s >= 0.695 && s <= 2.95 && left <= 0.5 && right >= cw - 0.5 && top <= 0.5 && bottom >= ch - 0.5) {
+    if (s >= 0.642 && s <= 3.6 && left <= 0.5 && right >= cw - 0.5 && top <= 0.5 && bottom >= ch - 0.5) {
       camStage.style.transform = `translate3d(${tx.toFixed(2)}px,${ty.toFixed(2)}px,0) scale(${s.toFixed(5)})`;
       syncMiniAndBar(k, h);
       return true;
@@ -731,8 +750,8 @@
 
     let bx = cam.x, by = cam.y, bw = cam.w, bh = h;
     if (!commit && baseCam && cam.w > baseCam.w * 1.04) {
-      // 持续缩小时预留更宽基底视野，避免连续缩小时每几帧重复触发矢量重绘
-      bw = clamp(cam.w * 1.85, 180, BW);
+      // 持续缩小时适度预留外扩视野，兼顾清晰度与避免频繁触发矢量重绘
+      bw = clamp(cam.w * 1.48, 180, BW);
       bh = (bw * ch) / cw;
       bx = cam.x + (cam.w - bw) * 0.5;
       by = cam.y + (h - bh) * 0.5;
@@ -882,51 +901,96 @@
       lastSbLg = lg;
     }
   }
-  let flyRaf = 0, userMoved = 0;
+  let flyRaf = 0, userMoved = 0, wz = null, wzRaf = 0, wzLast = 0;
+  function stopWheelZoom() {
+    wz = null;
+    if (wzRaf) { cancelAnimationFrame(wzRaf); wzRaf = 0; }
+  }
+  function wheelStep(now) {
+    wzRaf = 0;
+    if (!wz) return;
+    const dt = clamp((now - wzLast) / 1000, 0.004, 0.05);
+    wzLast = now;
+    const alpha = 1 - Math.exp(-dt * (wz.fast ? 26 : 14));
+    const diff = Math.abs(Math.log(wz.w / cam.w));
+    if (diff < 0.0012) {
+      cam.w = wz.w;
+      cam.x = wz.px - (wz.sx / cw) * cam.w;
+      cam.y = wz.py - (wz.sy / cw) * cam.w;
+      wz = null;
+      applyCam(false);
+      markMoving(240);
+      return;
+    }
+    const nw = Math.exp(lerp(Math.log(cam.w), Math.log(wz.w), alpha));
+    cam.w = nw;
+    cam.x = wz.px - (wz.sx / cw) * nw;
+    cam.y = wz.py - (wz.sy / cw) * nw;
+    applyCam(false);
+    markMoving(280);
+    wzRaf = requestAnimationFrame(wheelStep);
+  }
+  function wheelZoom(f, sx, sy, fast) {
+    if (!svgRect || cw <= 1) updateSvgSize();
+    const px = cam.x + (sx / cw) * cam.w, py = cam.y + (sy / cw) * cam.w;
+    const sameDir = wz && ((f < 1 && wz.w < cam.w) || (f > 1 && wz.w > cam.w));
+    const tw = clamp((sameDir ? wz.w : cam.w) * f, 180, BW);
+    wz = { w: tw, sx, sy, px, py, fast: !!fast };
+    markMoving(280);
+    if (!wzRaf) { wzLast = performance.now(); wzRaf = requestAnimationFrame(wheelStep); }
+  }
   function flyTo(x, y, w, ms = 1300) { // (x,y) 为目标中心
-    cancelAnimationFrame(flyRaf);
+    cancelAnimationFrame(flyRaf); stopWheelZoom();
     if (!svgRect || cw <= 1) updateSvgSize();
     w = clamp(w, 180, BW);
     const h = (w * ch) / cw, s = { ...cam }, e = { x: x - w / 2, y: y - h / 2, w };
     if (ms <= 0) {
-      clearTimeout(moveTimer); svg.classList.remove("moving");
+      clearTimeout(moveTimer); cancelAnimationFrame(settleRaf); settleRaf = 0; svg.classList.remove("moving");
       cam.x = e.x; cam.y = e.y; cam.w = e.w; applyCam(true); schedDc(true); return;
     }
     const t0 = performance.now();
-    markMoving();
+    markMoving(320);
     const step = (now) => {
       const k = ease(clamp((now - t0) / ms, 0, 1));
       cam.x = lerp(s.x, e.x, k); cam.y = lerp(s.y, e.y, k); cam.w = lerp(s.w, e.w, k);
       if (k < 1) {
-        applyCam(false); markMoving(); flyRaf = requestAnimationFrame(step);
+        applyCam(false); markMoving(320); flyRaf = requestAnimationFrame(step);
       } else {
-        clearTimeout(moveTimer); svg.classList.remove("moving");
-        applyCam(true); schedDc(true);
+        clearTimeout(moveTimer); settleCam();
       }
     };
     flyRaf = requestAnimationFrame(step);
   }
   const flyBox = ([x, y, w]) => { const h = (w * ch) / cw; flyTo(x + w / 2, y + Math.min(h, w * 0.75) / 2 + (h > w * 0.75 ? 0 : 0), w); };
   function zoomAt(f, sx, sy) {
+    stopWheelZoom();
     const nw = clamp(cam.w * f, 180, BW), px = cam.x + (sx / cw) * cam.w, py = cam.y + (sy / cw) * cam.w;
-    cam.x = px - (sx / cw) * nw; cam.y = py - (sy / cw) * nw; cam.w = nw; markMoving(); schedCam();
+    cam.x = px - (sx / cw) * nw; cam.y = py - (sy / cw) * nw; cam.w = nw; markMoving(240); schedCam();
   }
   function smoothZoomBtn(f) {
     if (!svgRect || cw <= 1) updateSvgSize();
-    const nw = clamp(cam.w * f, 180, BW), h = (cam.w * ch) / cw;
-    flyTo(cam.x + cam.w / 2, cam.y + h / 2, nw, 220);
+    cancelAnimationFrame(flyRaf);
+    wheelZoom(f, cw / 2, ch / 2, false);
   }
   function bindPan() {
     let drag = null; const pts = new Map();
-    svg.addEventListener("wheel", (e) => { e.preventDefault(); cancelAnimationFrame(flyRaf); userMoved = Date.now(); if (!svgRect) updateSvgSize(); zoomAt(Math.exp(clamp(e.deltaY, -120, 120) * 0.0016), e.clientX - svgRect.left, e.clientY - svgRect.top); }, { passive: false });
-    svg.addEventListener("pointerdown", (e) => { if (!svgRect) updateSvgSize(); pts.set(e.pointerId, [e.clientX, e.clientY]); if (pts.size === 1) drag = { x: e.clientX, y: e.clientY, cx: cam.x, cy: cam.y, moved: false }; cancelAnimationFrame(flyRaf); });
+    svg.addEventListener("wheel", (e) => {
+      e.preventDefault(); cancelAnimationFrame(flyRaf); userMoved = Date.now();
+      if (!svgRect) updateSvgSize();
+      const raw = e.deltaMode === 1 ? e.deltaY * 32 : e.deltaMode === 2 ? e.deltaY * 240 : e.deltaY;
+      if (!raw) return;
+      const dy = clamp(raw, -140, 140);
+      const isTrackpad = !!(e.ctrlKey || (e.deltaMode === 0 && Math.abs(raw) < 36));
+      wheelZoom(Math.exp(dy * (e.ctrlKey ? 0.0045 : 0.00145)), e.clientX - svgRect.left, e.clientY - svgRect.top, isTrackpad);
+    }, { passive: false });
+    svg.addEventListener("pointerdown", (e) => { if (!svgRect) updateSvgSize(); stopWheelZoom(); pts.set(e.pointerId, [e.clientX, e.clientY]); if (pts.size === 1) drag = { x: e.clientX, y: e.clientY, cx: cam.x, cy: cam.y, moved: false }; cancelAnimationFrame(flyRaf); });
     svg.addEventListener("pointermove", (e) => {
       if (!pts.has(e.pointerId)) return;
       const prev = pts.get(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]);
       if (pts.size === 2) { const [a, b] = [...pts.values()], [pa] = [prev]; const other = [...pts.entries()].find(([id]) => id !== e.pointerId)[1]; const d0 = Math.hypot(pa[0] - other[0], pa[1] - other[1]), d1 = Math.hypot(a[0] - b[0], a[1] - b[1]); if (d0 > 0) zoomAt(d0 / d1, (a[0] + b[0]) / 2 - svgRect.left, (a[1] + b[1]) / 2 - svgRect.top); drag = null; userMoved = Date.now(); return; }
       if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
       if (Math.abs(dx) + Math.abs(dy) > 4) { drag.moved = true; svg.setPointerCapture?.(e.pointerId); }
-      if (drag.moved) { cam.x = drag.cx - (dx / cw) * cam.w; cam.y = drag.cy - (dy / cw) * cam.w; markMoving(); schedCam(); userMoved = Date.now(); }
+      if (drag.moved) { cam.x = drag.cx - (dx / cw) * cam.w; cam.y = drag.cy - (dy / cw) * cam.w; markMoving(220); schedCam(); userMoved = Date.now(); }
     });
     const up = (e) => { pts.delete(e.pointerId); if (!pts.size) drag = null; };
     svg.addEventListener("pointerup", up); svg.addEventListener("pointercancel", up);

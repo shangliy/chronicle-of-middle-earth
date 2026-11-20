@@ -32,8 +32,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .st-paint .mapwrap { background: #183e54; }
 .st-h3 .mapwrap { background: #1c5d90; }
 .cam-stage {
-  position: absolute; left: -22%; top: -22%; width: 144%; height: 144%;
-  transform-origin: 0 0; will-change: transform;
+  position: absolute; left: -28%; top: -28%; width: 156%; height: 156%;
+  transform-origin: 0 0; will-change: transform; backface-visibility: hidden;
 }
 #map { width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; user-select: none; }
 #map:active { cursor: grabbing; }
@@ -73,6 +73,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 .sc { transform: scale(var(--k, 1)); }
 .lbl .sc { transform: scale(calc(.45 + var(--k, 1) * .55)); }
+#map.settling .sc, #map.settling .ic2, #map.settling .pl-n { transition: transform .18s cubic-bezier(.22, 1, .36, 1); }
 .lbl { pointer-events: none; } .lbl.off { display: none; }
 .lbl-n { font-family: var(--serif); font-weight: 600; font-size: calc(var(--fs) * 1px); text-anchor: middle; fill: #5a4326; letter-spacing: .3em; opacity: .75; }
 .lbl-en { font-family: var(--cinzel); font-size: calc(var(--fs) * .45px); text-anchor: middle; fill: #7a6040; letter-spacing: .35em; opacity: .7; }
@@ -97,7 +98,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .jpath.done { opacity: .5; }
 .jdot { stroke: #fff; stroke-width: 1.5; }
 .jname { font-size: 10.5px; font-weight: 600; paint-order: stroke; stroke: rgba(240, 230, 204, .92); stroke-width: 3px; }
-.ring-glow { fill: #ffd25a; opacity: .55; animation: rg 2.2s ease-in-out infinite; }
+.ring-glow { fill: url(#rg-ring); opacity: .72; animation: rg 2.2s ease-in-out infinite; }
 @keyframes rg { 50% { opacity: .9; } }
 .ring-o { fill: none; stroke: #c99a2e; stroke-width: 2.2; }
 .ring-n { font-family: var(--serif); font-size: 10px; fill: #8a6410; font-weight: 600; paint-order: stroke; stroke: rgba(255, 245, 210, .9); stroke-width: 3px; }
@@ -453,7 +454,7 @@ body[data-era="war"] .mapwrap::after { content: ""; position: absolute; inset: 0
 }
 
 /* ======== Q 版人物 · 迁徙 ======== */
-#map.moving .bob, #map.moving .bob2, #map.moving .li, #map.moving .fly path, #map.moving .graze, #map.moving .walk, #map.moving .trot, #map.moving .smk circle, #map.moving .ffly circle, #map.moving .bobsea, #map.moving .orbit, #map.moving .circle, #map.moving .sweep, #map.moving .swirl, #map.moving .march, #map.moving .crawl, #map.moving .sail, #map.moving .fall, #map.moving .lava, #map.moving .foam, #map.moving .ghost, #map.moving .burn path, #map.moving .h3flag, #map.moving .h3mill, #map.moving .h3glow, #map.moving .h3smoke, #map.moving .h3spark, #map.moving .meye, #map.moving .ring-glow, #map.moving .ring-aura, #map.moving .ring-runes, #map.moving .jpath, #map.moving .army-flag path, #map.moving .ember, #map.moving .bc-f, #map.moving .mo-halo, #map.moving .trees2, #map.moving .tdew { animation: none !important; }
+#map.moving .bob, #map.moving .bob2, #map.moving .li, #map.moving .li .fire, #map.moving .fly path, #map.moving .graze, #map.moving .walk, #map.moving .trot, #map.moving .smk circle, #map.moving .ffly circle, #map.moving .bobsea, #map.moving .orbit, #map.moving .circle, #map.moving .sweep, #map.moving .swirl, #map.moving .march, #map.moving .crawl, #map.moving .sail, #map.moving .fall, #map.moving .lava, #map.moving .foam, #map.moving .ghost, #map.moving .burn path, #map.moving .flood, #map.moving .glowit, #map.moving .drift, #map.moving .h3flag, #map.moving .h3mill, #map.moving .h3glow, #map.moving .h3smoke, #map.moving .h3spark, #map.moving .meye, #map.moving .ring-glow, #map.moving .ring-aura, #map.moving .ring-runes, #map.moving .jpath, #map.moving .army-flag path, #map.moving .ember, #map.moving .bc-f, #map.moving .bcn-halo, #map.moving .mo-halo, #map.moving .trees2, #map.moving .tdew { animation: none !important; }
 .tabs button { letter-spacing: .2em; }
 .jpath.mig { stroke-width: 9; stroke-dasharray: 2 10; opacity: .32; stroke-linecap: round; animation: migflow 1.6s linear infinite; }
 .jpath.mig.done { opacity: .16; animation: none; }
