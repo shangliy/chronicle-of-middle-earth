@@ -136,12 +136,12 @@
       s += wallArc(15, 5, 3, 3, "rock", true) + arch(0, 7.6, 2.4, 2.6);
       return s;
     },
-    rivendell() { // 幽谷：秋林、双瀑、拱桥与最后庇护所暖灯
-      let s = shd(0, 4, 19, 6) + crag(-11.5, 4, 9.5, 23, "rock", 0.1) + crag(12, 4, 9.5, 25, "rock", -0.1);
-      s += path("M-3.4,-15Q-1.2,-4 -2.8,4H2.8Q1.2,-4 3.4,-15Z", "url(#m-fall)", "") + `<circle cx="0" cy="4.2" r="2.6" fill="#fff" opacity=".55"/>` + water(0, 5.2, 7.2, 1.8);
-      s += pine(-15.5, 4, 9.5) + pine(16, 4, 10.5) + tree(-8.5, 3.4, 2.5, "gold") + tree(9, 3.6, 2.3, "red") + tree(-5.2, 3.8, 2, "dgreen");
-      s += gable(-7.6, -2, 6.2, 4.2, 3.2, "white", "blue", 3) + gable(7.4, 1, 6.6, 4.2, 3.2, "white", "blue", 3.1) + cyl(4, -4, 1.5, 9.5, "white", { win: 2, lit: 1 }) + cone(4, -13.5, 1.9, 4.8, "blue");
-      s += path("M-4.8,-3.4Q0,-6.4 4.8,-3.4", "none", 'stroke="#f7f4ec" stroke-width="1.15"') + glow(0, -9, 5.5, "w");
+    rivendell() { // 幽谷：翠峡秋林、双瀑飞泉、精灵拱桥与最后庇护所暖灯
+      let s = shd(0, 4.4, 21, 6.5) + crag(-13, 4, 10.5, 26, "rock", 0.12) + crag(13.5, 4, 10.5, 28, "rock", -0.12);
+      s += path("M-4.2,-17Q-1.6,-5 -3.4,4.2H3.4Q1.6,-5 4.2,-17Z", "url(#m-fall)", "") + `<circle cx="-1" cy="4.4" r="3" fill="#fff" opacity=".6"/><circle cx="1.8" cy="4.6" r="2.2" fill="#e8f8ff" opacity=".55"/>` + water(0, 5.4, 8.6, 2.0);
+      s += pine(-17, 4, 10.5) + pine(17.5, 4, 11.5) + tree(-9.2, 3.6, 3.2, "gold") + tree(9.8, 3.8, 3.0, "red") + tree(-5.5, 3.8, 2.4, "dgreen");
+      s += gable(-8.2, -2.5, 7.0, 4.6, 3.4, "white", "blue", 3.4) + gable(8.0, 0.8, 7.2, 4.6, 3.4, "white", "blue", 3.5) + cyl(4.2, -4.5, 1.8, 11, "white", { win: 2, lit: 1 }) + cone(4.2, -15.5, 2.3, 5.6, "blue") + cyl(-5.8, -6.5, 1.3, 7.5, "white", { win: 1, lit: 1 }) + cone(-5.8, -14, 1.7, 4.0, "gold");
+      s += path("M-5.4,-3.2Q0,-7.0 5.4,-3.2", "none", 'stroke="#f7f4ec" stroke-width="1.35"') + glow(0, -10, 6.2, "w");
       return s;
     },
     lorien() { // 卡拉斯加拉松：银皮梅隆巨树与金色树屋平台
@@ -166,14 +166,14 @@
       s += tree(-8, 4, 2.2, "dgreen") + tree(8.4, 4.2, 2.2, "dgreen") + water(0, 6.8, 10, 1.8);
       return s;
     },
-    edoras() { // 青丘与金殿梅杜塞尔德（双马首山墙）
-      let s = shd(0, 4, 18, 6) + hill(0, 4, 16, 14, "green");
-      s += path("M-14,3.6Q-8,-9 0,-9.6Q8,-9 14,3.6", "none", 'stroke="#7a5228" stroke-width=".6" stroke-dasharray=".8 .6"');
-      s += path("M0,4.2Q-2,-1 0,-9.2", "none", 'stroke="#d8ccb0" stroke-width=".9"');
-      s += gable(-8, 0.6, 3.6, 2.4, 2, "wood", "thatch", 1.8) + gable(8, 1, 3.6, 2.4, 2, "wood", "thatch", 1.8) + gable(-4, -4, 3.4, 2.2, 2, "wood", "thatch", 1.6) + gable(5, -4, 3.4, 2.2, 2, "wood", "thatch", 1.6);
-      s += gable(0, -9.4, 8, 4.2, 5.2, "wood", "gold", 4.6) + path("M-1.2,-9.4V-11.8H1.2V-9.4Z", "#2a1a10", "") +
-        path("M-0.8,-17.8L1.4,-20.2M0.8,-17.8L-1.4,-20.2", "none", 'stroke="#fff4c2" stroke-width=".65"') +
-        glow(0, -15, 3.4, "w") + flag(-4.2, -13.8, "#2e7a2a", 4.2) + flag(4.2, -13.8, "#2e7a2a", 4.2);
+    edoras() { // 青丘与金殿梅杜塞尔德（醒目金顶 + 双马首山墙 + 洛汗绿旗）
+      let s = shd(0, 4.4, 20, 6.4) + hill(0, 4.2, 18, 15.5, "green");
+      s += path("M-16,3.8Q-9,-9.5 0,-10.2Q9,-9.5 16,3.8", "none", 'stroke="#7a5228" stroke-width=".75" stroke-dasharray="1 .6"');
+      s += path("M0,4.6Q-2.2,-1 0,-10", "none", 'stroke="#e6dac0" stroke-width="1.15"');
+      s += gable(-9, 1, 4.0, 2.6, 2.2, "wood", "thatch", 2.0) + gable(9, 1.2, 4.0, 2.6, 2.2, "wood", "thatch", 2.0) + gable(-4.8, -4.4, 3.8, 2.4, 2, "wood", "thatch", 1.8) + gable(5.4, -4.4, 3.8, 2.4, 2, "wood", "thatch", 1.8);
+      s += gable(0, -10.2, 9.8, 4.8, 5.8, "wood", "gold", 5.6) + path("M-1.5,-10.2V-13H1.5V-10.2Z", "#2a1a10", "") +
+        path("M-1.0,-20.2L1.8,-23.4M1.0,-20.2L-1.8,-23.4", "none", 'stroke="#fff6c8" stroke-width=".85"') +
+        glow(0, -16.8, 4.5, "w") + flag(-5.2, -15.2, "#2e7a2a", 5.2) + flag(5.2, -15.2, "#2e7a2a", 5.2);
       return s;
     },
     helmsdeep() { // 深谷要塞
@@ -183,13 +183,41 @@
       s += arch(7, 3, 1.6, 2.6) + path("M7,4V9", "none", 'stroke="#5aa0d0" stroke-width=".8"');
       return s;
     },
-    hobbiton() { // 小丘、圆门、风车
-      let s = shd(0, 4, 18, 6) + hill(-2, 4, 14, 12, "green") + hill(9, 4.6, 7, 6, "green");
-      const door = (x, y, r, c) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#5a3a20" ${EDGE}/><circle cx="${x}" cy="${y}" r="${r * 0.78}" fill="${c}"/><circle cx="${x + r * 0.25}" cy="${y}" r=".25" fill="#e8c040"/>`;
-      s += door(-4, 0.6, 2.4, "#3a8a3a") + door(5, 2, 1.6, "#c8a040") + door(9, 3, 1.3, "#c84a2a") + `<circle cx="-8.4" cy="-1" r=".9" fill="#ffe8a0"/><circle cx="0" cy="-1.2" r=".9" fill="#ffe8a0"/>`;
-      s += cyl(-1.6, -8.6, 0.7, 2.4, "stone") + smoke(-1.4, -12);
-      s += tree(-1, -9, 3.6, "green") + path("M-15,4.4H-7M-14,2.6V4.6M-11,2.6V4.6M-8,2.6V4.6", "none", 'stroke="#7a5228" stroke-width=".55"');
-      s += cyl(13, 3, 1.6, 7, "stone", { win: 1 }) + cone(13, -4, 2.2, 3, "thatch") + `<g class="h3mill" style="transform-origin:13px -4px"><path d="M13,-4L13,-11M13,-4L20,-4M13,-4L13,3M13,-4L6,-4" stroke="#6a4a2a" stroke-width=".7"/></g>`;
+    hobbiton() { // 夏尔 · 袋底洞：标志性翡翠大绿圆门 + 暖黄圆窗 + 红砖炊烟 + 派对大树 + 河畔老风车
+      let s = shd(0, 5.2, 22, 6.8) + water(12.5, 5.6, 8.5, 2.2);
+      // 层次分明的青翠霍比特丘陵（主丘袋底洞 + 右侧小坡）
+      s += hill(-3.5, 4.8, 17.5, 17.5, "green") + hill(8.5, 5.2, 8.5, 7.2, "green");
+      // 暖色花园石径与矮木栅栏
+      s += path("M-5.2,4.4Q-3.2,6.4 -7.5,7.4", "none", 'stroke="#e6d29a" stroke-width="1.8" stroke-linecap="round"');
+      s += path("M-18.5,4.2H-9.2M-17.5,1.8V4.6M-14.8,1.8V4.6M-12.2,1.8V4.6M-9.6,1.8V4.6", "none", 'stroke="#7a4c22" stroke-width=".75"');
+      // 标志性大号翠绿霍比特圆门（木框 + 竖木纹 + 居中黄铜圆把手）
+      const door = (x, y, r, c, hi) =>
+        `<circle cx="${x}" cy="${y}" r="${f(r + 0.7)}" fill="#6a3e1c" ${EDGE}/>` +
+        `<circle cx="${x}" cy="${y}" r="${f(r)}" fill="${c}" stroke="#26160a" stroke-width=".35"/>` +
+        `<path d="M${f(x - r * 0.45)},${f(y - r * 0.82)}V${f(y + r * 0.82)}M${f(x + r * 0.45)},${f(y - r * 0.82)}V${f(y + r * 0.82)}" stroke="${hi}" stroke-width=".32" opacity=".55"/>` +
+        `<circle cx="${x}" cy="${y}" r="${f(Math.max(0.55, r * 0.2))}" fill="#ffe264" stroke="#7a5410" stroke-width=".25"/>`;
+      const win = (x, y, r) =>
+        `<circle cx="${x}" cy="${y}" r="${f(r + 0.4)}" fill="#5a3418" ${EDGE}/>` +
+        `<circle cx="${x}" cy="${y}" r="${f(r)}" fill="#ffe896"/>` +
+        `<path d="M${f(x - r)},${y}H${f(x + r)}M${x},${f(y - r)}V${f(y + r)}" stroke="#6e421e" stroke-width=".35"/>`;
+      // 袋底洞主圆门 + 两侧暖灯圆窗 + 邻家彩门
+      s += door(-4.2, -0.2, 4.3, "#2e9640", "#76d67a");
+      s += win(-11.4, -1.0, 1.85) + win(2.8, -1.2, 1.85);
+      s += door(7.8, 2.4, 2.2, "#d89c2e", "#fae07a");
+      // 红砖烟囱与袅袅炊烟
+      s += cyl(-0.4, -13.2, 1.15, 3.6, "red") + smoke(-0.2, -17.8);
+      // 丘顶派对大树（蓬松双层绿金树冠 + 节日小暖灯）
+      s += path("M-7.8,-11.5C-7.4,-14.5 -7.2,-16.5 -6.8,-18.5H-5.2C-5.5,-16.5 -5.4,-14.5 -5.0,-11.5Z", "url(#m-wood)", "");
+      s += `<circle cx="-8.8" cy="-18.6" r="3.6" fill="url(#m-s-dgreen)" ${EDGE}/><circle cx="-3.4" cy="-18.4" r="3.4" fill="url(#m-s-green)" ${EDGE}/><circle cx="-6.0" cy="-21.4" r="4.4" fill="url(#m-s-green)" ${EDGE}/>`;
+      s += `<circle cx="-8.5" cy="-17.5" r=".7" fill="#ffe882"/><circle cx="-4.2" cy="-19.2" r=".7" fill="#ffd264"/><circle cx="-6.2" cy="-22.0" r=".75" fill="#fff4a8"/>`;
+      // 丘坡小花点缀
+      s += `<circle cx="-13.6" cy="2.6" r=".65" fill="#ffd84a"/><circle cx="-11.0" cy="3.4" r=".6" fill="#ff8468"/><circle cx="1.6" cy="3.2" r=".65" fill="#ffe878"/><circle cx="4.0" cy="1.8" r=".55" fill="#fff6d0"/>`;
+      // 河畔老风车（高耸木塔 + 旋转四叶风帆）
+      s += cyl(15.2, 4.2, 2.1, 8.8, "stone", { win: 1, lit: 1 }) + cone(15.2, -4.6, 2.8, 3.8, "thatch") +
+        `<g class="h3mill" style="transform-origin:15.2px -4.2px">` +
+        `<path d="M15.2,-4.2L15.2,-12.5M15.2,-4.2L23.2,-4.2M15.2,-4.2L15.2,3.8M15.2,-4.2L7.2,-4.2" stroke="#5a3818" stroke-width=".9"/>` +
+        `<path d="M15.2,-12.2h2.2v6.2h-2.2ZM22.8,-4.2v2.2h-6.2v-2.2ZM15.2,3.4h-2.2v-6.2h2.2ZM7.6,-4.2v-2.2h6.2v2.2Z" fill="rgba(248,236,204,.82)" stroke="#7a5428" stroke-width=".3"/>` +
+        `</g>`;
       return s;
     },
     osgiliath() { // 大河上的石桥与穹顶

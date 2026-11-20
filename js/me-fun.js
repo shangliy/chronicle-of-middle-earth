@@ -731,6 +731,7 @@
         </g>`;
         M.L.fx.appendChild(g);
         M.pulse(x, y, "k-ring");
+        if (window.__ME_25D?.onBeaconLit) window.__ME_25D.onBeaconLit(x, y, EN ? en : zh);
         Bard.sfx("beacon", true);
         setTimeout(() => g.remove(), 9500);
 

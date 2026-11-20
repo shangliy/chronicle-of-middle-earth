@@ -32,7 +32,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .st-paint .mapwrap { background: #183e54; }
 .st-h3 .mapwrap { background: #1c5d90; }
 .cam-stage {
-  position: absolute; left: -28%; top: -28%; width: 156%; height: 156%;
+  position: absolute; left: -24%; top: -24%; width: 148%; height: 148%;
   transform-origin: 0 0; will-change: transform; backface-visibility: hidden;
 }
 #map { width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; user-select: none; }
@@ -73,7 +73,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 .sc { transform: scale(var(--k, 1)); }
 .lbl .sc { transform: scale(calc(.45 + var(--k, 1) * .55)); }
-#map.settling .sc, #map.settling .ic2, #map.settling .pl-n { transition: transform .18s cubic-bezier(.22, 1, .36, 1); }
+.jmk .jcl { transform: scale(var(--chz, 1)); }
+.jmk .jname { transform: translateY(calc((var(--chz, 1) - 1) * 8px)); }
+.res > .sc { transform: scale(calc(var(--k, 1) * var(--chz, 1))); }
 .lbl { pointer-events: none; } .lbl.off { display: none; }
 .lbl-n { font-family: var(--serif); font-weight: 600; font-size: calc(var(--fs) * 1px); text-anchor: middle; fill: #5a4326; letter-spacing: .3em; opacity: .75; }
 .lbl-en { font-family: var(--cinzel); font-size: calc(var(--fs) * .45px); text-anchor: middle; fill: #7a6040; letter-spacing: .35em; opacity: .7; }
@@ -134,10 +136,10 @@ body[data-era="war"] .mapwrap::after { content: ""; position: absolute; inset: 0
 .go-b:hover { background: var(--red); color: #fff; }
 .go-b.wide { display: block; width: 100%; margin-top: 16px; padding: 10px; }
 
-.card { position: absolute; right: 60px; top: 14px; width: min(320px, calc(100% - 90px)); max-height: 60%; overflow: auto; background: #f4ecd6; border: 1px solid #a88f63; padding: 14px 16px; box-shadow: 0 8px 26px rgba(50, 30, 5, .25); z-index: 4; will-change: opacity, transform; contain: layout style; backface-visibility: hidden; }
+.card { position: absolute; right: 60px; top: 14px; width: min(320px, calc(100% - 90px)); max-height: 60%; overflow: auto; background: #f4ecd6; border: 1px solid #a88f63; padding: 14px 16px; box-shadow: 0 8px 26px rgba(50, 30, 5, .25); z-index: 12; will-change: opacity, transform; contain: layout style; backface-visibility: hidden; }
 .card.card-in { animation: cardPopIn .22s cubic-bezier(.22, 1, .36, 1) both; }
 @keyframes cardPopIn { from { opacity: 0; transform: translate3d(0, 8px, 0) scale(.985); } to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); } }
-.card .x { position: absolute; right: 8px; top: 4px; background: none; border: 0; font-size: 20px; color: var(--muted); }
+.card .x { position: absolute; right: 8px; top: 8px; z-index: 10; background: rgba(248, 240, 218, .92); border: 1px solid rgba(138, 115, 83, .55); font-size: 20px; color: #3a2612; cursor: pointer; box-shadow: 0 2px 6px rgba(0, 0, 0, .28); }
 .pc-k { font-size: 11px; color: var(--muted); font-family: var(--fell); }
 .card h3 { margin: 2px 0 8px; font-size: 20px; }
 .pc-d { margin: 0 0 10px; font-size: 13.5px; line-height: 1.75; color: var(--ink); }
@@ -455,6 +457,7 @@ body[data-era="war"] .mapwrap::after { content: ""; position: absolute; inset: 0
 
 /* ======== Q 版人物 · 迁徙 ======== */
 #map.moving .bob, #map.moving .bob2, #map.moving .li, #map.moving .li .fire, #map.moving .fly path, #map.moving .graze, #map.moving .walk, #map.moving .trot, #map.moving .smk circle, #map.moving .ffly circle, #map.moving .bobsea, #map.moving .orbit, #map.moving .circle, #map.moving .sweep, #map.moving .swirl, #map.moving .march, #map.moving .crawl, #map.moving .sail, #map.moving .fall, #map.moving .lava, #map.moving .foam, #map.moving .ghost, #map.moving .burn path, #map.moving .flood, #map.moving .glowit, #map.moving .drift, #map.moving .h3flag, #map.moving .h3mill, #map.moving .h3glow, #map.moving .h3smoke, #map.moving .h3spark, #map.moving .meye, #map.moving .ring-glow, #map.moving .ring-aura, #map.moving .ring-runes, #map.moving .jpath, #map.moving .army-flag path, #map.moving .ember, #map.moving .bc-f, #map.moving .bcn-halo, #map.moving .mo-halo, #map.moving .trees2, #map.moving .tdew { animation: none !important; }
+.cull .bob2, .off .bob2, .off .bob, .off .mo-halo, .off .ring-glow, .off .ring-aura, .off .ring-runes, .cull .li, .cull .li .fire, .cull .fly path, .cull .graze, .cull .walk, .cull .trot, .cull .smk circle, .cull .ffly circle, .cull .bobsea, .cull .orbit, .cull .lava, .cull .drift, .cull .h3flag, .cull .h3mill, .cull .h3glow, .cull .h3smoke, .cull .h3spark, .cull .meye, .cull .bc-f, .gone .ember, .gone .trees2, .gone .tdew, #map:not(.near) .lf.k-sheep .graze, #map:not(.near) .lf.k-cow .graze, #map:not(.near) .lf.k-pony .trot, #map:not(.near) .lf.k-cart .walk, #map:not(.near) .lf.k-deer .graze { animation: none !important; }
 .tabs button { letter-spacing: .2em; }
 .jpath.mig { stroke-width: 9; stroke-dasharray: 2 10; opacity: .32; stroke-linecap: round; animation: migflow 1.6s linear infinite; }
 .jpath.mig.done { opacity: .16; animation: none; }
@@ -479,7 +482,6 @@ body[data-era="war"] .mapwrap::after { content: ""; position: absolute; inset: 0
 .res-n { font-size: 8.5px; font-weight: 600; fill: var(--ink); paint-order: stroke; stroke: rgba(240, 230, 204, .95); stroke-width: 2.6px; display: none; }
 .res:hover .res-n { display: block; }
 .res:hover .res-i { filter: drop-shadow(0 0 3px #fff6c8); }
-svg.far .res .sc, svg.far .jmk .sc { transform: scale(calc(var(--k, 1) * .72)); }
 .glowit { animation: glowit 2.2s ease-in-out infinite; }
 @keyframes glowit { 50% { opacity: .55; } }
 
@@ -1178,8 +1180,8 @@ body[data-era="trees"] .advo { display: none; }
 :root:not(.st-h3) .toast b { letter-spacing: .02em; }
 .card { max-height: calc(100% - 64px); padding-bottom: 10px; scrollbar-width: thin; scrollbar-color: #b9a37a transparent; }
 .card::after { content: ""; position: sticky; bottom: -10px; display: block; height: 14px; margin: -2px -16px -10px; background: linear-gradient(rgba(241, 230, 204, 0), #f1e6cc); pointer-events: none; }
-.card .x { width: 28px; height: 28px; top: 8px; right: 8px; border-radius: 50%; display: grid; place-items: center; font-size: 18px; line-height: 1; transition: background .2s, color .2s; }
-.card .x:hover { background: var(--red); color: #fff; }
+.card .x { width: 28px; height: 28px; top: 10px; right: 10px; z-index: 10; border-radius: 50%; display: grid; place-items: center; font-size: 18px; line-height: 1; transition: background .2s, color .2s, border-color .2s; }
+.card .x:hover { background: var(--red); border-color: var(--red); color: #fff; }
 .card h3 { font-size: 21px; letter-spacing: .03em; padding: 0 28px 7px 0; margin: 2px 0 8px; border-bottom: 1px solid #d9c9a4; }
 .pc-k { letter-spacing: .14em; }
 .pc-ev li { padding: 7px 6px; margin: 0 -6px; border-radius: 4px; transition: background .15s; }
@@ -1443,7 +1445,7 @@ body[data-era="trees"] .advo { display: none; }
 /* —— 4. 全画风通用鹰眼小地图、古图卷草角饰、动态至尊戒与纪元天光 —— */
 @media (min-width: 861px) {
   :root:not(.kids) .h3mini {
-    display: block; position: absolute; right: 58px; top: 14px;
+    display: block; position: absolute; right: 60px; top: 14px;
     width: 214px; height: 86px; z-index: 3; border-radius: 4px; overflow: hidden;
     cursor: crosshair; touch-action: none;
     transition: opacity .25s, transform .25s;
@@ -1464,7 +1466,7 @@ body[data-era="trees"] .advo { display: none; }
   .st-parch .mm-land { fill: #eadcc0; stroke: #5a4326; stroke-width: 3.5; }
   .st-parch .mm-aman { fill: #f3ead2; }
   .st-parch .mm-vp { stroke: #9b2a1d; fill: rgba(155, 42, 29, .08); }
-  body:not(.mini-shut) .card { top: 112px; max-height: calc(100% - 158px); }
+  body:not(.mini-shut) .card { top: 112px; max-height: calc(100% - 196px); }
   body:not(.mini-shut) .debut-box { top: 112px; }
 }
 @media (max-width: 860px) {
@@ -1840,4 +1842,295 @@ body.wraith-mode #map {
   .top { gap: 6px; padding: 0 8px; }
   .top .ttl small { display: none; }
   .top .cdx-btn span { display: none; }
+}
+
+/* ======== HD-2D 2.5D 立体沙盘模式 ======== */
+.mode25d-btn {
+  border-color: rgba(232, 192, 98, .55) !important;
+  background: linear-gradient(180deg, rgba(66, 52, 28, .85), rgba(38, 28, 14, .92)) !important;
+  color: #f6e0a4 !important;
+  font-weight: 700;
+  letter-spacing: .04em;
+  transition: background .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.mode25d-btn:hover {
+  border-color: #f5cc5c !important;
+  box-shadow: 0 0 12px rgba(245, 204, 92, .32);
+}
+.mode25d-btn.on {
+  background: linear-gradient(180deg, #e5b84b, #b88220) !important;
+  border-color: #fff2be !important;
+  color: #1f1306 !important;
+  box-shadow: 0 0 16px rgba(245, 204, 92, .52), inset 0 1px 0 rgba(255, 250, 224, .65);
+}
+body.mode-25d #camStage { display: none; }
+body.mode-25d #styleSeg { display: none; }
+body.mode-25d .compass {
+  cursor: pointer;
+  pointer-events: auto;
+  transform: rotate(var(--yaw, 0deg));
+  transition: transform .08s linear;
+}
+.stage-25d {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 1;
+  user-select: none;
+  touch-action: none;
+  background: #142230;
+}
+.stage-25d::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  background:
+    radial-gradient(ellipse at 50% 45%, rgba(255, 252, 236, 0) 62%, rgba(22, 42, 68, .22) 100%),
+    linear-gradient(180deg, rgba(176, 224, 255, .10) 0%, rgba(255, 250, 232, 0) 16%, rgba(16, 28, 44, 0) 88%, rgba(16, 28, 44, .12) 100%);
+}
+.stage-25d[hidden] { display: none; }
+#gl25d {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+}
+#gl25d:active { cursor: grabbing; }
+.bb-25d {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 2;
+}
+.bb-item {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: auto;
+  cursor: pointer;
+  will-change: transform, opacity;
+  transform-origin: 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.bb-item.bb-lbl {
+  pointer-events: none;
+  cursor: default;
+}
+.bb-wrap {
+  position: relative;
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: filter .16s ease, transform .16s ease;
+}
+.bb-item:hover .bb-wrap {
+  filter: drop-shadow(0 0 8px rgba(255, 232, 148, .92)) brightness(1.09);
+  transform: translate(-50%, calc(-100% - 2px));
+}
+.bb-sh {
+  position: absolute;
+  left: 52%;
+  bottom: 12px;
+  width: 30px;
+  height: 9px;
+  transform: translateX(-35%) skewX(38deg);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(22, 42, 68, .40) 0%, rgba(22, 42, 68, .16) 58%, rgba(22, 42, 68, 0) 100%);
+  pointer-events: none;
+}
+.bb-pl.mdlp .bb-sh { width: 38px; height: 11px; bottom: 13px; }
+.bb-jmk .bb-sh { width: 36px; height: 10px; bottom: 14px; }
+.bb-res .bb-sh { width: 18px; height: 6px; bottom: 1px; }
+.bb-lm .bb-sh { width: 20px; height: 6px; bottom: 11px; }
+/* 塞尔达赛璐珞通透色调融合：微缩手绘建筑与 Q 版人物自带勾线，与 3D 赛璐珞光照天然合一 */
+.bb-svg {
+  display: block;
+  overflow: visible;
+  filter: var(--bb-tone, saturate(1.06) brightness(1.03) contrast(1.02)) drop-shadow(2px 4px 3px rgba(22, 40, 66, .38));
+}
+.bb-pl.ruin .bb-svg { filter: grayscale(.78) sepia(.28) opacity(.72) drop-shadow(1px 3px 2px rgba(16, 10, 4, .32)); }
+.bb-pl.dk .bb-svg { filter: sepia(.22) saturate(.88) brightness(.86) drop-shadow(0 0 5px rgba(255, 76, 24, .52)) drop-shadow(2px 4px 4px rgba(0, 0, 0, .58)); }
+/* 柔化 2D 图标自带的硬边平面底盘椭圆，让建筑直接从 3D 地形生长出来 */
+.bb-25d .mdl > ellipse:first-child { opacity: .35; }
+/* 古典手绘地图注记字体（去掉突兀的深色圆角药丸底框，与 3D 沙盘浑然一体） */
+.bb-lb {
+  margin-top: 1px;
+  padding: 0 3px;
+  font-family: var(--serif);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: #fff6dc;
+  background: none;
+  border: 0;
+  text-shadow:
+    0 1px 3px rgba(12, 8, 4, .96),
+    0 0 5px rgba(18, 12, 6, .92),
+    1px 0 2px rgba(12, 8, 4, .88),
+    -1px 0 2px rgba(12, 8, 4, .88);
+  pointer-events: auto;
+  transition: color .14s ease, text-shadow .14s ease;
+}
+.bb-pl.minor .bb-lb {
+  font-size: 9.8px;
+  font-weight: 600;
+  color: rgba(244, 232, 200, .9);
+}
+.bb-pl.ruin .bb-lb { color: rgba(214, 202, 174, .82); font-style: italic; }
+.bb-pl:hover .bb-lb {
+  color: #ffe284;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 1), 0 0 8px rgba(180, 56, 24, .85);
+}
+.bb-lb.dc { opacity: 0; pointer-events: none; }
+.bb-pl:hover .bb-lb.dc, .bb-lm:hover .bb-lb.dc { opacity: 1; }
+.bb-pl.bb-peak-only .bb-wrap { transform: translate(-50%, -50%); }
+.bb-pl.bb-peak-only .bb-lb {
+  font-size: 11.5px;
+  color: #ffe3b0;
+  text-shadow: 0 1px 4px rgba(24, 6, 2, .98), 0 0 8px rgba(255, 102, 24, .75);
+}
+.bb-jname {
+  margin-top: 1px;
+  padding: 0 5px;
+  border-radius: 999px;
+  font-family: var(--serif);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  white-space: nowrap;
+  background: rgba(246, 236, 208, .82);
+  border: 1px solid rgba(90, 66, 36, .36);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, .28);
+  backdrop-filter: blur(2px);
+}
+.bb-res .bb-res-n {
+  display: none;
+  margin-top: -2px;
+  padding: 0 5px;
+  border-radius: 6px;
+  font-size: 9.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: rgba(246, 238, 216, .92);
+  color: #2b1d0e;
+  border: 1px solid rgba(110, 84, 48, .4);
+}
+.bb-res:hover .bb-res-n { display: block; }
+.bb-ring .bb-svg {
+  filter: drop-shadow(0 0 10px rgba(255, 206, 72, .85));
+}
+.bb-ring .bb-lb {
+  color: #ffe89e;
+  text-shadow: 0 1px 4px rgba(24, 14, 2, .98), 0 0 10px rgba(255, 194, 56, .75);
+}
+.bb-mo .bb-svg {
+  filter: drop-shadow(0 0 8px rgba(255, 218, 102, .85));
+}
+.bb-lm .bb-lb {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: rgba(238, 226, 194, .88);
+}
+.bb-won .bb-svg { filter: var(--bb-tone, sepia(.16) saturate(.88)) drop-shadow(0 0 8px rgba(255, 168, 60, .55)); }
+.bb-sea { pointer-events: none; cursor: default; }
+.bb-sea .bb-svg { filter: sepia(.16) saturate(.84) brightness(.94) drop-shadow(0 2px 3px rgba(8, 20, 32, .45)); }
+.bb-bcn { pointer-events: none; }
+.bb-bcn .bb-svg { filter: drop-shadow(0 0 14px rgba(255, 126, 32, .95)); }
+.bb-bcn .bb-lb {
+  font-size: 10px;
+  color: #ffe6a2;
+  text-shadow: 0 1px 4px rgba(32, 8, 2, .98), 0 0 9px rgba(255, 110, 24, .88);
+}
+.bb-lbl-box {
+  transform: translate(-50%, -50%);
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.bb-lbl-zh {
+  font-family: var(--serif);
+  font-weight: 700;
+  letter-spacing: .28em;
+  color: rgba(255, 246, 222, .86);
+  text-shadow: 0 2px 6px rgba(10, 8, 5, .9), 0 0 2px rgba(10, 8, 5, .95);
+}
+.bb-lbl-en {
+  font-family: var(--cinzel);
+  letter-spacing: .32em;
+  color: rgba(232, 214, 174, .74);
+  text-shadow: 0 1px 4px rgba(10, 8, 5, .92);
+  margin-top: 1px;
+}
+.bb-lbl.sea .bb-lbl-zh { color: rgba(196, 226, 238, .82); font-style: italic; }
+.bb-lbl.sea .bb-lbl-en { color: rgba(170, 206, 222, .68); }
+.bb-pl.bb-twotrees .bb-svg {
+  filter: drop-shadow(0 0 11px rgba(255, 224, 124, .72)) drop-shadow(0 3px 5px rgba(18, 12, 4, .48));
+}
+.bb-pl.bb-twotrees.trees-dead .bb-svg {
+  filter: grayscale(.84) brightness(.55) contrast(1.12) drop-shadow(0 3px 4px rgba(0, 0, 0, .55));
+}
+.bb-pl.bb-twotrees.trees-dead .tt-aura { opacity: .06; }
+.hud-25d {
+  position: absolute;
+  right: 14px;
+  top: 184px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  z-index: 4;
+}
+.hud-25d button {
+  width: 34px;
+  height: 30px;
+  background: rgba(239, 228, 200, .92);
+  border: 1px solid #8a7353;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #3a2916;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 0 1.5px rgba(250, 243, 224, .5), 0 2px 6px rgba(0, 0, 0, .24);
+  transition: background .15s, border-color .15s, color .15s, transform .15s;
+}
+.hud-25d button:hover {
+  background: #f8eed4;
+  border-color: #b88220;
+  color: #1e1206;
+  transform: scale(1.06);
+}
+.hint-25d {
+  position: absolute;
+  right: 14px;
+  bottom: 46px;
+  left: auto;
+  transform: none;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  letter-spacing: .03em;
+  color: rgba(248, 238, 212, .88);
+  background: rgba(22, 16, 10, .58);
+  border: 1px solid rgba(214, 180, 112, .32);
+  pointer-events: none;
+  z-index: 4;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+@media (max-width: 1120px) {
+  .hint-25d { display: none; }
+}
+@media (max-width: 860px) {
+  .hud-25d { top: 142px; right: 14px; }
 }

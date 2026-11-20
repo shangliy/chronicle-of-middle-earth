@@ -160,7 +160,7 @@
         <button type="button" data-set-style="parch">古卷羊皮</button>
       </div>
 
-      <p class="intro-note">空格 播放/暂停 · ← → 逐个事件 · R 真知晶石漫游 · W 幽影界 · B 点燃刚铎烽火 · / 搜索</p>
+      <p class="intro-note">空格 播放/暂停 · ← → 逐个事件 · 3 切换 2.5D/2D · R 真知晶石漫游 · W 幽影界 · B 点燃刚铎烽火 · / 搜索</p>
     </div>
   </div>
 
@@ -189,6 +189,7 @@
       <button type="button" data-set-style="h3">英雄</button>
       <button type="button" data-set-style="parch">羊皮纸</button>
     </div>
+    <button id="mode25dBtn" type="button" class="lang mode25d-btn" aria-pressed="false" title="切换 HD-2D 立体沙盘视角 (3)">⛰ <span>2.5D</span></button>
     <button id="styleBtn" class="lang sty" hidden aria-label="Map style / 地图风格"></button>
     <button id="palantirBtn" class="lang pal-btn" title="真知晶石 · 随机漫游奇观 (R)">🔮 <span>漫游</span></button>
     <button id="codexBtn" class="lang cdx-btn" title="西境红皮书 · 探索图鉴与咕噜猜谜">📖 <span>手札</span><em id="codexPct"></em></button>
@@ -230,6 +231,18 @@
     <div class="mapwrap">
       <div id="camStage" class="cam-stage">
         <svg id="map" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" role="img" aria-label="中洲地图"></svg>
+      </div>
+      <div id="stage25d" class="stage-25d" hidden>
+        <canvas id="gl25d" aria-label="中洲 2.5D 立体沙盘"></canvas>
+        <div id="bb25d" class="bb-25d"></div>
+        <div class="hud-25d" role="group" aria-label="2.5D 视角控制">
+          <button type="button" data-cam25="tiltUp" title="抬高俯角">⤒</button>
+          <button type="button" data-cam25="tiltDn" title="压低贴地">⤓</button>
+          <button type="button" data-cam25="rotL" title="左旋视角 (Q)">↺</button>
+          <button type="button" data-cam25="rotR" title="右旋视角 (E)">↻</button>
+          <button type="button" data-cam25="reset" title="回正北向">N</button>
+        </div>
+        <div class="hint-25d">左键拖拽平移 · 右键/Shift拖拽旋转倾角 · 滚轮缩放 · Q/E旋转</div>
       </div>
       <div id="mini" class="h3mini" aria-label="小地图"></div>
       <div class="mapframe" aria-hidden="true">
@@ -357,5 +370,6 @@
   <script src="js/me.js"></script>
   <script src="js/me-fun.js"></script>
   <script src="js/me-kids.js"></script>
+  <script src="js/me-25d.js"></script>
 </body>
 </html>

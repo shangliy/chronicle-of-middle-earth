@@ -365,7 +365,8 @@
       const nm = r.n || RN[r.id];
       if (nm) {
         const pid = "rv-" + r.id; el("path", { id: pid, d: cr(r.pts), fill: "none", stroke: "none" }, g);
-        const t = el("text", { class: "rv-n", dy: -3 }, g), tp = el("textPath", { href: "#" + pid, startOffset: "38%" }, t); tp.textContent = nm;
+        const mp = sp[Math.min(sp.length - 1, Math.floor(sp.length * 0.42))] || r.pts[0];
+        const t = el("text", { class: "rv-n", dy: -3, "data-wx": mp[0].toFixed(1), "data-wy": mp[1].toFixed(1) }, g), tp = el("textPath", { href: "#" + pid, startOffset: "38%" }, t); tp.textContent = nm;
       }
     });
     roadsDeco();
@@ -486,7 +487,7 @@
   }
   /* ——地标、生灵、奇观—— */
   const LIFE = window.ME_LIFE || {};
-  L.tw = [];
+  L.tw = []; L.cullItems = [];
   function lifeItem(o, parent, cls) {
     const g = el("g", { class: cls, transform: `translate(${o.x},${o.y})` }, parent);
     const s = el("g", { class: "sc" }, g), z = el("g", { class: "lz" }, s);
@@ -496,6 +497,7 @@
     inner.innerHTML = (LIFE.ART || {})[o.k] || "";
     if (o.from != null || o.to != null) { g.dataset.from = o.from ?? -1e9; g.dataset.to = o.to ?? 1e9; L.tw.push(g); }
     if (o.n) el("title", {}, g).textContent = o.n;
+    L.cullItems.push({ x: o.x, y: o.y, g, pad: o.fly ? 120 : 48 });
     return g;
   }
   /* ——关键时刻—— */
@@ -513,6 +515,13 @@
       g.addEventListener("click", (ev) => { ev.stopPropagation(); openMoment(m.id); });
     });
   }
+  function showLandmark(m) {
+    emitVisit("place", m.id);
+    const hero = placeHeroSvg({ id: m.id, k: "site", x: m.x, y: m.y }, { art: (LIFE.ART || {})[m.k] || "", badge: tr("地标 · 典故") });
+    const ridBtn = (m.id === "goblin" || m.id === "trolls") ? `<button class="pc-act rdl" data-open-riddle="1">🕯️ ${tr("黑暗中的猜谜")}</button>` : "";
+    openCard(`${hero}<div class="pc-k">${tr("地标 · 典故")}</div><h3>${esc(m.n)}</h3><p class="pc-d">${esc(m.d)}</p><div class="pc-acts"><button class="pc-act" data-zoom-xy="${m.x},${m.y}">🔍 ${tr("飞近细看")}</button>${ridBtn}</div>`);
+    pulse(m.x, m.y);
+  }
   function lifeDeco() {
     L.life = el("g", { class: "life" }, svg);
     (LIFE.LIFE || []).forEach((o) => lifeItem(o, L.life, "lf k-" + o.k));
@@ -520,14 +529,7 @@
     (LIFE.LANDMARKS || []).forEach((m) => {
       const g = lifeItem(m, L.lm, "lm k-" + m.k);
       el("text", { class: "lm-n", y: 16, "text-anchor": "middle" }, g.firstChild).textContent = m.n;
-      g.addEventListener("click", (ev) => {
-        ev.stopPropagation();
-        emitVisit("place", m.id);
-        const hero = placeHeroSvg({ id: m.id, k: "site", x: m.x, y: m.y }, { art: (LIFE.ART || {})[m.k] || "", badge: tr("地标 · 典故") });
-        const ridBtn = (m.id === "goblin" || m.id === "trolls") ? `<button class="pc-act rdl" data-open-riddle="1">🕯️ ${tr("黑暗中的猜谜")}</button>` : "";
-        openCard(`${hero}<div class="pc-k">${tr("地标 · 典故")}</div><h3>${esc(m.n)}</h3><p class="pc-d">${esc(m.d)}</p><div class="pc-acts"><button class="pc-act" data-zoom-xy="${m.x},${m.y}">🔍 ${tr("飞近细看")}</button>${ridBtn}</div>`);
-        pulse(m.x, m.y);
-      });
+      g.addEventListener("click", (ev) => { ev.stopPropagation(); showLandmark(m); });
     });
   }
 
@@ -638,7 +640,7 @@
       const hold = j.army ? (dur < 1 ? Math.max(0.005, dur * 0.22) : Math.min(2.5, dur * 0.15)) : (dur < 1 ? 0.004 : 0);
       const on = !!(r && t <= end + span), mk = !!(on && (!r.done || t <= end + hold) && !r.hidden);
       if (j._on !== on) { j.path.style.display = on ? "" : "none"; j._on = on; }
-      if (j.vis !== mk) { j.mk.style.display = mk ? "" : "none"; j.vis = mk; }
+      if (j.vis !== mk) { j.mk.style.display = mk ? "" : "none"; j.mk.classList.toggle("off", !mk); j.vis = mk; }
       if (!on) return;
       if (j._d !== r.d) { j.path.setAttribute("d", r.d); j._d = r.d; }
       const isDone = r.done && t > end + hold;
@@ -667,7 +669,7 @@
       if (j._tf !== tf) { j.mk.setAttribute("transform", tf); j._tf = tf; }
     });
     const groups = {};
-    RES.forEach((r) => { const v = t >= r.from && t < r.to && !away.has(r.c.id); if (r.vis !== v) { r.vis = v; r.g.style.display = v ? "" : "none"; } if (v) (groups[r.key] ||= []).push(r); });
+    RES.forEach((r) => { const v = t >= r.from && t < r.to && !away.has(r.c.id); if (r.vis !== v) { r.vis = v; r.g.style.display = v ? "" : "none"; r.g.classList.toggle("off", !v); } if (v) (groups[r.key] ||= []).push(r); });
     Object.values(groups).forEach((list) => list.forEach((r, i) => {
       const n = list.length, per = Math.min(n, 4), row = Math.floor(i / 4), col = i % 4, cnt = Math.min(per, n - row * 4);
       const tf = `translate(${((col - (cnt - 1) / 2) * 17).toFixed(1)},${-6 - row * 28})`;
@@ -677,40 +679,33 @@
     MO.forEach((m) => { if (!m.g) return; const off = !(t >= m.t - 1e-6 && t < m.t + moSpan(m)); if (m._off !== off) { m.g.classList.toggle("off", off); m._off = off; } });
     const rr = t >= RING[0].t && t < RING_END ? at(RING, t) : null;
     L.ring.style.display = rr ? "" : "none";
+    L.ring.classList.toggle("off", !rr);
     if (rr) L.ring.setAttribute("transform", `translate(${rr.pos[0].toFixed(1)},${(rr.pos[1] - 1).toFixed(1)})`);
     if (MM && MM.ring) {
       MM.ring.style.display = rr ? "" : "none";
       if (rr) { MM.ring.setAttribute("cx", rr.pos[0].toFixed(1)); MM.ring.setAttribute("cy", rr.pos[1].toFixed(1)); }
     }
-    schedDc();
+    if (window.__ME_25D?.active) window.__ME_25D.onUpdateMap(t);
+    else schedDc();
   }
 
-  /* ——镜头（28% 溢出血位 #camStage GPU 矩阵合成 + 对数惯性滚轮缩放，停稳后再提交 1:1 矢量 viewBox）—— */
-  const CAM_PAD = 0.28, CAM_SPAN = 1 + CAM_PAD * 2;
+  /* ——镜头（24% 溢出血位 #camStage GPU 矩阵合成 + 视口外精灵裁剪 + 零重排纯数学标签避让）—— */
+  const CAM_PAD = 0.24, CAM_SPAN = 1 + CAM_PAD * 2;
   const mapWrap = svg.closest(".mapwrap") || svg.parentElement;
   const camStage = document.getElementById("camStage") || svg.parentElement;
-  let camRaf = 0, moveTimer = 0, settleRaf = 0, settleDoneTimer = 0, svgRect = null, baseCam = null, lastCssK = 0;
+  let camRaf = 0, moveTimer = 0, settleRaf = 0, unpauseTimer = 0, svgRect = null, baseCam = null, lastCssK = 0, lastSyncAt = 0;
   function updateSvgSize() { const r = mapWrap.getBoundingClientRect(); svgRect = r; cw = r.width || 1; ch = r.height || 1; }
   function settleCam() {
     moveTimer = 0;
-    const scaleChanged = baseCam && Math.abs(baseCam.w - cam.w) / Math.max(1, cam.w) > 0.03;
-    if (scaleChanged) {
-      svg.classList.add("settling");
-      clearTimeout(settleDoneTimer);
-      settleDoneTimer = setTimeout(() => { svg.classList.remove("settling"); schedDc(true); }, 210);
-    }
-    // 在 .moving（暂停 SVG 动画）状态下先提交 1:1 viewBox，再于下一帧恢复动画，避免重绘卡顿
+    // 在 .moving（暂停 SVG 动画）状态下一次性完成 1:1 viewBox 提交与纯数学标签避让，仅触发单次重绘
     applyCam(true);
-    cancelAnimationFrame(settleRaf);
-    settleRaf = requestAnimationFrame(() => {
-      settleRaf = 0;
-      svg.classList.remove("moving");
-      if (!scaleChanged) schedDc(true);
-    });
+    declutter(true);
+    clearTimeout(unpauseTimer);
+    unpauseTimer = setTimeout(() => { unpauseTimer = 0; svg.classList.remove("moving"); }, 110);
   }
-  function markMoving(wait = 260) {
+  function markMoving(wait = 360) {
     cancelAnimationFrame(settleRaf); settleRaf = 0;
-    clearTimeout(settleDoneTimer); svg.classList.remove("settling");
+    clearTimeout(unpauseTimer); unpauseTimer = 0;
     if (!svg.classList.contains("moving")) svg.classList.add("moving");
     clearTimeout(moveTimer);
     moveTimer = setTimeout(settleCam, wait);
@@ -719,7 +714,26 @@
   function setCull(node, offscreen) {
     if (node && node._cull !== offscreen) { node.classList.toggle("cull", offscreen); node._cull = offscreen; }
   }
-  function syncMiniAndBar(k, h) {
+  function cullSprites(vx0, vy0, vw0, vh0) {
+    const pad = 55 + vw0 * 0.05;
+    const x0 = vx0 - pad, x1 = vx0 + vw0 + pad, y0 = vy0 - pad, y1 = vy0 + vh0 + pad;
+    for (let i = 0; i < D.PLACES.length; i++) {
+      const p = D.PLACES[i];
+      if (p.g) setCull(p.g, p.x < x0 || p.x > x1 || p.y < y0 || p.y > y1);
+    }
+    for (let i = 0; i < RES.length; i++) {
+      const r = RES[i];
+      setCull(r.g, r.x < x0 || r.x > x1 || r.y < y0 || r.y > y1);
+    }
+    for (let i = 0; i < L.cullItems.length; i++) {
+      const it = L.cullItems[i], ip = it.pad;
+      setCull(it.g, it.x < vx0 - ip || it.x > vx0 + vw0 + ip || it.y < vy0 - ip || it.y > vy0 + vh0 + ip);
+    }
+  }
+  function syncMiniAndBar(k, h, force = false) {
+    const now = performance.now();
+    if (!force && now - lastSyncAt < 70) return;
+    lastSyncAt = now;
     scaleBar(k);
     if (MM) {
       const vx = cam.x.toFixed(1), vy = cam.y.toFixed(1), vw = cam.w.toFixed(1), vh = h.toFixed(1);
@@ -735,9 +749,9 @@
     const ty = CAM_PAD * ch * (1 - s) + (baseCam.y - cam.y) * (cw / cam.w);
     const left = -CAM_PAD * cw + tx, top = -CAM_PAD * ch + ty;
     const right = left + s * CAM_SPAN * cw, bottom = top + s * CAM_SPAN * ch;
-    if (s >= 0.642 && s <= 3.6 && left <= 0.5 && right >= cw - 0.5 && top <= 0.5 && bottom >= ch - 0.5) {
+    if (s >= 0.676 && s <= 3.6 && left <= 0.5 && right >= cw - 0.5 && top <= 0.5 && bottom >= ch - 0.5) {
       camStage.style.transform = `translate3d(${tx.toFixed(2)}px,${ty.toFixed(2)}px,0) scale(${s.toFixed(5)})`;
-      syncMiniAndBar(k, h);
+      syncMiniAndBar(k, h, false);
       return true;
     }
     return false;
@@ -746,12 +760,17 @@
     if (!svgRect || cw <= 1) updateSvgSize();
     const h = (cam.w * ch) / cw;
     const k = cam.w / cw;
+    if (window.__ME_25D?.active) {
+      syncMiniAndBar(k, h, commit);
+      window.__ME_25D.syncFromCam(cam.x + cam.w * 0.5, cam.y + h * 0.5, cam.w);
+      return;
+    }
     if (!commit && baseCam && baseCam.cw === cw && baseCam.ch === ch && applyStageTransform(h, k)) return;
 
     let bx = cam.x, by = cam.y, bw = cam.w, bh = h;
     if (!commit && baseCam && cam.w > baseCam.w * 1.04) {
-      // 持续缩小时适度预留外扩视野，兼顾清晰度与避免频繁触发矢量重绘
-      bw = clamp(cam.w * 1.48, 180, BW);
+      // 持续缩小时预留更宽基底视野，避免连续缩小全程反复触发重绘
+      bw = clamp(cam.w * 1.9, 180, BW);
       bh = (bw * ch) / cw;
       bx = cam.x + (cam.w - bw) * 0.5;
       by = cam.y + (h - bh) * 0.5;
@@ -761,51 +780,81 @@
     setCull(L.aman, vx0 > -760 || vx0 + vw0 < -1340);
     setCull(L.bel, vx0 > 310 || vx0 + vw0 < -920);
     setCull(L.nu, vx0 > -260 || vx0 + vw0 < -600 || vy0 > 760 || vy0 + vh0 < 440);
+    cullSprites(vx0, vy0, vw0, vh0);
     svg.setAttribute("viewBox", `${vx0.toFixed(2)} ${vy0.toFixed(2)} ${vw0.toFixed(2)} ${vh0.toFixed(2)}`);
     if (bx === cam.x && by === cam.y && bw === cam.w) {
       camStage.style.transform = "translate3d(0,0,0) scale(1)";
     } else {
       applyStageTransform(h, k);
     }
-    const visK = k;
-    if (commit || !lastCssK || Math.abs(visK - lastCssK) / lastCssK > 0.25) {
-      lastCssK = visK;
-      svg.style.setProperty("--k", visK.toFixed(4));
+    if (commit || !lastCssK) {
+      lastCssK = k;
+      svg.style.setProperty("--k", k.toFixed(4));
       svg.style.setProperty("--icz", clamp(640 / cam.w, 0.8, 2.4).toFixed(3));
+      svg.style.setProperty("--chz", clamp(660 / cam.w, 0.66, 1.85).toFixed(3));
       const isFar = cam.w > 1150, isNear = cam.w < 620;
       if (svg._far !== isFar) { svg.classList.toggle("far", isFar); svg._far = isFar; }
       if (svg._near !== isNear) { svg.classList.toggle("near", isNear); svg._near = isNear; }
     }
-    syncMiniAndBar(k, h);
-    if (commit) schedDc();
+    syncMiniAndBar(k, h, commit);
+    if (commit && !svg.classList.contains("moving")) schedDc();
   }
-  /* ——标签避让：按重要性逐个放置，和已放置的文字重叠就先隐藏，放大后再出现—— */
+  /* ——标签避让：全纯数学坐标包围盒（零 getBoundingClientRect 重排），按重要性逐个放置—— */
   let dcAt = 0, dcTimer = 0, DC_U = null, DC_IC = null;
   function getAnc(el) {
     const out = [];
     for (let p = el.parentElement; p && p !== svg; p = p.parentElement) out.push(p);
     return out;
   }
+  function estTextW(txt, fs, ls = 0) {
+    let w = 0;
+    for (let i = 0; i < txt.length; i++) w += txt.charCodeAt(i) > 255 ? fs * 1.05 : fs * 0.58;
+    return w + Math.max(0, txt.length - 1) * fs * ls + 4;
+  }
+  function parseTf(el) {
+    const tf = el && el.getAttribute("transform");
+    const m = tf && tf.match(/translate\(\s*([-\d.]+)\s*,\s*([-\d.]+)/);
+    return m ? [+m[1], +m[2]] : null;
+  }
   function initDcCache() {
     DC_U = [];
-    const add = (sel, pri) => svg.querySelectorAll(sel).forEach((n) => {
+    const add = (sel, pri, kind) => svg.querySelectorAll(sel).forEach((n) => {
       const p = typeof pri === "function" ? pri(n) : pri;
-      const isPl = n.classList.contains("pl-n");
+      const isPl = kind === "pl";
       const plNode = isPl ? n.closest(".pl") : null;
       const pl = plNode ? P[plNode.dataset.id] : null;
       const mdlp = !!(plNode && plNode.classList.contains("mdlp") && !plNode.classList.contains("minor"));
       const st = n.classList.contains("st");
       const rmNode = n.closest(".realm");
-      const fs = +n.style.getPropertyValue("--fs") || 11;
-      DC_U.push({ n, pri: p, fs, idx: DC_U.length, isPl, pl, mdlp, st, rmNode, anc: getAnc(n), wasDc: false, wasLf: false });
+      const fs = +n.style.getPropertyValue("--fs") || (isPl ? (plNode && plNode.classList.contains("minor") ? 9.5 : 11) : kind === "edge" ? 13 : kind === "lm" ? 8.5 : kind === "rv" ? 9 : 11);
+      let wx = 0, wy = 0, align = "c", lblScale = false, dyPx = 0, hasPos = false;
+      if (isPl && pl) { wx = pl.x; wy = pl.y; hasPos = true; }
+      else if (kind === "realm") { wx = +n.getAttribute("x") || 0; wy = +n.getAttribute("y") || 0; hasPos = true; }
+      else if (kind === "rv") { wx = +n.dataset.wx || 0; wy = +n.dataset.wy || 0; hasPos = n.dataset.wx != null; }
+      else if (kind === "lm") { const xy0 = parseTf(n.closest(".lm")); if (xy0) { wx = xy0[0]; wy = xy0[1]; dyPx = 16; hasPos = true; } }
+      else {
+        const host = n.closest(".lbl, .edge");
+        const xy0 = parseTf(host);
+        if (xy0) {
+          wx = xy0[0]; wy = xy0[1]; hasPos = true;
+          lblScale = kind === "lbl";
+          const t1 = n.querySelector("text");
+          if (kind === "edge") align = t1 && t1.getAttribute("text-anchor") === "end" ? "r" : "l";
+          else if (t1 && t1.classList.contains("it")) align = "l";
+        }
+      }
+      const txt0 = (n.querySelector(".lbl-n, .edge-n")?.textContent || n.textContent || "").trim();
+      const baseW = estTextW(txt0, fs, kind === "lbl" ? 0.28 : kind === "realm" ? 0.25 : 0.04);
+      const baseH = kind === "lbl" && n.querySelector(".lbl-en") ? fs * 1.65 : fs * 1.25;
+      DC_U.push({ n, pri: p, fs, idx: DC_U.length, isPl, pl, mdlp, st, rmNode, wx, wy, align, lblScale, dyPx, hasPos, baseW, baseH, anc: getAnc(n), wasDc: false, wasLf: false });
     });
-    add(".pl-n", (n) => (n.closest(".minor") || n.classList.contains("st") ? 4 : 1));
-    add(".realm-n", 2);
-    add(".edge > .sc", 2.5);
-    add(".lbl:not(.mt-l):not(.tx-l) > .sc", 3);
-    add(".lm-n", 5);
-    add(".tx-l > .sc, .mt-l > .sc", 6);
-    add(".rv-n", 7);
+    add(".pl-n", (n) => (n.closest(".minor") || n.classList.contains("st") ? 4 : 1), "pl");
+    add(".realm-n", 2, "realm");
+    add(".edge > .sc", 2.5, "edge");
+    add(".lbl:not(.mt-l):not(.tx-l) > .sc", 3, "lbl");
+    add(".lm-n", 5, "lm");
+    add(".tx-l > .sc, .mt-l > .sc", 6, "lbl");
+    add(".rv-n", 7, "rv");
     DC_U.sort((a, b) => a.pri - b.pri || b.fs - a.fs || a.idx - b.idx);
     DC_IC = [...svg.querySelectorAll(".pl .ic2")].map((ic) => {
       const plNode = ic.closest(".pl");
@@ -825,17 +874,18 @@
     }
     return false;
   }
-  function declutter() {
+  function declutter(force = false) {
     dcAt = performance.now(); dcTimer = 0;
-    if (svg.classList.contains("moving")) return;
+    if (svg.classList.contains("moving") && !force) return;
     if (!DC_U) initDcCache();
-    updateSvgSize();
+    if (!svgRect || cw <= 1) updateSvgSize();
     const vw = innerWidth, vh = innerHeight, placed = [], seen = [];
     const inView = (r) => r.width >= 1 && r.right > 0 && r.left < vw && r.bottom > 0 && r.top < vh;
     const hits = (r, pad) => placed.some((q) => r.left < q.right - pad && r.right > q.left + pad && r.top < q.bottom - pad && r.bottom > q.top + pad);
-    const kScale = cw / cam.w, ox = svgRect ? svgRect.left : 0, oy = svgRect ? svgRect.top : 0;
+    const kScale = cw / cam.w, k = cam.w / cw, ox = svgRect ? svgRect.left : 0, oy = svgRect ? svgRect.top : 0;
     const icz = clamp(640 / cam.w, 0.8, 2.4);
-    // 地点图标本身也是障碍（使用纯坐标包围盒，彻底消除动画/DOM抖动）
+    const lblMul = 0.45 / Math.max(0.1, k) + 0.55;
+    // 地点图标本身也是障碍（全纯坐标包围盒，零 DOM 重排）
     for (let i = 0; i < DC_IC.length; i++) {
       const it = DC_IC[i];
       if (!it.pl || isAncHidden(it.anc)) continue;
@@ -846,23 +896,23 @@
     }
     for (let i = 0; i < DC_U.length; i++) {
       const u = DC_U[i], n = u.n;
-      const hide = (u.rmNode && !u.rmNode.classList.contains("on")) || isAncHidden(u.anc);
+      const hide = !u.hasPos || (u.rmNode && !u.rmNode.classList.contains("on")) || isAncHidden(u.anc);
       if (hide) { u.r = null; continue; }
+      const cx = ox + (u.wx - cam.x) * kScale, cy = oy + (u.wy - cam.y) * kScale + u.dyPx;
       if (u.isPl && u.pl) {
         const txt = n.textContent || "";
-        if (!u.w || u._txt !== txt) {
-          const br = n.getBoundingClientRect();
-          if (br.width >= 1) { u.w = br.width; u.h = br.height || 13; u._txt = txt; }
-        }
-        const w = u.w || (txt.length * 11 + 4), h = u.h || 13;
-        const cx = ox + (u.pl.x - cam.x) * kScale, cy = oy + (u.pl.y - cam.y) * kScale;
+        if (!u.w || u._txt !== txt) { u.w = estTextW(txt, u.fs, 0.02); u.h = u.fs * 1.25; u._txt = txt; }
+        const w = u.w, h = u.h;
         const dx = (u.mdlp ? 17 : u.st ? 8 : 12) * icz;
         u.cx = cx; u.dx = dx;
         u.r = { left: cx + dx, right: cx + dx + w, top: cy - h * 0.45, bottom: cy + h * 0.55, width: w, height: h };
         if (!inView(u.r) && !inView({ left: cx - dx - w, right: cx - dx, top: u.r.top, bottom: u.r.bottom, width: w, height: h })) u.r = null;
       } else {
-        const br = n.getBoundingClientRect();
-        u.r = inView(br) ? br : null;
+        const mul = u.lblScale ? lblMul : 1;
+        const w = u.baseW * mul, h = u.baseH * mul;
+        const left = u.align === "l" ? cx : u.align === "r" ? cx - w : cx - w * 0.5;
+        const r = { left, right: left + w, top: cy - h * 0.5, bottom: cy + h * 0.5, width: w, height: h };
+        u.r = inView(r) ? r : null;
       }
     }
     for (let i = 0; i < DC_U.length; i++) {
@@ -911,15 +961,15 @@
     if (!wz) return;
     const dt = clamp((now - wzLast) / 1000, 0.004, 0.05);
     wzLast = now;
-    const alpha = 1 - Math.exp(-dt * (wz.fast ? 26 : 14));
+    const alpha = 1 - Math.exp(-dt * 16);
     const diff = Math.abs(Math.log(wz.w / cam.w));
-    if (diff < 0.0012) {
+    if (diff < 0.001) {
       cam.w = wz.w;
       cam.x = wz.px - (wz.sx / cw) * cam.w;
       cam.y = wz.py - (wz.sy / cw) * cam.w;
       wz = null;
       applyCam(false);
-      markMoving(240);
+      markMoving(320);
       return;
     }
     const nw = Math.exp(lerp(Math.log(cam.w), Math.log(wz.w), alpha));
@@ -927,16 +977,16 @@
     cam.x = wz.px - (wz.sx / cw) * nw;
     cam.y = wz.py - (wz.sy / cw) * nw;
     applyCam(false);
-    markMoving(280);
+    markMoving(360);
     wzRaf = requestAnimationFrame(wheelStep);
   }
-  function wheelZoom(f, sx, sy, fast) {
+  function wheelZoom(f, sx, sy) {
     if (!svgRect || cw <= 1) updateSvgSize();
     const px = cam.x + (sx / cw) * cam.w, py = cam.y + (sy / cw) * cam.w;
     const sameDir = wz && ((f < 1 && wz.w < cam.w) || (f > 1 && wz.w > cam.w));
     const tw = clamp((sameDir ? wz.w : cam.w) * f, 180, BW);
-    wz = { w: tw, sx, sy, px, py, fast: !!fast };
-    markMoving(280);
+    wz = { w: tw, sx, sy, px, py };
+    markMoving(360);
     if (!wzRaf) { wzLast = performance.now(); wzRaf = requestAnimationFrame(wheelStep); }
   }
   function flyTo(x, y, w, ms = 1300) { // (x,y) 为目标中心
@@ -944,9 +994,14 @@
     if (!svgRect || cw <= 1) updateSvgSize();
     w = clamp(w, 180, BW);
     const h = (w * ch) / cw, s = { ...cam }, e = { x: x - w / 2, y: y - h / 2, w };
+    if (window.__ME_25D?.active) {
+      cam.x = e.x; cam.y = e.y; cam.w = e.w;
+      window.__ME_25D.flyTo(x, y, w, ms);
+      return;
+    }
     if (ms <= 0) {
-      clearTimeout(moveTimer); cancelAnimationFrame(settleRaf); settleRaf = 0; svg.classList.remove("moving");
-      cam.x = e.x; cam.y = e.y; cam.w = e.w; applyCam(true); schedDc(true); return;
+      clearTimeout(moveTimer); clearTimeout(unpauseTimer); unpauseTimer = 0; cancelAnimationFrame(settleRaf); settleRaf = 0; svg.classList.remove("moving");
+      cam.x = e.x; cam.y = e.y; cam.w = e.w; applyCam(true); declutter(); return;
     }
     const t0 = performance.now();
     markMoving(320);
@@ -965,23 +1020,34 @@
   function zoomAt(f, sx, sy) {
     stopWheelZoom();
     const nw = clamp(cam.w * f, 180, BW), px = cam.x + (sx / cw) * cam.w, py = cam.y + (sy / cw) * cam.w;
-    cam.x = px - (sx / cw) * nw; cam.y = py - (sy / cw) * nw; cam.w = nw; markMoving(240); schedCam();
+    cam.x = px - (sx / cw) * nw; cam.y = py - (sy / cw) * nw; cam.w = nw; markMoving(340); schedCam();
   }
   function smoothZoomBtn(f) {
     if (!svgRect || cw <= 1) updateSvgSize();
     cancelAnimationFrame(flyRaf);
-    wheelZoom(f, cw / 2, ch / 2, false);
+    if (window.__ME_25D?.active) { window.__ME_25D.zoomBtn(f); return; }
+    wheelZoom(f, cw / 2, ch / 2);
   }
   function bindPan() {
-    let drag = null; const pts = new Map();
+    let drag = null, lastWheelAt = 0, wheelTrackpad = false; const pts = new Map();
     svg.addEventListener("wheel", (e) => {
       e.preventDefault(); cancelAnimationFrame(flyRaf); userMoved = Date.now();
       if (!svgRect) updateSvgSize();
       const raw = e.deltaMode === 1 ? e.deltaY * 32 : e.deltaMode === 2 ? e.deltaY * 240 : e.deltaY;
       if (!raw) return;
+      const now = performance.now(), gap = now - lastWheelAt;
+      lastWheelAt = now;
+      if (e.ctrlKey || (e.deltaMode === 0 && (Math.abs(raw) < 42 || (gap < 28 && wheelTrackpad)))) wheelTrackpad = true;
+      else if (e.deltaMode !== 0 || (gap > 60 && Math.abs(raw) >= 48)) wheelTrackpad = false;
+      const sx = e.clientX - svgRect.left, sy = e.clientY - svgRect.top;
       const dy = clamp(raw, -140, 140);
-      const isTrackpad = !!(e.ctrlKey || (e.deltaMode === 0 && Math.abs(raw) < 36));
-      wheelZoom(Math.exp(dy * (e.ctrlKey ? 0.0045 : 0.00145)), e.clientX - svgRect.left, e.clientY - svgRect.top, isTrackpad);
+      if (wheelTrackpad) {
+        // 触控板/双指捏合：直接 1:1 合帧响应，零额外惯性延迟
+        zoomAt(Math.exp(dy * (e.ctrlKey ? 0.0055 : 0.0022)), sx, sy);
+      } else {
+        // 有级滚轮：对数空间平滑滑行
+        wheelZoom(Math.exp(dy * 0.00145), sx, sy);
+      }
     }, { passive: false });
     svg.addEventListener("pointerdown", (e) => { if (!svgRect) updateSvgSize(); stopWheelZoom(); pts.set(e.pointerId, [e.clientX, e.clientY]); if (pts.size === 1) drag = { x: e.clientX, y: e.clientY, cx: cam.x, cy: cam.y, moved: false }; cancelAnimationFrame(flyRaf); });
     svg.addEventListener("pointermove", (e) => {
@@ -990,9 +1056,14 @@
       if (pts.size === 2) { const [a, b] = [...pts.values()], [pa] = [prev]; const other = [...pts.entries()].find(([id]) => id !== e.pointerId)[1]; const d0 = Math.hypot(pa[0] - other[0], pa[1] - other[1]), d1 = Math.hypot(a[0] - b[0], a[1] - b[1]); if (d0 > 0) zoomAt(d0 / d1, (a[0] + b[0]) / 2 - svgRect.left, (a[1] + b[1]) / 2 - svgRect.top); drag = null; userMoved = Date.now(); return; }
       if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
       if (Math.abs(dx) + Math.abs(dy) > 4) { drag.moved = true; svg.setPointerCapture?.(e.pointerId); }
-      if (drag.moved) { cam.x = drag.cx - (dx / cw) * cam.w; cam.y = drag.cy - (dy / cw) * cam.w; markMoving(220); schedCam(); userMoved = Date.now(); }
+      if (drag.moved) { cam.x = drag.cx - (dx / cw) * cam.w; cam.y = drag.cy - (dy / cw) * cam.w; markMoving(300); schedCam(); userMoved = Date.now(); }
     });
-    const up = (e) => { pts.delete(e.pointerId); if (!pts.size) drag = null; };
+    const up = (e) => {
+      const wasClick = drag && !drag.moved && e.type === "pointerup";
+      pts.delete(e.pointerId);
+      if (!pts.size) drag = null;
+      if (wasClick && !$("#card").hidden && !e.target.closest(".pl,.mk,.lk,.ch,.wd,.sea,.bcn,.tr")) $("#card").hidden = true;
+    };
     svg.addEventListener("pointerup", up); svg.addEventListener("pointercancel", up);
     $("#zin").onclick = () => smoothZoomBtn(0.72); $("#zout").onclick = () => smoothZoomBtn(1.38);
     $("#zfit").onclick = () => flyBox(eraOf(T).cam);
@@ -1084,7 +1155,7 @@
   }
   function openCard(html) {
     const c = $("#card"), wasHidden = c.hidden;
-    c.innerHTML = `<button class="x" aria-label="${tr("关闭")}">×</button>` + html;
+    c.innerHTML = `<button type="button" class="x" aria-label="${tr("关闭")}">×</button>` + html;
     c.scrollTop = 0;
     if (wasHidden) { c.classList.remove("card-in"); c.hidden = false; c.classList.add("card-in"); }
     else c.classList.remove("card-in");
@@ -1986,10 +2057,12 @@
       if (e.target.closest("input,textarea")) return;
       if (!$("#moment").hidden) { if (e.key === "Escape") closeMoment(false); if (e.key === " " || e.key === "Enter") { e.preventDefault(); closeMoment(true); } if (e.key === "ArrowRight" || e.key === "ArrowLeft") { const i = MOI[moCur.id] + (e.key === "ArrowRight" ? 1 : -1); if (MO[i]) openMoment(MO[i].id); } return; }
       if (!B.el.hidden) { if (e.key === "Escape") closeBattle(); if (e.key === "ArrowRight") phase(B.k + 1); if (e.key === "ArrowLeft") B.k > 0 && phase(B.k - 1); return; }
+      if (e.key === "Escape" && !$("#card").hidden) { $("#card").hidden = true; return; }
       if (e.key === " ") { e.preventDefault(); playing ? pause() : play(); }
       if (e.key === "ArrowRight") stepEvent(1); if (e.key === "ArrowLeft") stepEvent(-1);
+      if (e.key === "3" && window.__ME_25D) window.__ME_25D.toggle();
     });
-    // 深链接：#t= / #x=&y=&w= / #l=&k= / #b= / #m= / #c= / #f=
+    // 深链接：#t= / #x=&y=&w= / #l=&k= / #b= / #m= / #c= / #f= / #d=3
     const h = new URLSearchParams(location.hash.slice(1));
     if ([...h.keys()].length) { $("#intro").hidden = true; }
     if (h.get("t")) { setT(+h.get("t")); if (!h.get("x")) flyBox(eraOf(T).cam); }
@@ -2004,9 +2077,9 @@
       if (!B.el.hidden && B.cur) return `#b=${encodeURIComponent(B.cur.id)}`;
       const hh = (cam.w * (ch || 600)) / (cw || 1000);
       const cx = Math.round(cam.x + cam.w / 2), cy = Math.round(cam.y + hh / 2), w = Math.round(cam.w);
-      return `#t=${+T.toFixed(4)}&x=${cx}&y=${cy}&w=${w}`;
+      return `#t=${+T.toFixed(4)}&x=${cx}&y=${cy}&w=${w}${window.__ME_25D && !window.__ME_25D.active ? "&d=2" : ""}`;
     };
-    window.__ME = { pulse, flyBox, PT, CI, openMoment, closeMoment, MO, setT, flyTo, openBattle, phase, openLegend, play, pause, followJ, showChar, showPlace, openCard, showToast, hideToast, placeHeroSvg, setTab, svg, P, L, RING, RING_END, at, eraOf, hasDay, getShareHash, get T() { return T; }, get follow() { return !!follow; }, cam, posOf, tAt, fmt, JR, RES };
+    window.__ME = { pulse, flyBox, PT, CI, openMoment, closeMoment, MO, setT, flyTo, applyCam, updateSvgSize, syncMiniAndBar, openBattle, phase, openLegend, play, pause, followJ, showChar, showPlace, showJourney, showLandmark, visible, openCard, showToast, hideToast, placeHeroSvg, setTab, svg, P, L, D, W, DECO, SEA_ART, RING, RING_END, at, eraOf, hasDay, getShareHash, get T() { return T; }, get follow() { return !!follow; }, get cw() { return cw; }, get ch() { return ch; }, cam, posOf, tAt, fmt, JR, RES, tr };
   }
   init();
 })();
