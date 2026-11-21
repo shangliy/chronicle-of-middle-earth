@@ -1,16 +1,27 @@
-# 中洲纪年 · 指环王版 | Chronicle of Middle-earth
+# Chronicle of Middle-earth · 中洲纪年
 
-> **阿尔达七千年历史地理、人物迁徙、传说导读与战役推演交互图集**  
-> *An Interactive Atlas, Chronicle, Guided Legends & Tactical Battlefields of Arda*
+**7,000 years of Tolkien's world on one interactive map. Drag the timeline and watch Beleriand sink, Númenor rise and fall, and the War of the Ring play out.** Every map, portrait and scene is drawn in code: no image files, no dependencies, no build step.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Atlas-Play%20Online-e0a83c?style=flat&logo=githubpages&logoColor=white)](https://shangliy.github.io/chronicle-of-middle-earth/)
+**[▶ Open the atlas in your browser](https://shangliy.github.io/chronicle-of-middle-earth/?lang=en)** · [中文版](https://shangliy.github.io/chronicle-of-middle-earth/?lang=zh) · [简体中文说明](#简体中文) · [English docs](#english)
+
+[![Dragging the timeline: Beleriand sinks, Númenor rises](docs/demo.gif)](https://shangliy.github.io/chronicle-of-middle-earth/?lang=en)
+
+[![Live Demo](https://img.shields.io/badge/Live%20Atlas-Play%20Online-e0a83c?style=flat&logo=githubpages&logoColor=white)](https://shangliy.github.io/chronicle-of-middle-earth/?lang=en)
 [![License: MIT](https://img.shields.io/badge/License-MIT-d4a74a.svg)](LICENSE)
 ![Zero Dependencies](https://img.shields.io/badge/Build-Zero%20Dependencies-2d7646.svg)
-![Bilingual](https://img.shields.io/badge/Language-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87%20%7C%20English-9b2a1d.svg)
+![Bilingual](https://img.shields.io/badge/Language-English%20%7C%20%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-9b2a1d.svg)
 
-**[🌐 在线试玩 / Live Demo](https://shangliy.github.io/chronicle-of-middle-earth/) · [🇺🇸 English Edition](https://shangliy.github.io/chronicle-of-middle-earth/?lang=en) · [简体中文](#简体中文) · [English](#english)**
+**Try these in the first 30 seconds:**
 
-[![Chronicle of Middle-earth Cover](og-cover.png)](https://shangliy.github.io/chronicle-of-middle-earth/)
+- Press `Space` to play history from the Years of the Trees to the Fourth Age.
+- Press `W` to put on the One Ring and see the Unseen World.
+- Press `B` to light the beacons of Gondor along the White Mountains.
+- Switch between three hand-made map styles (painted relief, heroic adventure, old parchment) with one click.
+- Open one of 37 illustrated key moments or 6 playable battle maps, such as [the Pelennor Fields](https://shangliy.github.io/chronicle-of-middle-earth/?lang=en#b=pelennor).
+
+**Run it locally:** `git clone https://github.com/shangliy/chronicle-of-middle-earth && cd chronicle-of-middle-earth && python3 -m http.server 8000`, then open <http://localhost:8000>.
+
+If you enjoyed wandering through it, a ⭐ helps other Tolkien fans find it.
 
 ---
 
