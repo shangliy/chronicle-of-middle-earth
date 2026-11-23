@@ -216,12 +216,13 @@
         `<g class="clump-w c3"><circle cx="-6.0" cy="-21.4" r="4.4" fill="url(#m-s-green)" ${EDGE}/><circle cx="-6.2" cy="-22.0" r=".75" fill="#fff4a8"/></g>`;
       // 丘坡小花点缀
       s += `<circle cx="-13.6" cy="2.6" r=".65" fill="#ffd84a"/><circle cx="-11.0" cy="3.4" r=".6" fill="#ff8468"/><circle cx="1.6" cy="3.2" r=".65" fill="#ffe878"/><circle cx="4.0" cy="1.8" r=".55" fill="#fff6d0"/>`;
-      // 河畔老风车（高耸木塔 + 旋转四叶风帆）
-      s += cyl(15.2, 4.2, 2.1, 8.8, "stone", { win: 1, lit: 1 }) + cone(15.2, -4.6, 2.8, 3.8, "thatch") +
-        `<g class="h3mill" style="transform-origin:15.2px -4.2px">` +
-        `<path d="M15.2,-4.2L15.2,-12.5M15.2,-4.2L23.2,-4.2M15.2,-4.2L15.2,3.8M15.2,-4.2L7.2,-4.2" stroke="#5a3818" stroke-width=".9"/>` +
-        `<path d="M15.2,-12.2h2.2v6.2h-2.2ZM22.8,-4.2v2.2h-6.2v-2.2ZM15.2,3.4h-2.2v-6.2h2.2ZM7.6,-4.2v-2.2h6.2v2.2Z" fill="rgba(248,236,204,.82)" stroke="#7a5428" stroke-width=".3"/>` +
-        `</g>`;
+      // 河畔老风车（高耸石塔 + 严格居中轴心旋转的四叶木风帆）
+      s += cyl(15.2, 4.2, 2.1, 8.2, "stone", { win: 1, lit: 1 }) + cone(15.2, -4.0, 2.7, 3.6, "thatch") +
+        `<g transform="translate(15.2,-4.0)"><g class="h3mill">` +
+        `<path d="M0,-7.6V7.6M-7.6,0H7.6" stroke="#5a3818" stroke-width=".95" stroke-linecap="round"/>` +
+        `<path d="M0.3,-7.2h2.1v5.2h-2.1ZM7.2,0.3v2.1h-5.2v-2.1ZM-0.3,7.2h-2.1v-5.2h2.1ZM-7.2,-0.3v-2.1h5.2v2.1Z" fill="rgba(250,240,210,.92)" stroke="#7a5428" stroke-width=".32"/>` +
+        `<circle r="1.15" fill="#4e2e12" stroke="#d8b068" stroke-width=".3"/>` +
+        `</g></g>`;
       return s;
     },
     osgiliath() { // 大河上的石桥与穹顶

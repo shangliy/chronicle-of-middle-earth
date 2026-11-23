@@ -682,127 +682,163 @@
     return cv;
   }
 
-  /* ==================== 3D 森林分层树木图集（参考 SpriteCook：静止树干+暗影内冠 + 独立摇曳叶簇，4 种树型 × 3 层） ==================== */
+  /* ==================== 3D 森林像素美学分层图集（深度参考 SpriteCook：32×32 纯整数像素网格 + 暗影内冠 + 独立叶簇） ==================== */
   function createTreeAtlasCanvas() {
+    const S = 32; // 每格 32×32 原生像素艺术（配 gl.NEAREST 采样，近距拉近粒粒分明！）
     const cv = document.createElement("canvas");
-    cv.width = 512; cv.height = 384; // 4 列树种 × 3 行分层（Row0=树干+暗影内冠, Row1=中景叶簇, Row2=向阳顶冠叶簇）
+    cv.width = S * 4; cv.height = S * 3; // 128×96: 4 列树种 × 3 行分层（Row0=静止树干+暗影内冠, Row1=中层叶簇, Row2=向阳顶冠叶簇）
     const g = cv.getContext("2d");
+    g.imageSmoothingEnabled = false;
 
-    // 赛璐珞清新叶簇笔触：清冷青蓝暗部 + 翠绿中调 + 暖阳嫩绿高光
-    const leafDab = (cx, cy, r, cols, seed0, n = 22) => {
-      let s = seed0;
-      const rn = () => ((s = (s * 16807) % 2147483647) - 1) / 2147483646;
-      for (let i = 0; i < n; i++) {
-        const a = rn() * 6.283, d = Math.sqrt(rn()) * r * 0.74;
-        const x = cx + Math.cos(a) * d, y = cy + Math.sin(a) * d * 0.80;
-        const rr = r * (0.28 + rn() * 0.34);
-        const shade = (x - cx) * 0.45 + (y - cy) * 0.72;
-        const col = shade < -r * 0.10 ? cols[2] : shade > r * 0.14 ? cols[0] : cols[1];
-        g.fillStyle = col;
-        g.beginPath(); g.ellipse(x, y, rr, rr * (0.74 + rn() * 0.24), rn() * 3.14, 0, 6.29); g.fill();
+    const px = (x, y, c) => { g.fillStyle = c; g.fillRect(x | 0, y | 0, 1, 1); };
+    const rect = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(x | 0, y | 0, w | 0, h | 0); };
+
+    // 纯像素圆团绘制器（带 1px 深色色相偏移外轮廓 + 2×2 棋盘格像素抖动过渡，绝无平滑模糊！）
+    const drawPixelBlob = (ox, oy, cx, cy, rx, ry, pal, seed0, outline = true) => {
+      // pal = [outline, deepShadow, midTone, brightSun, peakHighlight]
+      const map = new Int8Array(S * S);
+      const rn = (ix, iy) => {
+        const n = Math.sin(ix * 127.1 + iy * 311.7 + seed0 * 19.3) * 43758.5453;
+        return n - Math.floor(n);
+      };
+      for (let y = 1; y < S - 1; y++) {
+        for (let x = 1; x < S - 1; x++) {
+          const dx = (x - cx) / rx, dy = (y - cy) / ry;
+          const jitter = (rn(x, y) - 0.5) * 0.28 + Math.sin(x * 0.8 + seed0) * 0.08 + Math.cos(y * 0.9 - seed0) * 0.08;
+          if (dx * dx + dy * dy + jitter < 1.0) map[y * S + x] = 1;
+        }
+      }
+      for (let y = 1; y < S - 1; y++) {
+        for (let x = 1; x < S - 1; x++) {
+          if (!map[y * S + x]) continue;
+          const isEdge = !map[(y - 1) * S + x] || !map[(y + 1) * S + x] || !map[y * S + (x - 1)] || !map[y * S + (x + 1)];
+          // 西北光照梯度 + 棋盘格像素抖动 (dithering)
+          const lit = -(x - cx) / rx * 0.45 - (y - cy) / ry * 0.72;
+          const dither = ((x + y) & 1) ? 0.10 : -0.10;
+          const v = lit + dither + (rn(x * 2, y * 2) - 0.5) * 0.14;
+          let col;
+          if (outline && isEdge && v < 0.22) col = pal[0];
+          else if (v < -0.20) col = pal[1];
+          else if (v < 0.22) col = pal[2];
+          else if (v < 0.56) col = pal[3];
+          else col = pal[4];
+          px(ox + x, oy + y, col);
+        }
       }
     };
 
-    // 绘制单团独立叶簇（用于 Row1 中景叶簇 & Row2 向阳外冠叶簇）
-    const drawRoundClump = (ox, oy, cols, seed0, rad = 36) => {
-      // 柔和底影托边，保证叶簇分离时层次立体
-      g.fillStyle = cols[0];
-      g.beginPath(); g.ellipse(ox + 64, oy + 68, rad * 0.94, rad * 0.74, 0, 0, 6.29); g.fill();
-      leafDab(ox + 64, oy + 62, rad, cols, seed0, 24);
+    // 像素针叶松单层枝簇（阶梯锯齿松针边缘 + 像素抖动受光）
+    const drawPixelPineTier = (ox, oy, pal, seed0, hw = 12, hh = 10) => {
+      const topY = 8, botY = topY + hh * 2;
+      const map = new Int8Array(S * S);
+      for (let y = topY; y <= botY && y < S - 1; y++) {
+        const k = (y - topY) / Math.max(1, botY - topY);
+        const span = Math.round(1 + k * hw + ((y & 1) ? 1 : 0));
+        for (let x = 16 - span; x <= 16 + span; x++) {
+          if (x > 1 && x < S - 2) map[y * S + x] = 1;
+        }
+      }
+      // 底部锯齿松枝垂梢
+      for (let x = 16 - hw; x <= 16 + hw; x += 3) {
+        if (x > 1 && x < S - 2 && botY + 1 < S - 1) map[(botY + 1) * S + x] = 1;
+      }
+      for (let y = 1; y < S - 1; y++) {
+        for (let x = 1; x < S - 1; x++) {
+          if (!map[y * S + x]) continue;
+          const isEdge = !map[(y - 1) * S + x] || !map[(y + 1) * S + x] || !map[y * S + (x - 1)] || !map[y * S + (x + 1)];
+          const dither = ((x + y) & 1) ? 0.12 : -0.12;
+          const lit = -(x - 16) / Math.max(1, hw) * 0.55 - (y - 14) / 14 * 0.45 + dither;
+          let col;
+          if (isEdge && lit < 0.18) col = pal[0];
+          else if (lit < -0.18) col = pal[1];
+          else if (lit < 0.18) col = pal[2];
+          else if (lit < 0.52) col = pal[3];
+          else col = pal[4];
+          px(ox + x, oy + y, col);
+        }
+      }
     };
 
-    // 绘制松树单层枝簇（用于 Col0 的 Row1 & Row2）
-    const drawPineClump = (ox, oy, cols, seed0, hw = 44, hh = 36) => {
-      const cy = oy + 82;
-      g.fillStyle = cols[0];
-      g.beginPath();
-      g.moveTo(ox + 64, cy - hh * 1.45);
-      g.lineTo(ox + 64 + hw, cy + 4);
-      g.quadraticCurveTo(ox + 64, cy + 14, ox + 64 - hw, cy + 4);
-      g.closePath(); g.fill();
-      g.fillStyle = cols[1];
-      g.beginPath();
-      g.moveTo(ox + 64, cy - hh * 1.45);
-      g.lineTo(ox + 64 + hw * 0.14, cy + 6);
-      g.lineTo(ox + 64 - hw * 0.92, cy + 2);
-      g.closePath(); g.fill();
-      leafDab(ox + 64 - hw * 0.18, cy - hh * 0.45, hw * 0.48, cols, seed0, 16);
+    // 像素接地接触影（棋盘格半透明暗像素）
+    const drawPixelShadow = (ox, cx, cy, rx, ry, col = "rgba(18,38,54,0.44)") => {
+      g.fillStyle = col;
+      for (let y = cy - ry; y <= cy + ry; y++) {
+        for (let x = cx - rx; x <= cx + rx; x++) {
+          const d = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2;
+          if (d <= 0.72 || (d <= 1.0 && ((x + y) & 1))) g.fillRect(ox + x, y, 1, 1);
+        }
+      }
     };
 
-    // ---- Col 0: 海拉鲁翠绿针叶松（黑森林 / 北境）----
+    // ---- Col 0: 黑森林像素松树（静止像素树干 + 深青松针内冠 + 阶梯像素松枝簇）----
     {
       const ox = 0;
-      // Row 0: 静止接地阴影 + 笔直树干 + 深青暗影内冠 (Inside Layer)
-      const sh = g.createRadialGradient(ox + 66, 118, 2, ox + 66, 118, 28);
-      sh.addColorStop(0, "rgba(20,44,64,0.38)"); sh.addColorStop(1, "rgba(20,44,64,0)");
-      g.fillStyle = sh; g.fillRect(ox + 32, 106, 68, 22);
-      g.fillStyle = "#684830"; g.fillRect(ox + 60, 88, 8, 30);
-      g.fillStyle = "#4c3220"; g.fillRect(ox + 64, 88, 4, 30);
-      // 暗影内冠核心（当外层松枝随风错开时，露出幽深树心而非空洞背景）
-      const coreTiers = [[100, 31, 34], [78, 25, 32], [58, 19, 28], [40, 12, 22]];
-      coreTiers.forEach(([by, hw, h]) => {
-        g.fillStyle = "#173f36";
-        g.beginPath(); g.moveTo(ox + 64, by - h); g.lineTo(ox + 64 + hw, by); g.quadraticCurveTo(ox + 64, by + 4, ox + 64 - hw, by); g.closePath(); g.fill();
-      });
-      // Row 1: 中层松枝簇  |  Row 2: 向阳嫩绿松枝簇
-      drawPineClump(ox, 128, ["#1d4e42", "#34784d", "#5ea85b"], 101, 44, 36);
-      drawPineClump(ox, 256, ["#26624a", "#489854", "#82c664"], 149, 40, 34);
+      const pineMid = ["#0e2b2b", "#18463e", "#2b6c4a", "#489252", "#6eb85e"];
+      const pineTop = ["#133632", "#205a46", "#39864e", "#62ae58", "#94d46c"];
+      drawPixelShadow(ox, 16, 29, 8, 2);
+      // 暗影内冠 core (Inside Layer)
+      for (let y = 6; y <= 24; y++) {
+        const hw = Math.round(1 + ((y - 6) / 18) * 7);
+        rect(ox + 16 - hw, y, hw * 2 + 1, 1, (y & 1) ? "#0e2929" : "#143734");
+      }
+      // 静止锚定像素树干
+      rect(ox + 15, 22, 3, 8, "#5e3e28");
+      rect(ox + 17, 22, 1, 8, "#3a2416");
+      px(ox + 14, 29, "#3a2416"); px(ox + 18, 29, "#3a2416");
+      // Row 1 & Row 2: 像素松枝簇
+      drawPixelPineTier(ox, S, pineMid, 11, 11, 8);
+      drawPixelPineTier(ox, S * 2, pineTop, 23, 10, 8);
     }
 
-    // ---- Col 1: 旷野苍翠古橡树（范贡 / 多瑞亚斯 / 老林）----
+    // ---- Col 1: 范贡 / 老林像素古橡树（粗壮根部树干 + 幽深内冠 + 4 色抖动像素叶团）----
     {
-      const ox = 128;
-      // Row 0: 静止接地影 + 粗壮橡树干与主枝 + 深绿暗影内冠 (Inside Layer)
-      const sh = g.createRadialGradient(ox + 66, 118, 2, ox + 66, 118, 34);
-      sh.addColorStop(0, "rgba(20,44,64,0.38)"); sh.addColorStop(1, "rgba(20,44,64,0)");
-      g.fillStyle = sh; g.fillRect(ox + 26, 106, 78, 22);
-      // 暗影内冠核心（略小于完整外冠，保证风吹叶簇张开时只露深邃树影）
-      leafDab(ox + 64, 58, 36, ["#13362c", "#1b4738", "#235844"], 201, 20);
-      // 稳固静止树干与分叉主干
-      g.fillStyle = "#704e34";
-      g.beginPath(); g.moveTo(ox + 55, 118); g.quadraticCurveTo(ox + 60, 96, ox + 59, 68); g.lineTo(ox + 69, 68); g.quadraticCurveTo(ox + 68, 96, ox + 75, 118); g.closePath(); g.fill();
-      g.fillStyle = "#4d3420";
-      g.beginPath(); g.moveTo(ox + 64, 118); g.quadraticCurveTo(ox + 65, 96, ox + 65, 68); g.lineTo(ox + 69, 68); g.quadraticCurveTo(ox + 68, 96, ox + 75, 118); g.closePath(); g.fill();
-      g.strokeStyle = "#5c3e26"; g.lineWidth = 4.5; g.lineCap = "round";
-      g.beginPath(); g.moveTo(ox + 63, 76); g.lineTo(ox + 48, 60); g.moveTo(ox + 65, 76); g.lineTo(ox + 80, 60); g.stroke();
-      // Row 1: 中层橡树叶簇  |  Row 2: 向阳外冠叶簇
-      drawRoundClump(ox, 128, ["#1f5242", "#3e8249", "#6fb44c"], 211, 36);
-      drawRoundClump(ox, 256, ["#2f7048", "#5aa450", "#9ad062"], 307, 34);
+      const ox = S;
+      const oakMid = ["#102c2b", "#1c4a3c", "#327545", "#569e4a", "#82c256"];
+      const oakTop = ["#163a34", "#266044", "#448e4a", "#70b854", "#a8dc6a"];
+      drawPixelShadow(ox, 16, 29, 9, 2);
+      // 暗影内冠 core (Inside Layer)
+      drawPixelBlob(ox, 0, 16, 14, 9.5, 8.2, ["#0b2224", "#102d2e", "#163b38", "#1d4a40", "#225546"], 41, false);
+      // 静止像素古橡树干与主枝
+      rect(ox + 14, 18, 4, 11, "#6b4930");
+      rect(ox + 17, 18, 2, 11, "#452d1c");
+      rect(ox + 13, 27, 2, 3, "#5a3c26"); rect(ox + 18, 27, 2, 3, "#3c2616");
+      px(ox + 13, 17, "#452d1c"); px(ox + 12, 16, "#452d1c");
+      px(ox + 19, 17, "#452d1c"); px(ox + 20, 16, "#452d1c");
+      // Row 1 & Row 2: 像素叶簇
+      drawPixelBlob(ox, S, 16, 16, 11.2, 9.2, oakMid, 53, true);
+      drawPixelBlob(ox, S * 2, 16, 16, 10.6, 8.8, oakTop, 71, true);
     }
 
-    // ---- Col 2: 金辉梅隆树（罗斯洛立安 · 塞尔达空岛秋金树冠）----
+    // ---- Col 2: 罗斯洛立安像素金辉梅隆树（银白树干 + 琥珀暗金内冠 + 鎏金像素叶簇）----
     {
-      const ox = 256;
-      const sh = g.createRadialGradient(ox + 66, 118, 2, ox + 66, 118, 34);
-      sh.addColorStop(0, "rgba(56,42,20,0.32)"); sh.addColorStop(1, "rgba(56,42,20,0)");
-      g.fillStyle = sh; g.fillRect(ox + 26, 106, 78, 22);
-      // 琥珀暗金内冠核心 (Inside Layer)
-      leafDab(ox + 64, 52, 37, ["#7a4814", "#9c601c", "#b87422"], 401, 20);
-      // 静止银白梅隆树干
-      g.fillStyle = "#dad6c8";
-      g.beginPath(); g.moveTo(ox + 57, 118); g.quadraticCurveTo(ox + 61, 90, ox + 60, 58); g.lineTo(ox + 68, 58); g.quadraticCurveTo(ox + 67, 90, ox + 72, 118); g.closePath(); g.fill();
-      g.fillStyle = "#b4b0a4";
-      g.beginPath(); g.moveTo(ox + 64, 118); g.quadraticCurveTo(ox + 65, 90, ox + 65, 58); g.lineTo(ox + 68, 58); g.quadraticCurveTo(ox + 67, 90, ox + 72, 118); g.closePath(); g.fill();
-      // Row 1: 暖金中层叶簇  |  Row 2: 璀璨向阳金叶簇
-      drawRoundClump(ox, 128, ["#b46e1e", "#e4aa32", "#fce67a"], 431, 36);
-      drawRoundClump(ox, 256, ["#d8982a", "#f8d058", "#fff5b2"], 491, 34);
+      const ox = S * 2;
+      const goldMid = ["#5a300e", "#945418", "#cc8824", "#eeb838", "#ffe474"];
+      const goldTop = ["#703e12", "#b46c1c", "#e4a42c", "#ffd250", "#fff7b0"];
+      drawPixelShadow(ox, 16, 29, 9, 2, "rgba(54,38,16,0.38)");
+      // 暗金内冠 core (Inside Layer)
+      drawPixelBlob(ox, 0, 16, 13, 9.8, 8.4, ["#4d270a", "#663610", "#804816", "#9a5a1c", "#b06c22"], 89, false);
+      // 静止银白树干
+      rect(ox + 15, 16, 3, 13, "#dcd8cc");
+      rect(ox + 17, 16, 1, 13, "#a8a49a");
+      px(ox + 14, 28, "#b8b4aa"); px(ox + 18, 28, "#949088");
+      // Row 1 & Row 2: 黄金像素叶簇
+      drawPixelBlob(ox, S, 16, 16, 11.4, 9.2, goldMid, 103, true);
+      drawPixelBlob(ox, S * 2, 16, 16, 10.8, 8.8, goldTop, 127, true);
     }
 
-    // ---- Col 3: 鲜明嫩绿林丛（伊希利恩 / 夏尔 / 切特林）----
+    // ---- Col 3: 伊希利恩 / 夏尔像素林丛（矮木干 + 青翠暗影内冠 + 明快嫩绿像素叶簇）----
     {
-      const ox = 384;
-      const sh = g.createRadialGradient(ox + 66, 118, 2, ox + 66, 118, 30);
-      sh.addColorStop(0, "rgba(20,44,64,0.34)"); sh.addColorStop(1, "rgba(20,44,64,0)");
-      g.fillStyle = sh; g.fillRect(ox + 30, 106, 70, 22);
-      // 暗影内冠核心 (Inside Layer)
-      leafDab(ox + 64, 62, 32, ["#174234", "#225842", "#2c6c4a"], 521, 18);
-      // 静止木干
-      g.fillStyle = "#785438"; g.fillRect(ox + 60, 82, 8, 36);
-      g.fillStyle = "#543822"; g.fillRect(ox + 64, 82, 4, 36);
-      // Row 1: 翠绿中层叶簇  |  Row 2: 明快嫩绿外冠叶簇
-      drawRoundClump(ox, 128, ["#245c46", "#48924b", "#7ab850"], 557, 34);
-      drawRoundClump(ox, 256, ["#38804a", "#6cb052", "#a2d464"], 617, 32);
+      const ox = S * 3;
+      const bushMid = ["#12322d", "#225842", "#3e8648", "#64b04e", "#92d05c"];
+      const bushTop = ["#184034", "#2e6e46", "#54a04e", "#82c658", "#b6e472"];
+      drawPixelShadow(ox, 16, 29, 8, 2);
+      drawPixelBlob(ox, 0, 16, 15, 8.6, 7.6, ["#0e2928", "#153a34", "#1d4c3e", "#255e46", "#2c6c4c"], 139, false);
+      rect(ox + 15, 21, 3, 9, "#704d34");
+      rect(ox + 17, 21, 1, 9, "#4a301e");
+      drawPixelBlob(ox, S, 16, 16, 10.6, 8.8, bushMid, 151, true);
+      drawPixelBlob(ox, S * 2, 16, 16, 10.0, 8.4, bushTop, 173, true);
     }
+
     return cv;
   }
 
@@ -1009,10 +1045,13 @@
       float terrace = 0.88 + 0.16 * smoothstep(-0.3, 0.4, sin(h * 1.45 + detail * 2.2));
       rockCol *= (0.86 + 0.24 * detail) * terrace;
 
-      // 海拉鲁清新草地风浪光泽 + 柔和手绘色块（微风吹拂的青翠草浪）
+      // 海拉鲁清新草地风浪光泽 + 近距探索微细节质感（拉近至 34~200 距离时浮现细密草叶/石粒肌理）
       float meadow = vnoise(vWorld.xz * 0.04) * 0.6 + vnoise(vWorld.xz * 0.12) * 0.4;
+      float nearF = 1.0 - smoothstep(45.0, 210.0, vCamDist);
+      float microGrain = (vnoise(vWorld.xz * 1.85) * 0.6 + vnoise(vWorld.xz * 4.4) * 0.4 - 0.5) * nearF;
       float windWave = smoothstep(0.38, 0.94, sin(vWorld.x * 0.065 + vWorld.z * 0.035 - uTime * 1.65 + meadow * 3.0) * 0.5 + 0.5);
-      vec3 paintedBase = base * (0.91 + 0.14 * meadow) + vec3(0.024, 0.034, 0.008) * windWave * (1.0 - rockMix) * smoothstep(2.0, 6.0, h);
+      vec3 paintedBase = base * (0.91 + 0.14 * meadow + microGrain * 0.16) + vec3(0.024, 0.034, 0.008) * windWave * (1.0 - rockMix) * smoothstep(2.0, 6.0, h);
+      rockCol *= (1.0 + microGrain * 0.24);
       vec3 col = mix(paintedBase, rockCol, rockMix);
 
       // 海岸暖砂岩悬崖层理
@@ -1196,16 +1235,16 @@
     }
   `;
 
-  // Atlantis 风格纯程序化 3D 奇观建筑着色器（白石大理石 / 黑曜石 / 镀金穹顶 / 水晶塔尖 / 魔眼自发光）
+  // 纯程序化 3D 奇观建筑着色器（白石大理石 / 黑曜石 / 镀金穹顶 / 水晶塔尖 / 魔眼自发光）
   const VS_ARCH = `
     precision highp float;
     attribute vec3 aPos;
     attribute vec3 aNorm;
     attribute vec3 aCol;
-    attribute vec3 aMeta; // x: matKind(0=stone/marble, 1=gold/crystal, 2=emissive), y: archId(0..7), z: baseY
+    attribute vec3 aMeta; // x: matKind(0=stone/marble, 1=gold/crystal, 2=emissive), y: archId(0..9), z: baseY
     uniform mat4 uMvp;
     uniform vec3 uEye;
-    uniform float uArchVis[8]; // 0=隐藏, 1=矗立, (0..1)=随大陆升降沉没
+    uniform float uArchVis[10]; // 0=隐藏, 1=矗立, (0..1)=随大陆升降沉没
     varying vec3 vWorld;
     varying vec3 vNorm;
     varying vec3 vCol;
@@ -1214,7 +1253,7 @@
     void main() {
       int aid = int(aMeta.y + 0.5);
       float vis = 1.0;
-      for (int i = 0; i < 8; i++) { if (i == aid) vis = uArchVis[i]; }
+      for (int i = 0; i < 10; i++) { if (i == aid) vis = uArchVis[i]; }
       vec3 pos = aPos;
       if (vis <= 0.001) {
         pos.y = -200.0;
@@ -1310,19 +1349,24 @@
       float col = mod(cell, 4.0);
       float row = floor(cell / 4.0 + 0.01);
 
-      // SpriteCook 风格风浪：树干与内冠 100% 静止锚定，外层叶簇按世界空间行波 + 阵风/静风周期独立波动！
+      // SpriteCook 像素风浪：树干与暗影内冠 100% 静止锚定，外层叶簇按世界空间行波 + 阵风/静风周期「逐像素步进」摇曳！
       vec2 windDir = normalize(vec2(0.86, 0.51));
-      float gustField = sin(dot(base.xz, windDir) * 0.011 - uTime * 0.52) * 0.5 + 0.5;
-      float gustMod   = sin(dot(base.xz, vec2(-0.42, 0.91)) * 0.015 - uTime * 0.34 + 1.7) * 0.5 + 0.5;
-      float gust = 0.14 + 0.86 * smoothstep(0.24, 0.88, gustField * 0.68 + gustMod * 0.32);
+      float gustField = sin(dot(base.xz, windDir) * 0.011 - uTime * 0.48) * 0.5 + 0.5;
+      float gustMod   = sin(dot(base.xz, vec2(-0.42, 0.91)) * 0.015 - uTime * 0.31 + 1.7) * 0.5 + 0.5;
+      // 阵风后真正归于 0 静风期（Calm Lulls），随后下一阵微风自西向东拂过！
+      float gust = smoothstep(0.30, 0.86, gustField * 0.68 + gustMod * 0.32);
 
-      // 行波相位（Traveling Wave）：同一阵风自西向东依次掠过森林与同一棵树的每团叶簇
-      float wavePhase = dot(base.xz, windDir) * 0.048 + aClump.x * 0.36 + aClump.y * 0.22;
-      float w1 = sin(wavePhase - uTime * 2.55);
-      float w2 = sin(wavePhase * 1.85 - uTime * 4.10 + seed * 0.17);
+      // 行波相位（Traveling Wave）：同一阵风依次传过整片森林与同一棵树的每团像素叶簇
+      float wavePhase = dot(base.xz, windDir) * 0.052 + aClump.x * 0.40 + aClump.y * 0.24;
+      float w1 = sin(wavePhase - uTime * 2.65);
+      float w2 = sin(wavePhase * 1.90 - uTime * 4.20 + seed * 0.17);
       float mob = aClump.w * scH;
-      float moveX = (w1 * 0.68 + w2 * 0.22 + 0.30 * gust) * gust * mob * 0.78;
-      float moveY = (cos(wavePhase - uTime * 2.55) * 0.26 - 0.06 * gust) * gust * mob * 0.44;
+      float rawX = (w1 * 0.72 + w2 * 0.22 + 0.34 * gust) * gust * mob * 0.92;
+      float rawY = (cos(wavePhase - uTime * 2.65) * 0.28 - 0.06 * gust) * gust * mob * 0.48;
+      // 逐像素吸附（Pixel-Snapped Motion）：每次精确移动 1 像素步长，保持像素艺术干脆利落不糊边！
+      float pxStep = max(0.08, (aMeta.x / 24.0) * scH);
+      float moveX = mob > 0.001 ? floor(rawX / pxStep + 0.5) * pxStep : 0.0;
+      float moveY = mob > 0.001 ? floor(rawY / pxStep + 0.5) * pxStep : 0.0;
 
       // 沿相机方向微小深度前移，确保外层叶簇稳定浮于暗影内冠之前、零 Z 冲突
       vec3 toCam = normalize(uEye - base);
@@ -1479,11 +1523,12 @@
     if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
     return p;
   }
-  function mkTex(gl, src, clampEdge = true) {
+  function mkTex(gl, src, clampEdge = true, nearest = false) {
     const t = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, t);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    const flt = nearest ? gl.NEAREST : gl.LINEAR;
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, flt);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, flt);
     const wrap = clampEdge ? gl.CLAMP_TO_EDGE : gl.REPEAT;
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrap);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrap);
@@ -1506,9 +1551,9 @@
   let realmCanvas = null, realmCtx = null, lastRealmKey = "";
   let viewW = 1, viewH = 1, dpr = 1;
   let autoCruise = false;
-  const archVis = new Float32Array([1, 1, 1, 1, 1, 1, 1, 1]);
-  const ARCH_IDS = { armenelos: 0, minastirith: 1, baraddur: 2, isengard: 3, gondolin: 4, tirion: 5, edoras: 6, argonath: 7 };
-  const ARCH_LABEL_Y = { armenelos: 22, minastirith: 28, baraddur: 36, isengard: 28, gondolin: 22, tirion: 26, edoras: 13, argonath: 16 };
+  const archVis = new Float32Array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+  const ARCH_IDS = { armenelos: 0, minastirith: 1, baraddur: 2, isengard: 3, gondolin: 4, tirion: 5, edoras: 6, argonath: 7, helmsdeep: 8, erebor: 9 };
+  const ARCH_LABEL_Y = { armenelos: 21, minastirith: 25, baraddur: 34, isengard: 26, gondolin: 21, tirion: 25, edoras: 13, argonath: 16, helmsdeep: 17, erebor: 20 };
 
   // 3D 轨道相机（平滑惯性阻尼）
   const c3 = {
@@ -1724,76 +1769,117 @@
 
     const placeOf = (id) => D.PLACES.find((p) => p.id === id);
 
-    // 0. 努门诺尔 · 阿美尼洛斯（致敬 Noniv/atlantis：阶梯大理石环城 + 碧蓝运河环 + 黄金穹顶神殿 + 4 座水晶尖塔）
+    // 0. 努门诺尔 · 阿美尼洛斯（阶梯大理石环城 + 碧蓝运河环 + 4 座跨河石拱桥 + 8 根神殿白石柱廊 + 黄金穹顶神殿 + 4 座水晶尖塔）
     {
       const p = placeOf("armenelos");
       if (p) {
         curId = ARCH_IDS.armenelos;
-        curBaseY = Math.max(1.5, sampleH(p.x, p.y, false)) - 0.6;
-        const x = p.x, z = p.y, y = curBaseY;
-        cyl(x, y - 6.0, z, 11.2, 10.0, 8.0, 16, C_MARBLE2, 0); // 深入山坡地基裙座，杜绝悬空
-        cyl(x, y + 2.04, z, 9.2, 9.2, 0.16, 16, C_CANAL, 1);  // 亚特兰蒂斯同心碧蓝运河环
-        cyl(x, y + 2.0, z, 7.0, 6.4, 2.5, 14, C_MARBLE, 0);
-        cyl(x, y + 4.5, z, 4.8, 4.2, 3.2, 12, C_MARBLE, 0);
-        dome(x, y + 7.7, z, 4.1, 3.9, 12, C_GOLD, 1);         // 黄金穹顶神殿
-        cyl(x, y + 11.4, z, 0.5, 0.22, 3.0, 6, C_GOLD, 1);
-        crystal(x, y + 14.2, z, 0.9, 2.6, C_GLOW, 2);         // 塔顶圣光结晶
+        const x = p.x + 6.0, z = p.y + 4.5;
+        curBaseY = Math.max(2.0, sampleH(x, z, false), sampleH(x - 7.5, z - 7.5, false), sampleH(x - 8.5, z - 4.0, false)) + 0.25;
+        const y = curBaseY;
+        cyl(x, y - 9.5, z, 12.2, 10.2, 11.5, 18, C_MARBLE2, 0);
+        cyl(x, y + 2.04, z, 9.4, 9.4, 0.16, 18, C_CANAL, 1); // 同心碧蓝运河环
+        // 四向跨越运河的大理石拱桥 + 外岸灯柱
         for (let i = 0; i < 4; i++) {
-          const a = (i / 4) * Math.PI * 2 + 0.4;
-          const sx = x + Math.cos(a) * 8.0, sz = z + Math.sin(a) * 8.0;
-          cyl(sx, y - 2.0, sz, 0.98, 0.66, 11.0, 8, C_MARBLE, 0);
+          const a = (i / 4) * Math.PI * 2;
+          const bx = x + Math.cos(a) * 8.1, bz = z + Math.sin(a) * 8.1;
+          box(bx, y + 1.95, bz, 2.8, 0.55, 1.25, C_MARBLE, 0, -a);
+          const lx = x + Math.cos(a) * 10.3, lz = z + Math.sin(a) * 10.3;
+          cyl(lx, y + 2.0, lz, 0.35, 0.25, 2.4, 6, C_MARBLE, 0);
+          crystal(lx, y + 4.3, lz, 0.28, 0.7, C_GLOW, 2);
+        }
+        cyl(x, y + 2.0, z, 7.0, 6.4, 2.5, 16, C_MARBLE, 0);
+        cyl(x, y + 4.5, z, 4.9, 4.3, 3.2, 14, C_MARBLE, 0);
+        // 上层圣殿 8 根环绕大理石柱廊与暖光窗带
+        for (let i = 0; i < 8; i++) {
+          const a = (i / 8) * Math.PI * 2;
+          cyl(x + Math.cos(a) * 4.9, y + 4.5, z + Math.sin(a) * 4.9, 0.32, 0.28, 3.2, 6, C_MARBLE, 0);
+        }
+        cyl(x, y + 5.7, z, 4.65, 4.6, 0.45, 12, C_GLOW, 2, false);
+        dome(x, y + 7.7, z, 4.1, 3.9, 14, C_GOLD, 1);
+        cyl(x, y + 11.4, z, 0.5, 0.22, 3.0, 6, C_GOLD, 1);
+        crystal(x, y + 14.2, z, 0.9, 2.6, C_GLOW, 2);
+        for (let i = 0; i < 4; i++) {
+          const a = (i / 4) * Math.PI * 2 + Math.PI * 0.25;
+          const sx = x + Math.cos(a) * 8.1, sz = z + Math.sin(a) * 8.1;
+          cyl(sx, y - 4.0, sz, 0.98, 0.66, 13.0, 8, C_MARBLE, 0);
           cone(sx, y + 9.0, sz, 0.88, 2.6, 8, C_BLUE, 1);
           crystal(sx, y + 11.5, sz, 0.42, 1.2, [0.76, 0.94, 1.0], 2);
         }
       }
     }
 
-    // 1. 米那斯提力斯 · 七层白城（首层黑石深基座 + 六层阶梯白石城垣 + 斜坡船头巨岩 + 埃克塞理安白塔）
+    // 1. 米那斯提力斯 · 七层白城（石基峭壁台座 + 黑石首层城墙与箭楼 + 六层阶梯白城与暖窗 + 楔形船头巨岩 + 圣白树喷泉庭院 + 埃克塞理安白塔）
     {
       const p = placeOf("minastirith");
       if (p) {
         curId = ARCH_IDS.minastirith;
         curBaseY = Math.max(2.0, sampleH(p.x, p.y, false)) - 1.2;
         const x = p.x, z = p.y, y = curBaseY;
-        // 深入山体底盘，确保低视角从任意角度零悬空
-        cyl(x, y - 7.5, z, 8.6, 8.1, 9.4, 16, C_OBSID2, 0);
+        cyl(x, y - 9.5, z, 10.6, 8.9, 8.4, 16, C_STONE, 0); // 锚定明多陆因山坡的巨石基台
+        cyl(x, y - 2.6, z, 8.6, 8.1, 4.5, 16, C_OBSID2, 0); // 首层奥尔桑克黑石外墙
+        // 首层黑石城墙 6 座凸出守卫箭楼 + 东侧大门暖光
+        for (let i = 0; i < 6; i++) {
+          const a = (i / 6) * Math.PI * 2 + 0.4;
+          cyl(x + Math.cos(a) * 8.2, y - 2.8, z + Math.sin(a) * 8.2, 0.72, 0.65, 5.2, 6, C_OBSID2, 0);
+        }
+        box(x + 8.0, y + 0.3, z, 0.6, 1.4, 1.3, C_GLOW, 2); // 刚铎正门火光
         for (let t = 1; t < 7; t++) {
           const r = 8.1 - t * 0.92;
           const ty = y + t * 1.78;
-          cyl(x - t * 0.22, ty, z, r, r * 0.94, 1.88, 14, C_MARBLE, 0);
-          if (t < 6) cyl(x - t * 0.22, ty + 0.92, z, r * 0.98, r * 0.98, 0.22, 12, C_GOLD, 1, false);
+          cyl(x - t * 0.22, ty, z, r, r * 0.94, 1.88, 16, C_MARBLE, 0);
+          if (t < 6) {
+            cyl(x - t * 0.22, ty + 0.92, z, r * 0.98, r * 0.98, 0.20, 14, C_GOLD, 1, false);
+            cyl(x - t * 0.22, ty + 1.32, z, r * 0.96, r * 0.96, 0.14, 12, C_GLOW, 2, false);
+          }
+          if (t === 2 || t === 4) {
+            for (let k = 0; k < 4; k++) {
+              const a = (k / 4) * Math.PI * 2 + 0.7;
+              cyl(x - t * 0.22 + Math.cos(a) * r, ty, z + Math.sin(a) * r, 0.48, 0.42, 2.4, 6, C_MARBLE, 0);
+            }
+          }
         }
-        // 经典楔形东伸船头巨岩 (Tapered Prow of Mindolluin)
+        // 楔形东伸船头巨岩 (Tapered Prow of Mindolluin)
         {
-          const px0 = x - 1.2, px1 = x + 6.8, py0 = y - 3.5, py1 = y + 12.2, hw = 1.05;
+          const px0 = x - 1.2, px1 = x + 6.9, py0 = y - 3.5, py1 = y + 12.2, hw = 1.05;
           const a0 = [px0, py0, z - hw], a1 = [px0, py0, z + hw], a2 = [px0, py1, z + hw * 0.55], a3 = [px0, py1, z - hw * 0.55];
           const b0 = [px1, py0, z], b1 = [px1 - 1.6, py0 + 5.8, z];
           quad(a1, a2, b1, b0, C_MARBLE, 0);
           quad(b0, b1, a3, a0, C_MARBLE2, 0);
           tri(a2, a3, b1, C_MARBLE, 0);
         }
-        // 埃克塞理安白塔 + 顶部微光灯塔
-        cyl(x - 1.3, y + 12.4, z, 1.18, 0.85, 8.2, 10, C_MARBLE, 0);
-        cone(x - 1.3, y + 20.6, z, 1.02, 2.7, 10, [0.85, 0.90, 0.96], 1);
-        crystal(x - 1.3, y + 23.2, z, 0.48, 1.5, C_GLOW, 2);
+        // 顶层王庭：喷泉水池 + 刚铎圣白树 + 埃克塞理安白塔与四隅尖塔
+        cyl(x + 0.5, y + 12.35, z, 1.35, 1.35, 0.22, 10, C_CANAL, 1);
+        cyl(x + 0.5, y + 12.5, z, 0.16, 0.10, 1.4, 6, C_MARBLE, 0);
+        dome(x + 0.5, y + 13.7, z, 0.78, 0.85, 8, [0.96, 0.98, 1.0], 2); // 圣白树银辉冠
+        cyl(x - 1.3, y + 12.4, z, 1.18, 0.85, 8.4, 10, C_MARBLE, 0);
+        cone(x - 1.3, y + 20.8, z, 1.02, 2.8, 10, [0.85, 0.90, 0.96], 1);
+        crystal(x - 1.3, y + 23.4, z, 0.48, 1.5, C_GLOW, 2);
+        for (let k = 0; k < 4; k++) {
+          const a = (k / 4) * Math.PI * 2 + 0.4;
+          cyl(x - 1.3 + Math.cos(a) * 1.4, y + 12.4, z + Math.sin(a) * 1.4, 0.28, 0.18, 4.6, 6, C_MARBLE, 0);
+          cone(x - 1.3 + Math.cos(a) * 1.4, y + 17.0, z + Math.sin(a) * 1.4, 0.24, 1.2, 6, C_BLUE, 1);
+        }
       }
     }
 
-    // 2. 巴拉督尔 · 索隆黑塔（深埋黑曜石地基 + 多层飞扶壁巨塔 + 熔岩城窗 + 双角塔尖 + 炽燃 3D 魔眼！）
+    // 2. 巴拉督尔 · 索隆黑塔（熔岩护城环 + 外围锯齿黑石壁垒 + 多层飞扶壁巨塔 + 双角塔尖 + 炽燃 3D 魔眼！）
     {
       const p = placeOf("baraddur");
       if (p) {
         curId = ARCH_IDS.baraddur;
         curBaseY = Math.max(2.0, sampleH(p.x, p.y, false)) - 1.2;
         const x = p.x, z = p.y, y = curBaseY;
-        cyl(x, y - 6.5, z, 8.6, 6.8, 11.4, 8, C_OBSID, 0);
+        cyl(x, y - 0.1, z, 10.2, 10.2, 0.35, 16, [0.95, 0.32, 0.06], 2); // 炽热熔岩护城环
+        ringWall(x, y - 4.5, z, 8.6, 9.6, 6.2, 12, C_OBSID, 0, Math.PI * 0.5);
+        cyl(x, y - 6.5, z, 8.2, 6.6, 11.4, 8, C_OBSID, 0);
         cyl(x, y + 4.9, z, 5.8, 4.6, 6.4, 8, C_OBSID, 0);
         cyl(x, y + 11.3, z, 3.9, 2.9, 7.6, 8, C_OBSID2, 0);
         cyl(x, y + 18.9, z, 2.6, 1.85, 7.2, 8, C_OBSID, 0);
-        for (let i = 0; i < 4; i++) {
-          const a = (i / 4) * Math.PI * 2 + 0.35;
-          const bx = x + Math.cos(a) * 4.8, bz = z + Math.sin(a) * 4.8;
-          cone(bx, y + 4.2, bz, 1.6, 8.8, 5, C_OBSID, 0);
+        for (let i = 0; i < 6; i++) {
+          const a = (i / 6) * Math.PI * 2 + 0.35;
+          const bx = x + Math.cos(a) * 5.0, bz = z + Math.sin(a) * 5.0;
+          cone(bx, y + 4.2, bz, 1.45, 9.2, 5, C_OBSID, 0);
         }
         cyl(x, y + 8.0, z, 5.2, 5.1, 0.65, 8, [0.95, 0.36, 0.08], 2, false);
         cyl(x, y + 15.2, z, 3.4, 3.3, 0.6, 8, [1.0, 0.42, 0.10], 2, false);
@@ -1804,24 +1890,31 @@
       }
     }
 
-    // 3. 艾森加德 · 欧尔桑克黑塔（深植环形巨石城墙 + 四叉黑曜石高塔）
+    // 3. 艾森加德 · 欧尔桑克黑塔（环形巨石城墙 + 拱门楼 + 4 座地下锻炉火坑 + 四叉黑曜石高塔）
     {
       const p = placeOf("isengard");
       if (p) {
         curId = ARCH_IDS.isengard;
         curBaseY = Math.max(2.0, sampleH(p.x, p.y, false)) - 0.8;
         const x = p.x, z = p.y, y = curBaseY;
-        ringWall(x, y - 4.5, z, 7.6, 9.0, 7.2, 20, C_STONE, 0, Math.PI * 0.5);
-        cyl(x, y - 4.5, z, 2.6, 1.55, 22.8, 4, C_OBSID, 1);
+        ringWall(x, y - 4.5, z, 7.6, 9.0, 7.2, 22, C_STONE, 0, Math.PI * 0.5);
+        // 南门双哨塔 + 4 座萨鲁曼工业熔炉火坑
+        cyl(x - 1.9, y - 3.0, z + 8.3, 0.9, 0.8, 7.6, 6, C_STONE, 0);
+        cyl(x + 1.9, y - 3.0, z + 8.3, 0.9, 0.8, 7.6, 6, C_STONE, 0);
+        for (let i = 0; i < 4; i++) {
+          const a = (i / 4) * Math.PI * 2 + 0.6;
+          cyl(x + Math.cos(a) * 5.0, y + 0.1, z + Math.sin(a) * 5.0, 1.15, 0.95, 0.45, 8, [0.95, 0.42, 0.10], 2);
+        }
+        cyl(x, y - 4.5, z, 2.7, 1.55, 22.8, 4, C_OBSID, 1);
         for (let i = 0; i < 4; i++) {
           const a = (i / 4) * Math.PI * 2 + Math.PI * 0.25;
-          cone(x + Math.cos(a) * 1.05, y + 17.8, z + Math.sin(a) * 1.05, 0.7, 5.8, 4, C_OBSID, 1);
+          cone(x + Math.cos(a) * 1.05, y + 17.8, z + Math.sin(a) * 1.05, 0.72, 6.0, 4, C_OBSID, 1);
         }
-        crystal(x, y + 19.2, z, 0.52, 1.5, [0.78, 0.90, 1.0], 2);
+        crystal(x, y + 19.4, z, 0.52, 1.5, [0.78, 0.90, 1.0], 2);
       }
     }
 
-    // 4. 刚多林 · 环山隐秘白城（白石三层城垣 + 4 座精灵蓝顶塔 + 金顶国王之塔）
+    // 4. 刚多林 · 环山隐秘白城（7 座外墙卫塔 + 白石三层城垣 + 4 座精灵蓝顶塔 + 金顶国王之塔）
     {
       const p = placeOf("gondolin");
       if (p) {
@@ -1829,6 +1922,11 @@
         curBaseY = Math.max(2.0, sampleH(p.x, p.y, false)) - 0.8;
         const x = p.x, z = p.y, y = curBaseY;
         ringWall(x, y - 4.5, z, 7.2, 8.4, 6.8, 16, C_MARBLE, 0);
+        for (let i = 0; i < 7; i++) {
+          const a = (i / 7) * Math.PI * 2;
+          cyl(x + Math.cos(a) * 7.9, y - 2.0, z + Math.sin(a) * 7.9, 0.55, 0.48, 5.8, 6, C_MARBLE, 0);
+          cone(x + Math.cos(a) * 7.9, y + 3.8, z + Math.sin(a) * 7.9, 0.62, 1.4, 6, C_BLUE, 1);
+        }
         cyl(x, y - 4.5, z, 5.8, 5.2, 7.4, 12, C_MARBLE, 0);
         cyl(x, y + 2.9, z, 3.6, 3.0, 3.2, 10, C_MARBLE, 0);
         cyl(x, y + 6.1, z, 1.3, 0.9, 9.4, 8, C_MARBLE, 0);
@@ -1842,15 +1940,21 @@
       }
     }
 
-    // 5. 提力安 · 阿门洲图纳丘水晶白城（深植大理石基座 + 明登·埃尔达利瓦灯塔 + 碧蓝穹顶）
+    // 5. 提力安 · 阿门洲图纳丘水晶白城（大理石登顶长阶 + 6 根水晶柱廊 + 明登·埃尔达利瓦灯塔 + 碧蓝穹顶）
     {
       const p = placeOf("tirion");
       if (p) {
         curId = ARCH_IDS.tirion;
         curBaseY = Math.max(2.0, sampleH(p.x, p.y, false)) - 0.8;
         const x = p.x, z = p.y, y = curBaseY;
-        cyl(x, y - 6.0, z, 8.4, 7.0, 9.0, 14, C_MARBLE, 0);
-        cyl(x, y + 3.0, z, 5.2, 4.4, 3.0, 12, C_MARBLE, 0);
+        cyl(x, y - 6.0, z, 8.6, 7.2, 9.0, 16, C_MARBLE, 0);
+        // 东向卡拉科雅山口大理石阶梯
+        for (let s = 0; s < 4; s++) box(x + 7.4 - s * 1.1, y - 1.5 + s * 1.1, z, 2.2, 1.2, 2.6 - s * 0.25, C_MARBLE, 0);
+        cyl(x, y + 3.0, z, 5.2, 4.4, 3.0, 14, C_MARBLE, 0);
+        for (let i = 0; i < 6; i++) {
+          const a = (i / 6) * Math.PI * 2;
+          cyl(x + Math.cos(a) * 5.0, y + 3.0, z + Math.sin(a) * 5.0, 0.30, 0.26, 3.4, 6, C_MARBLE, 0);
+        }
         cyl(x, y + 6.0, z, 1.3, 0.88, 12.6, 10, C_MARBLE, 0);
         cone(x, y + 18.6, z, 1.12, 2.8, 10, [0.82, 0.92, 1.0], 1);
         crystal(x, y + 21.3, z, 0.82, 2.4, [0.84, 0.96, 1.0], 2);
@@ -1861,21 +1965,28 @@
       }
     }
 
-    // 6. 埃多拉斯 · 洛汗青丘金殿梅杜塞尔德
+    // 6. 埃多拉斯 · 洛汗青丘金殿梅杜塞尔德（石阶山道 + 周边茅草木屋 + 金顶长殿与马首金脊）
     {
       const p = placeOf("edoras");
       if (p) {
         curId = ARCH_IDS.edoras;
         curBaseY = Math.max(2.0, sampleH(p.x, p.y, false)) - 0.8;
         const x = p.x, z = p.y, y = curBaseY;
-        cyl(x, y - 4.5, z, 8.6, 6.8, 7.6, 14, [0.44, 0.64, 0.30], 0);
-        ringWall(x, y + 2.9, z, 5.8, 6.6, 1.35, 14, [0.54, 0.38, 0.22], 0, Math.PI * 0.5);
-        box(x, y + 3.0, z, 5.8, 3.0, 3.5, [0.62, 0.44, 0.24], 0, 0.2);
-        cone(x, y + 5.9, z, 4.1, 4.0, 4, C_GOLD, 1);
+        cyl(x, y - 4.5, z, 8.8, 7.0, 7.6, 14, [0.44, 0.64, 0.30], 0);
+        ringWall(x, y + 2.9, z, 5.9, 6.7, 1.4, 14, [0.54, 0.38, 0.22], 0, Math.PI * 0.5);
+        // 登山石阶与山坡洛汗茅草木屋
+        for (let s = 0; s < 3; s++) box(x, y + 0.4 + s * 0.9, z + 6.8 - s * 1.1, 1.8, 0.8, 1.4, C_MARBLE2, 0);
+        [[-3.8, 3.2], [4.0, 2.8], [-4.2, -2.6], [3.8, -2.8]].forEach(([dx, dz]) => {
+          box(x + dx, y + 2.8, z + dz, 2.0, 1.2, 1.6, [0.58, 0.40, 0.22], 0);
+          cone(x + dx, y + 4.0, z + dz, 1.5, 1.4, 4, [0.82, 0.68, 0.36], 0);
+        });
+        box(x, y + 3.0, z, 6.0, 3.0, 3.6, [0.62, 0.44, 0.24], 0, 0.15);
+        cone(x, y + 5.9, z, 4.3, 4.2, 4, C_GOLD, 1);
+        crystal(x, y + 10.0, z, 0.38, 1.0, C_GLOW, 2);
       }
     }
 
-    // 7. 阿刚那斯 · 安都因河两岸王者之柱双巨像
+    // 7. 阿刚那斯 · 安都因河两岸王者之柱双巨像（峭壁石座 + 披袍巨像 + 战斧盾牌 + 黄金王冠）
     {
       const LIFE = window.ME_LIFE || {};
       const m = (LIFE.LANDMARKS || []).find((q) => q.id === "argonath");
@@ -1883,14 +1994,64 @@
         curId = ARCH_IDS.argonath;
         curBaseY = Math.max(1.2, sampleH(m.x, m.y, false)) - 0.8;
         const x = m.x, z = m.y, y = curBaseY;
-        [-4.2, 4.2].forEach((dx) => {
+        [-4.4, 4.4].forEach((dx) => {
           const sx = x + dx;
-          box(sx, y - 4.5, z, 3.4, 7.6, 3.4, C_STONE, 0);
-          cyl(sx, y + 3.1, z, 1.35, 1.15, 6.6, 8, C_MARBLE2, 0);
-          cyl(sx, y + 9.7, z, 1.05, 0.95, 1.9, 8, C_MARBLE, 0);
-          cyl(sx, y + 11.6, z, 1.1, 0.85, 1.05, 8, C_GOLD, 1);
-          box(sx + (dx < 0 ? 1.1 : -1.1), y + 7.7, z + 1.3, 0.95, 1.05, 2.6, C_MARBLE, 0);
+          box(sx, y - 5.0, z, 4.0, 8.2, 4.0, C_STONE, 0);
+          cyl(sx, y + 3.2, z, 1.4, 1.18, 6.6, 8, C_MARBLE2, 0);
+          box(sx + (dx < 0 ? -1.4 : 1.4), y + 4.6, z, 0.7, 3.8, 1.6, C_STONE, 0); // 巨盾/战斧
+          cyl(sx, y + 9.8, z, 1.08, 0.96, 1.9, 8, C_MARBLE, 0);
+          cyl(sx, y + 11.7, z, 1.15, 0.88, 1.08, 8, C_GOLD, 1);
+          box(sx + (dx < 0 ? 1.15 : -1.15), y + 7.8, z + 1.4, 0.95, 1.05, 2.8, C_MARBLE, 0);
         });
+      }
+    }
+
+    // 8. 号角堡 · 圣盔谷（面向洛汗北麓的深溪长墙 + 暗渠溪流 + 号角堡岩丘内城 + 巍峨大号角塔 + 城头火把）
+    {
+      const p = placeOf("helmsdeep");
+      if (p) {
+        curId = ARCH_IDS.helmsdeep;
+        const x = p.x, z = p.y - 4.0;
+        curBaseY = Math.max(2.5, sampleH(x, z, false), sampleH(x - 4.2, z, false), sampleH(x + 4.5, z, false)) - 0.5;
+        const y = curBaseY;
+        // 扼守峡谷北口的深溪长墙 (Deeping Wall) + 碧蓝排水暗渠
+        box(x + 2.4, y - 6.5, z, 11.8, 10.6, 2.4, C_STONE, 0, -0.15);
+        cyl(x + 4.2, y + 0.2, z - 1.5, 1.15, 1.15, 0.4, 8, C_CANAL, 1);
+        for (let k = -3; k <= 4; k += 2) {
+          box(x + 2.4 + k * 1.15, y + 4.0, z, 0.75, 1.2, 2.6, C_MARBLE2, 0, -0.15);
+          crystal(x + 2.4 + k * 1.15, y + 5.3, z, 0.28, 0.75, [1.0, 0.62, 0.18], 2);
+        }
+        // 西侧岩丘上的号角堡内城、斜坡栈道与大号角主塔 (Hornburg)
+        cyl(x - 4.4, y - 7.5, z + 0.6, 5.2, 4.1, 13.0, 10, C_STONE, 0);
+        cyl(x - 4.4, y + 5.5, z + 0.6, 3.6, 3.1, 4.8, 10, C_MARBLE2, 0);
+        cyl(x - 4.4, y + 10.3, z + 0.6, 1.55, 1.22, 8.8, 8, C_MARBLE2, 0);
+        cone(x - 4.4, y + 19.1, z + 0.6, 1.45, 3.0, 8, [0.28, 0.56, 0.30], 0);
+        crystal(x - 4.4, y + 22.0, z + 0.6, 0.35, 0.9, C_GLOW, 2);
+      }
+    }
+
+    // 9. 孤山 · 埃瑞博矮人山下王国（嵌入孤山南麓山腹的巨石正门 + 双尊矮人王石雕立柱 + 炉火金辉门廊 + 奔流河石桥）
+    {
+      const p = placeOf("erebor");
+      if (p) {
+        curId = ARCH_IDS.erebor;
+        const x = p.x, z = p.y + 8.5; // 坐落于孤山南坡脚，让后方雪峰巍峨耸立于正门之上
+        curBaseY = Math.max(2.0, sampleH(x, z + 1.5, false)) - 1.0;
+        const y = curBaseY;
+        // 阶梯状嵌入山腹的矮人正门石壁与左右护翼
+        box(x, y - 5.5, z - 2.0, 9.6, 11.4, 7.2, C_STONE, 0);
+        box(x, y + 5.9, z - 2.5, 6.8, 3.6, 5.6, C_MARBLE2, 0);
+        // 拱门内泄出的炽热矮人锻炉金光
+        box(x, y - 0.2, z + 1.55, 2.8, 4.8, 0.6, [1.0, 0.66, 0.18], 2);
+        // 正门两侧巨型矮人王雕像方柱 + 金冠与火盆
+        [-3.4, 3.4].forEach((dx) => {
+          box(x + dx, y - 4.5, z + 1.4, 1.85, 11.2, 1.85, C_MARBLE2, 0);
+          box(x + dx, y + 6.7, z + 1.4, 2.05, 0.95, 2.05, C_GOLD, 1);
+          crystal(x + dx, y + 7.8, z + 1.4, 0.38, 1.1, C_GLOW, 2);
+        });
+        // 奔流河出山石桥与碧蓝水渠
+        cyl(x, y + 0.05, z + 4.8, 2.5, 2.5, 0.25, 10, C_CANAL, 1);
+        box(x, y + 0.25, z + 4.4, 2.4, 0.65, 5.2, C_STONE, 0);
       }
     }
 
@@ -2071,8 +2232,8 @@
       if (t > end + span) return;
       const [cr, cg, cb] = hexToRgb01(j.c);
       const isDone = r.done && t > end + (j.army ? 0.2 : 0.01);
-      const alpha = j.mig ? (isDone ? 0.22 : 0.42) : (isDone ? 0.42 : 0.92);
-      const halfW = j.mig ? 3.2 : j.army ? 2.1 : 1.45;
+      const alpha = j.mig ? (isDone ? 0.18 : 0.36) : (isDone ? 0.36 : 0.84);
+      const halfW = j.mig ? 2.1 : j.army ? 1.45 : 0.92;
 
       // 采样当前已走过折线并贴合 3D 地形高度
       const pts = [];
@@ -2121,7 +2282,7 @@
     BB.places = []; BB.journeys = []; BB.residents = []; BB.moments = []; BB.labels = [];
 
     // 1. 地点城堡立牌（已升级为真 3D 程序化奇观建筑的城市仅放清爽可点击注记，避免 2D 贴片遮挡真 3D 城邦！）
-    const PEAK_ONLY = new Set(["orodruin", "armenelos", "minastirith", "baraddur", "isengard", "gondolin", "tirion", "edoras"]);
+    const PEAK_ONLY = new Set(["orodruin", "armenelos", "minastirith", "baraddur", "isengard", "gondolin", "tirion", "edoras", "helmsdeep", "erebor"]);
     const HERO_PLACES = new Set([
       "twotrees", "hobbiton", "rivendell", "lorien", "minastirith", "baraddur",
       "isengard", "erebor", "edoras", "helmsdeep", "moria", "gondolin",
@@ -2170,9 +2331,9 @@
         el.innerHTML = `<div class="bb-wrap"><span class="bb-lb">${p.n}</span></div>`;
       } else {
         const isShire = p.id === "hobbiton";
-        const vb = isTwoTrees ? "-28 -34 56 44" : isShire ? "-24 -29 50 38" : isMdl ? "-32 -40 64 52" : "-20 -26 40 36";
-        const sw = isTwoTrees ? 72 : isShire ? 72 : isHero ? 60 : isMdl ? (p.minor ? 38 : 50) : (p.minor ? 26 : 34);
-        const sh = isTwoTrees ? 58 : isShire ? 56 : isHero ? 50 : isMdl ? (p.minor ? 32 : 42) : (p.minor ? 23 : 30);
+        const vb = isTwoTrees ? "-28 -34 56 44" : isShire ? "-24 -29 54 39" : isMdl ? "-32 -40 64 52" : "-20 -26 40 36";
+        const sw = isTwoTrees ? 72 : isShire ? 76 : isHero ? 60 : isMdl ? (p.minor ? 38 : 50) : (p.minor ? 26 : 34);
+        const sh = isTwoTrees ? 58 : isShire ? 58 : isHero ? 50 : isMdl ? (p.minor ? 32 : 42) : (p.minor ? 23 : 30);
         el.innerHTML = `<div class="bb-wrap"><span class="bb-sh"></span><svg class="bb-svg" width="${sw}" height="${sh}" viewBox="${vb}">${iconHtml}</svg><span class="bb-lb">${p.n}</span></div>`;
       }
       el.addEventListener("click", (ev) => { ev.stopPropagation(); M.showPlace(p); });
@@ -2452,6 +2613,7 @@
     };
     const hideItem = (it) => { if (it.shown) { it.el.style.display = "none"; it.shown = false; } };
     const showAt = (it, pr, sc, op, zOff = 0) => {
+      if (op < 0.04) { hideItem(it); return; }
       if (!it.shown) { it.el.style.display = ""; it.shown = true; it._sx = -9999; }
       const sx = Math.round(pr.sx * 10) / 10, sy = Math.round(pr.sy * 10) / 10, s3 = Math.round(sc * 1000) / 1000;
       if (Math.abs((it._sx ?? -9999) - sx) > 0.15 || Math.abs((it._sy ?? -9999) - sy) > 0.15 || Math.abs((it._sc ?? 0) - s3) > 0.002) {
@@ -2465,7 +2627,15 @@
     };
 
     const fogStart = c3.dist * 1.45, fogEnd = c3.dist * 3.1 + 780;
-    const fogOp = (d) => clamp(1.0 - smoothstep(fogStart, fogEnd, d) * 0.72, 0.25, 1.0);
+    // 近距低空探索模式（dist < 140）平滑淡出极远处立牌，避免远景地标透叠在近前 3D 奇观建筑表面
+    const closeFade = c3.dist < 140 ? (1.0 - smoothstep(85, 140, c3.dist)) : 0.0;
+    const closeStart = c3.dist * 1.45 + 22, closeEnd = c3.dist * 2.35 + 52;
+    const fogOp = (d) => {
+      const base = clamp(1.0 - smoothstep(fogStart, fogEnd, d) * 0.72, 0.25, 1.0);
+      if (closeFade <= 0.001) return base;
+      const nearKeep = 1.0 - smoothstep(closeStart, closeEnd, d);
+      return base * lerp(1.0, nearKeep, closeFade);
+    };
     const pScale = (d, base, lo, hi) => clamp((base / Math.max(80, d)), lo, hi);
 
     // 动态浮动元素（至尊戒、关键时刻、海船、烽火）：始终 60 FPS 更新
@@ -2475,7 +2645,7 @@
         const y = Math.max(0.8, sampleH(BB.ring.x, BB.ring.z, true)) + 16.5 + Math.sin(elapsed * 2.5) * 1.4;
         const pr = proj(BB.ring.x, y, BB.ring.z);
         if (!pr) hideItem(BB.ring);
-        else showAt(BB.ring, pr, pScale(pr.d, 500, 0.60, 1.18), 1.0, 260);
+        else showAt(BB.ring, pr, pScale(pr.d, 500, 0.60, 1.18), closeFade > 0.05 ? fogOp(pr.d) : 1.0, 260);
       }
     }
     BB.moments.forEach((it) => {
@@ -2673,6 +2843,8 @@
       archVis[ARCH_IDS.tirion] = visP("tirion");
       archVis[ARCH_IDS.edoras] = visP("edoras");
       archVis[ARCH_IDS.argonath] = t >= 5371 ? 1 : 0; // TA 1340
+      archVis[ARCH_IDS.helmsdeep] = visP("helmsdeep");
+      archVis[ARCH_IDS.erebor] = visP("erebor");
     }
 
     // 同步 2D cam & 比例尺 & 小地图 & 罗盘
@@ -2681,13 +2853,17 @@
     M.syncMiniAndBar(w2d / Math.max(1, viewW), h2d, false);
     if (compassEl) compassEl.style.setProperty("--yaw", `${(-c3.yaw / DEG).toFixed(1)}deg`);
 
-    // 3. 计算视图与透视矩阵
+    // 3. 计算视图与透视矩阵（支持低空贴地近距探索 + 地形碰撞抬升，绝不穿模地下！）
     const cp = Math.cos(c3.pitch), sp = Math.sin(c3.pitch);
     const cy = Math.cos(c3.yaw), sy = Math.sin(c3.yaw);
-    const eye = [c3.tx + sy * cp * c3.dist, sp * c3.dist, c3.tz + cy * cp * c3.dist];
-    const target = [c3.tx, 2.0, c3.tz];
+    const ex = c3.tx + sy * cp * c3.dist, ez = c3.tz + cy * cp * c3.dist;
+    const targetY = Math.max(2.0, sampleH(c3.tx, c3.tz, true) + 2.4);
+    const groundAtEye = Math.max(0.5, sampleH(ex, ez, true));
+    const ey = Math.max(targetY + sp * c3.dist, groundAtEye + 4.5);
+    const eye = [ex, ey, ez];
+    const target = [c3.tx, targetY, c3.tz];
     const aspect = viewW / Math.max(1, viewH);
-    const projM = mat4Perspective(FOVY, aspect, 8.0, 5200.0);
+    const projM = mat4Perspective(FOVY, aspect, 1.5, 5200.0);
     const viewM = mat4LookAt(eye, target, [0, 1, 0]);
     const mvp = mat4Mul(projM, viewM);
     lastMvp = mvp;
@@ -2905,9 +3081,9 @@
     buildFxBuffers();
     bufs.trailVbo = gl.createBuffer();
 
-    texs.albedo = mkTex(gl, createAlbedoCanvas(), true);
-    texs.trees = mkTex(gl, createTreeAtlasCanvas(), true);
-    texs.fx = mkTex(gl, createSoftSpriteCanvas(), true);
+    texs.albedo = mkTex(gl, createAlbedoCanvas(), true, false);
+    texs.trees = mkTex(gl, createTreeAtlasCanvas(), true, true); // NEAREST 像素美学锐利采样！
+    texs.fx = mkTex(gl, createSoftSpriteCanvas(), true, false);
     texs.realm = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texs.realm);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -2963,8 +3139,8 @@
   function clampTarget() {
     c3.tTx = clamp(c3.tTx, BX - 60, BX + BW + 60);
     c3.tTz = clamp(c3.tTz, BY - 60, BY + BH + 60);
-    c3.tDist = clamp(c3.tDist, 110, 1900);
-    c3.tPitch = clamp(c3.tPitch, 15 * DEG, 78 * DEG);
+    c3.tDist = clamp(c3.tDist, 34, 1900);
+    c3.tPitch = clamp(c3.tPitch, 10 * DEG, 78 * DEG);
   }
 
   function bind25DControls() {
@@ -3005,7 +3181,7 @@
       lastX = e.clientX; lastY = e.clientY;
       if (dragMode === "orbit") {
         c3.tYaw -= dx * 0.0062;
-        c3.tPitch = clamp(c3.tPitch + dy * 0.0052, 15 * DEG, 78 * DEG);
+        c3.tPitch = clamp(c3.tPitch + dy * 0.0052, 10 * DEG, 78 * DEG);
       } else if (dragMode === "pan") {
         // 沿相机偏航角对齐地平面 1:1 拖拽
         const scale = (c3.dist * 2 * Math.tan(FOVY / 2)) / Math.max(1, viewH);
@@ -3042,7 +3218,7 @@
 
       const dy = clamp(raw, -150, 150);
       const factor = Math.exp(dy * (e.ctrlKey ? 0.0052 : isTrackpad ? 0.0022 : 0.00148));
-      const newDist = clamp(c3.tDist * factor, 110, 1900);
+      const newDist = clamp(c3.tDist * factor, 34, 1900);
       const ratio = newDist / c3.tDist;
       if (lastInvMvp && Math.abs(ratio - 1) > 1e-4) {
         const r = canvas.getBoundingClientRect();
@@ -3076,8 +3252,8 @@
         return;
       }
       stopCruise();
-      if (a === "tiltUp") c3.tPitch = clamp(c3.tPitch + 10 * DEG, 15 * DEG, 78 * DEG);
-      else if (a === "tiltDn") c3.tPitch = clamp(c3.tPitch - 10 * DEG, 15 * DEG, 78 * DEG);
+      if (a === "tiltUp") c3.tPitch = clamp(c3.tPitch + 10 * DEG, 10 * DEG, 78 * DEG);
+      else if (a === "tiltDn") c3.tPitch = clamp(c3.tPitch - 10 * DEG, 10 * DEG, 78 * DEG);
       else if (a === "rotL") c3.tYaw -= 22 * DEG;
       else if (a === "rotR") c3.tYaw += 22 * DEG;
       else if (a === "reset") { c3.tYaw = 0; c3.tPitch = 42 * DEG; }
@@ -3157,8 +3333,8 @@
       flyAnim = null;
       if (opts.tx != null) c3.tx = c3.tTx = opts.tx;
       if (opts.tz != null) c3.tz = c3.tTz = opts.tz;
-      if (opts.dist != null) c3.dist = c3.tDist = clamp(opts.dist, 110, 1900);
-      if (opts.pitchDeg != null) c3.pitch = c3.tPitch = clamp(opts.pitchDeg * DEG, 15 * DEG, 78 * DEG);
+      if (opts.dist != null) c3.dist = c3.tDist = clamp(opts.dist, 34, 1900);
+      if (opts.pitchDeg != null) c3.pitch = c3.tPitch = clamp(opts.pitchDeg * DEG, 10 * DEG, 78 * DEG);
       if (opts.yawDeg != null) c3.yaw = c3.tYaw = opts.yawDeg * DEG;
     },
     get camera() { return { tx: c3.tx, tz: c3.tz, dist: c3.dist, pitchDeg: +(c3.pitch / DEG).toFixed(1), yawDeg: +(c3.yaw / DEG).toFixed(1) }; },
@@ -3171,22 +3347,24 @@
     },
     flyTo(x, y, w, ms = 1200) {
       if (!active) return;
-      const d = distFromCamW(w);
+      const closeUp = w <= 260;
+      const d = closeUp ? clamp(w * 0.34, 58, 92) : distFromCamW(w);
+      const tgtPitch = closeUp ? 22 * DEG : c3.tPitch;
       if (ms <= 0) {
         flyAnim = null;
-        c3.tx = c3.tTx = x; c3.tz = c3.tTz = y; c3.dist = c3.tDist = d;
+        c3.tx = c3.tTx = x; c3.tz = c3.tTz = y; c3.dist = c3.tDist = d; c3.pitch = c3.tPitch = tgtPitch;
         return;
       }
       flyAnim = {
         t0: performance.now(), ms: Math.max(180, ms),
         s: { tx: c3.tx, tz: c3.tz, dist: c3.dist, pitch: c3.pitch, yaw: c3.yaw },
-        e: { tx: x, tz: y, dist: d, pitch: c3.tPitch, yaw: c3.tYaw }
+        e: { tx: x, tz: y, dist: d, pitch: tgtPitch, yaw: c3.tYaw }
       };
     },
     zoomBtn(f) {
       if (!active) return;
       flyAnim = null;
-      c3.tDist = clamp(c3.tDist * f, 110, 1900);
+      c3.tDist = clamp(c3.tDist * f, 34, 1900);
     }
   };
 

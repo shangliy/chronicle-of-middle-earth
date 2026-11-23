@@ -1,22 +1,23 @@
 # Chronicle of Middle-earth · 中洲纪年
 
-**7,000 years of Tolkien's world on one interactive map. Drag the timeline and watch Beleriand sink, Númenor rise and fall, and the War of the Ring play out.** Every map, portrait and scene is drawn in code: no image files, no dependencies, no build step.
+**7,000 years of Tolkien's world on one interactive 2.5D & 2D map. Drag the timeline and watch Beleriand sink, Númenor rise and fall, and the War of the Ring play out.** Every terrain heightfield, 3D monument, pixel-art forest, portrait, and scene is drawn in code: no image files, no dependencies, no build step.
 
-**[▶ Open the atlas in your browser](https://shangliy.github.io/chronicle-of-middle-earth/?lang=en)** · [中文版](https://shangliy.github.io/chronicle-of-middle-earth/?lang=zh) · [简体中文说明](#简体中文) · [English docs](#english)
+**[▶ Open the interactive map in your browser](https://shangliy.github.io/chronicle-of-middle-earth/?lang=en)** · [中文版](https://shangliy.github.io/chronicle-of-middle-earth/?lang=zh) · [简体中文说明](#简体中文) · [English docs](#english)
 
 [![Dragging the timeline: Beleriand sinks, Númenor rises](docs/demo.gif)](https://shangliy.github.io/chronicle-of-middle-earth/?lang=en)
 
-[![Live Demo](https://img.shields.io/badge/Live%20Atlas-Play%20Online-e0a83c?style=flat&logo=githubpages&logoColor=white)](https://shangliy.github.io/chronicle-of-middle-earth/?lang=en)
+[![Live Demo](https://img.shields.io/badge/Live%20Map-Play%20Online-e0a83c?style=flat&logo=githubpages&logoColor=white)](https://shangliy.github.io/chronicle-of-middle-earth/?lang=en)
 [![License: MIT](https://img.shields.io/badge/License-MIT-d4a74a.svg)](LICENSE)
 ![Zero Dependencies](https://img.shields.io/badge/Build-Zero%20Dependencies-2d7646.svg)
 ![Bilingual](https://img.shields.io/badge/Language-English%20%7C%20%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-9b2a1d.svg)
 
 **Try these in the first 30 seconds:**
 
+- **Right-drag / `Q` / `E` & scroll way in** to explore the WebGL2 2.5D diorama up close—fly down beside 3D Minas Tirith, Númenor, Barad-dûr, or pixel-art wind-swept forests, or click `🕊` for golden-hour orbit cruise.
 - Press `Space` to play history from the Years of the Trees to the Fourth Age.
 - Press `W` to put on the One Ring and see the Unseen World.
-- Press `B` to light the beacons of Gondor along the White Mountains.
-- Switch between three hand-made map styles (painted relief, heroic adventure, old parchment) with one click.
+- Press `B` to light the 3D beacons of Gondor along the White Mountains.
+- Press `3` to toggle seamlessly between **2.5D WebGL2 Diorama** and **2D Map** (with 3 hand-made map styles: painted relief, heroic adventure, old parchment).
 - Open one of 37 illustrated key moments or 6 playable battle maps, such as [the Pelennor Fields](https://shangliy.github.io/chronicle-of-middle-earth/?lang=en#b=pelennor).
 
 **Run it locally:** `git clone https://github.com/shangliy/chronicle-of-middle-earth && cd chronicle-of-middle-earth && python3 -m http.server 8000`, then open <http://localhost:8000>.
@@ -29,12 +30,16 @@ If you enjoyed wandering through it, a ⭐ helps other Tolkien fans find it.
 
 ## 简体中文
 
-本项目从 [`shangliy/chronicle-of-commerce`](https://github.com/shangliy/chronicle-of-commerce) 独立拆出为专属仓库，并在原版基础上完成了 **托尔金泥金手稿风（Illuminated Atlas Edition）UI 与程序化美术全面重绘**。全站采用 **纯静态 HTML + CSS + SVG + Canvas + Web Audio** 构建，零外部图片资源、零构建打包依赖，开箱即用。
+本项目从 [`shangliy/chronicle-of-commerce`](https://github.com/shangliy/chronicle-of-commerce) 独立拆出为专属仓库，并在原版基础上完成了 **托尔金泥金手稿风（Illuminated Manuscript Edition）UI 与程序化美术全面重绘**。全站采用 **纯静态 HTML + CSS + SVG + Canvas + WebGL2 + Web Audio** 构建，零外部图片资源、零构建打包依赖，开箱即用。
 
 ### ✨ 核心特性
 
+- **⛰️ WebGL2 2.5D 立体沙盘（默认启动，按 `3` 无缝切回 2D）**：
+  - **纯代码 3D 地形与 10 座程序化 3D 奇观建筑**：无任何外部 3D 模型或贴图，实时构建米那斯提力斯七层白城、努门诺尔（阿美尼洛斯环城运河与黄金穹顶神殿）、巴拉督尔黑塔与炽燃魔眼、艾森加德欧尔桑克、圣盔谷号角堡、孤山矮人大门、刚多林、提力安、埃多拉斯金殿与阿刚那斯双王巨像；支持低空贴地近距细节探索与 `🕊` 黄金时刻自动环绕巡游。
+  - **像素美学分层风吹森林**：采用静止树干 + 暗影内冠 + 多团独立像素叶簇架构，`NEAREST` 锐利像素采样与逐像素步进的行波阵风/静风周期，让范贡、黑森林、罗斯洛立安与伊希利恩在微风中立体摇曳。
+  - **黄金时刻天光与水底焦散**：动态 3D 太阳光盘、双层浅水折射焦散、Beer-Lambert 水深吸收、山脉光线步进软阴影，以及随时间轴实时沉没入海的贝烈瑞安德与努门诺尔。
 - **🌍 跨纪元动态大陆地图**：从双树纪、第一纪元（贝烈瑞安德沉没前）、第二纪元（努门诺尔升起与陆沉）、第三纪元（魔戒圣战）直至第四纪元，海岸线、迷雾帷幕、王国疆域纹章与天光随时间轴实时演变。
-- **🎨 三套程序化地图画风（一键无缝切换）**：
+- **🎨 2D 三套程序化地图画风（切至 2D 后一键切换）**：
   - **手绘山河 (`paint`，默认)**：脊状多重分形（Ridged Multifractal）山脉光影浮雕（晨昏暖脊 + 幽谷冷影 + 火山岩浆辉光）、立体微缩地标建筑与动态阵营旗帜。
   - **英雄冒险 (`h3`)**：致敬经典回合制奇幻策略游戏的饱满无缝地形贴图、金边石框界面、英雄四维属性面板与大陆生态物件。
   - **古卷羊皮 (`parch`)**：古典钢笔排线海岸、红黑双色衬线标注与泛黄羊皮纸卷轴质感。
@@ -63,7 +68,7 @@ If you enjoyed wandering through it, a ⭐ helps other Tolkien fans find it.
 1. **都林星拱与流火至尊戒封面**（`index.html`, `css/me.css`）：移除原合集站无关链接，新增都林之门式精灵星拱背纹、浮动星尘与魔多余烬微粒、多层金属倒角 + 腾格瓦流线火字至尊戒、泥金章节牌匾按钮与封面画风直选器。
 2. **独立版顶栏与全画风鹰眼小地图**（`js/me.js`, `js/me-i18n.js`）：左置至尊戒立体徽章（随时返回封面），右置三段式画风切换器与 `✦ 时刻` 快捷入口；右上角鹰眼总览小地图现支持全部三种画风，带至尊戒脉冲金点定位与 `🗺` 显隐开关，左下角重绘努门诺尔十六风向航海罗盘。
 3. **关键时刻四层透视与定制叙事画卷**（`js/me-scene.js`）：升级天穹流云、远山雾影、受光建筑倒影与人物轮廓背光，并为十余幕核心名场面绘制专属叙事主体。
-4. **双圣树、3D 微缩地标与生灵奇观精修**（`js/me-models.js`, `js/me-life.js`, `js/me-relief.js`）：重绘埃泽洛哈绿丘上的银树与金树及光露双池；考据升级米那斯提力斯（首层黑石外墙 + 七层白城 + 白树）、巴拉都（熔岩壕沟 + 烈焰竖瞳）、瑞文戴尔金红秋林、罗斯洛立安梅隆巨树、阿刚那斯双王巨像、涝洛斯虹光瀑布及贝烈苟斯特/诺格罗德矮人山城；提升山脉分形渲染精度。
+4. **双圣树、3D 微缩地标与生灵奇观精修**（`js/me-models.js`, `js/me-life.js`, `js/me-relief.js`）：重绘埃泽洛哈绿丘上的银树与金树及光露双池；考据升级米那斯提力斯（首层黑石外墙 + 七层白城 + 白树）、巴拉督尔（熔岩壕沟 + 烈焰竖瞳）、幽谷金红秋林、夏尔霍比屯（翠绿圆门、派对大树与老风车）、罗斯洛立安梅隆巨树、阿刚那斯双王巨像、涝洛斯虹光瀑布及贝烈戈斯特/诺格罗德矮人山城；提升山脉分形渲染精度。
 5. **角色肖像补全与泥金藏书章**（`js/me-portrait.js`, `js/me.js`）：补齐原版缺失的「亡灵之王」幽绿半身立绘与埃瑞赫幽谷背景，新增 13 位主角专属武器信物，并为 12 部传说与 6 场战役绘制泥金圆章。
 
 ### 🚀 快速体验与本地运行
@@ -83,7 +88,8 @@ python3 -m http.server 8000
 
 | 参数示例 | 说明 |
 | :--- | :--- |
-| `?style=paint` / `?style=h3` / `?style=parch` | 指定地图画风（手绘山河 / 英雄冒险 / 古卷羊皮） |
+| `?style=paint` / `?style=h3` / `?style=parch` | 指定 2D 地图画风（手绘山河 / 英雄冒险 / 古卷羊皮） |
+| `#d=2` | 以 2D 平面地图模式启动（默认启动 2.5D 立体沙盘） |
 | `?lang=zh` / `?lang=en` | 指定界面与史料语言（简体中文 / 英文） |
 | `?kids=1` | 直接开启小朋友寻宝模式 |
 | `#t=6975` | 跳转至指定内部纪年刻度 |
@@ -91,6 +97,8 @@ python3 -m http.server 8000
 
 #### 键盘快捷键
 
+- `3`：在 2.5D 立体沙盘与 2D 地图之间无缝切换
+- `Q` / `E` 或 `右键拖拽` / `Shift+拖拽`：在 2.5D 沙盘中旋转偏航角与压低贴地倾角
 - `Space`：播放 / 暂停编年时间轴
 - `←` / `→`：切换上一个 / 下一个历史事件（关键时刻弹窗与战役界面内同样适用）
 - `R`：转动真知晶石，随机漫游一处中洲奇观
@@ -111,12 +119,16 @@ python3 -m http.server 8000
 
 ## English
 
-Extracted from [`shangliy/chronicle-of-commerce`](https://github.com/shangliy/chronicle-of-commerce) into its own standalone repository, **Chronicle of Middle-earth** has been comprehensively upgraded with a **Tolkien Illuminated Atlas UI and overhauled procedural artwork**. Built with **100% vanilla HTML + CSS + SVG + Canvas + Web Audio**, it requires zero external image assets, zero npm packages, and zero build steps.
+Extracted from [`shangliy/chronicle-of-commerce`](https://github.com/shangliy/chronicle-of-commerce) into its own standalone repository, **Chronicle of Middle-earth** has been comprehensively upgraded with a **Tolkien Illuminated Manuscript UI and overhauled procedural artwork**. Built with **100% vanilla HTML + CSS + SVG + Canvas + WebGL2 + Web Audio**, it requires zero external image assets, zero npm packages, and zero build steps.
 
 ### ✨ Key Features
 
+- **⛰️ WebGL2 2.5D Diorama (Default Mode, press `3` to toggle 2D)**:
+  - **10 Procedural 3D Architectural Monuments & Close-Up Exploration**: Built purely in code with zero external models—explore 7-tiered Minas Tirith, Númenor's stepped Armenelos with concentric ring canals and golden dome, Barad-dûr's obsidian spire & fiery Eye, Orthanc, Helm's Deep, Erebor's Front Gate, Gondolin, Tirion, Edoras, and the Twin Statues of Argonath down to street-level pitch (`10°`), or click `🕊` for golden-hour orbit cruise.
+  - **Pixel-Art Layered Wind-Wave Forests**: Crisp `NEAREST`-filtered pixel-art trees split into static anchored trunks, shadowed interior canopy cores, and independent leaf clumps stepped pixel-by-pixel along a world-space traveling wind wave with gusts and calm lulls.
+  - **Golden-Hour Sky & Underwater Caustics**: True 3D sun disc scattering, dual-layer shallow-water caustics, Beer-Lambert depth absorption, ray-marched mountain shadows, and real-time 3D continental sinking for Beleriand and Númenor.
 - **🌍 Dynamic Multi-Age World Map**: Span over 7,000 years from the Years of the Trees and the First Age (before Beleriand sank beneath the waves), through the rise and Akallabêth of Númenor in the Second Age, to the War of the Ring and the Fourth Age—watching coastlines, realms, heraldic crests, and ambient lighting transform in real time.
-- **🎨 Three Procedural Map Editions (Instant Switching)**:
+- **🎨 Three 2D Procedural Map Editions (Instant Switching in 2D Mode)**:
   - **Painted Relief (`paint`, default)**: High-DPI ridged-multifractal mountain relief shading (warm sunlit ridges, cool alpine valley shadows, volcanic magma glow), 3D miniature landmarks, and waving faction flags.
   - **Heroic Adventure (`h3`)**: Lush seamless Canvas terrain textures, gilded stone UI frames, RPG hero attribute panels, and adventure map objects inspired by classic turn-based fantasy strategy games.
   - **Antique Parchment (`parch`)**: Classical pen-and-ink hatched coastlines, crimson-and-sepia serif cartography, and aged vellum grain.
@@ -165,7 +177,8 @@ Then open <http://localhost:8000> in your browser.
 
 | Example | Description |
 | :--- | :--- |
-| `?style=paint` / `?style=h3` / `?style=parch` | Map edition (`Painted Relief` / `Heroic Adventure` / `Antique Parchment`) |
+| `?style=paint` / `?style=h3` / `?style=parch` | 2D map edition (`Painted Relief` / `Heroic Adventure` / `Antique Parchment`) |
+| `#d=2` | Launch in 2D map mode (default is 2.5D WebGL2 diorama) |
 | `?lang=en` / `?lang=zh` | UI and lore language (`English` / `Chinese`) |
 | `?kids=1` | Launch directly in Kids Treasure Hunt mode |
 | `#t=6975` | Jump to a specific internal chronicle timestamp |
@@ -173,6 +186,8 @@ Then open <http://localhost:8000> in your browser.
 
 #### Keyboard Shortcuts
 
+- `3`: Toggle between 2.5D WebGL2 Diorama and 2D Map
+- `Q` / `E` or `Right-drag` / `Shift+drag`: Orbit yaw & low-altitude tilt in 2.5D mode
 - `Space`: Play / Pause timeline playback
 - `←` / `→`: Step to previous / next chronicle event (also navigates Key Moments and Battle acts)
 - `R`: Gaze into the Palantír and roam to a random wonder of Arda
@@ -212,6 +227,7 @@ chronicle-of-middle-earth/
     ├── me-i18n.js      # Bilingual DOM/data translator & map edition state sync
     ├── me-fun.js       # Red Book Codex & wax seals, Riddles mini-game, Palantír roamer, Wraith-sight & bardic audio
     ├── me-kids.js      # Kids Treasure Hunt mode & speech synthesis
+    ├── me-25d.js       # WebGL2 2.5D diorama engine (3D terrain, 10 procedural 3D monuments, pixel-art wind trees, caustics & orbit cruise)
     └── me.js           # Core engine (camera, timeline, place postcards, universal minimap, Web Audio battles)
 ```
 
