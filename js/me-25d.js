@@ -682,81 +682,127 @@
     return cv;
   }
 
-  /* ==================== 3D 森林树木精灵图集（塞尔达 / 吉卜力赛璐珞清新笔触，4 种树型） ==================== */
+  /* ==================== 3D 森林分层树木图集（参考 SpriteCook：静止树干+暗影内冠 + 独立摇曳叶簇，4 种树型 × 3 层） ==================== */
   function createTreeAtlasCanvas() {
     const cv = document.createElement("canvas");
-    cv.width = 512; cv.height = 128;
+    cv.width = 512; cv.height = 384; // 4 列树种 × 3 行分层（Row0=树干+暗影内冠, Row1=中景叶簇, Row2=向阳顶冠叶簇）
     const g = cv.getContext("2d");
 
-    // 赛璐珞清新树叶簇：暖阳嫩绿高光 + 翠绿中调 + 清冷青蓝暗部（绝不脏灰）
-    const leafDab = (cx, cy, r, cols, seed0) => {
+    // 赛璐珞清新叶簇笔触：清冷青蓝暗部 + 翠绿中调 + 暖阳嫩绿高光
+    const leafDab = (cx, cy, r, cols, seed0, n = 22) => {
       let s = seed0;
       const rn = () => ((s = (s * 16807) % 2147483647) - 1) / 2147483646;
-      for (let i = 0; i < 20; i++) {
-        const a = rn() * 6.283, d = Math.sqrt(rn()) * r * 0.76;
-        const x = cx + Math.cos(a) * d, y = cy + Math.sin(a) * d * 0.82;
-        const rr = r * (0.30 + rn() * 0.34);
+      for (let i = 0; i < n; i++) {
+        const a = rn() * 6.283, d = Math.sqrt(rn()) * r * 0.74;
+        const x = cx + Math.cos(a) * d, y = cy + Math.sin(a) * d * 0.80;
+        const rr = r * (0.28 + rn() * 0.34);
         const shade = (x - cx) * 0.45 + (y - cy) * 0.72;
-        const col = shade < -r * 0.12 ? cols[2] : shade > r * 0.16 ? cols[0] : cols[1];
+        const col = shade < -r * 0.10 ? cols[2] : shade > r * 0.14 ? cols[0] : cols[1];
         g.fillStyle = col;
         g.beginPath(); g.ellipse(x, y, rr, rr * (0.74 + rn() * 0.24), rn() * 3.14, 0, 6.29); g.fill();
       }
     };
 
-    // 0: 海拉鲁翠绿针叶松（黑森林 / 北境）
-    const drawPine = (ox) => {
+    // 绘制单团独立叶簇（用于 Row1 中景叶簇 & Row2 向阳外冠叶簇）
+    const drawRoundClump = (ox, oy, cols, seed0, rad = 36) => {
+      // 柔和底影托边，保证叶簇分离时层次立体
+      g.fillStyle = cols[0];
+      g.beginPath(); g.ellipse(ox + 64, oy + 68, rad * 0.94, rad * 0.74, 0, 0, 6.29); g.fill();
+      leafDab(ox + 64, oy + 62, rad, cols, seed0, 24);
+    };
+
+    // 绘制松树单层枝簇（用于 Col0 的 Row1 & Row2）
+    const drawPineClump = (ox, oy, cols, seed0, hw = 44, hh = 36) => {
+      const cy = oy + 82;
+      g.fillStyle = cols[0];
+      g.beginPath();
+      g.moveTo(ox + 64, cy - hh * 1.45);
+      g.lineTo(ox + 64 + hw, cy + 4);
+      g.quadraticCurveTo(ox + 64, cy + 14, ox + 64 - hw, cy + 4);
+      g.closePath(); g.fill();
+      g.fillStyle = cols[1];
+      g.beginPath();
+      g.moveTo(ox + 64, cy - hh * 1.45);
+      g.lineTo(ox + 64 + hw * 0.14, cy + 6);
+      g.lineTo(ox + 64 - hw * 0.92, cy + 2);
+      g.closePath(); g.fill();
+      leafDab(ox + 64 - hw * 0.18, cy - hh * 0.45, hw * 0.48, cols, seed0, 16);
+    };
+
+    // ---- Col 0: 海拉鲁翠绿针叶松（黑森林 / 北境）----
+    {
+      const ox = 0;
+      // Row 0: 静止接地阴影 + 笔直树干 + 深青暗影内冠 (Inside Layer)
       const sh = g.createRadialGradient(ox + 66, 118, 2, ox + 66, 118, 28);
-      sh.addColorStop(0, "rgba(24,52,74,0.34)"); sh.addColorStop(1, "rgba(24,52,74,0)");
+      sh.addColorStop(0, "rgba(20,44,64,0.38)"); sh.addColorStop(1, "rgba(20,44,64,0)");
       g.fillStyle = sh; g.fillRect(ox + 32, 106, 68, 22);
-      g.fillStyle = "#6c4c34"; g.fillRect(ox + 60, 92, 8, 26);
-      const tiers = [[102, 36, 40], [80, 30, 36], [60, 23, 32], [42, 15, 26]];
-      tiers.forEach(([by, hw, h], ti) => {
-        g.fillStyle = ti < 2 ? "#215a4a" : "#2a6e54";
+      g.fillStyle = "#684830"; g.fillRect(ox + 60, 88, 8, 30);
+      g.fillStyle = "#4c3220"; g.fillRect(ox + 64, 88, 4, 30);
+      // 暗影内冠核心（当外层松枝随风错开时，露出幽深树心而非空洞背景）
+      const coreTiers = [[100, 31, 34], [78, 25, 32], [58, 19, 28], [40, 12, 22]];
+      coreTiers.forEach(([by, hw, h]) => {
+        g.fillStyle = "#173f36";
         g.beginPath(); g.moveTo(ox + 64, by - h); g.lineTo(ox + 64 + hw, by); g.quadraticCurveTo(ox + 64, by + 4, ox + 64 - hw, by); g.closePath(); g.fill();
-        g.fillStyle = ti < 2 ? "#429258" : "#62b462";
-        g.beginPath(); g.moveTo(ox + 64, by - h); g.lineTo(ox + 64 + hw * 0.1, by + 1); g.lineTo(ox + 64 - hw * 0.9, by - 1); g.closePath(); g.fill();
-        leafDab(ox + 64 - hw * 0.22, by - h * 0.36, hw * 0.44, ["#22584a", "#3d8652", "#7cc864"], 101 + ti * 37);
       });
-    };
-    // 1: 旷野苍翠古橡树（范贡 / 多瑞亚斯 / 老林）
-    const drawOak = (ox) => {
-      const sh = g.createRadialGradient(ox + 66, 118, 2, ox + 66, 118, 32);
-      sh.addColorStop(0, "rgba(24,52,74,0.34)"); sh.addColorStop(1, "rgba(24,52,74,0)");
-      g.fillStyle = sh; g.fillRect(ox + 28, 106, 76, 22);
-      g.fillStyle = "#76543a";
-      g.beginPath(); g.moveTo(ox + 57, 118); g.quadraticCurveTo(ox + 61, 96, ox + 60, 72); g.lineTo(ox + 68, 72); g.quadraticCurveTo(ox + 67, 96, ox + 73, 118); g.fill();
-      const oakCols = ["#245b48", "#448c4c", "#7bc04e"];
-      leafDab(ox + 45, 72, 23, oakCols, 211);
-      leafDab(ox + 83, 73, 22, oakCols, 241);
-      leafDab(ox + 64, 54, 28, oakCols, 271);
-      leafDab(ox + 54, 42, 19, ["#387e4a", "#64ac52", "#a6d866"], 307);
-    };
-    // 2: 金辉梅隆树（罗斯洛立安 · 塞尔达空岛秋金树冠！）
-    const drawMallorn = (ox) => {
+      // Row 1: 中层松枝簇  |  Row 2: 向阳嫩绿松枝簇
+      drawPineClump(ox, 128, ["#1d4e42", "#34784d", "#5ea85b"], 101, 44, 36);
+      drawPineClump(ox, 256, ["#26624a", "#489854", "#82c664"], 149, 40, 34);
+    }
+
+    // ---- Col 1: 旷野苍翠古橡树（范贡 / 多瑞亚斯 / 老林）----
+    {
+      const ox = 128;
+      // Row 0: 静止接地影 + 粗壮橡树干与主枝 + 深绿暗影内冠 (Inside Layer)
       const sh = g.createRadialGradient(ox + 66, 118, 2, ox + 66, 118, 34);
-      sh.addColorStop(0, "rgba(62,48,26,0.28)"); sh.addColorStop(1, "rgba(62,48,26,0)");
-      g.fillStyle = sh; g.fillRect(ox + 28, 106, 76, 22);
-      g.fillStyle = "#dcd8ca";
-      g.beginPath(); g.moveTo(ox + 58, 118); g.quadraticCurveTo(ox + 61, 90, ox + 61, 62); g.lineTo(ox + 67, 62); g.quadraticCurveTo(ox + 67, 90, ox + 71, 118); g.fill();
-      const goldCols = ["#c47c24", "#f0b636", "#fff08c"];
-      leafDab(ox + 42, 66, 22, goldCols, 401);
-      leafDab(ox + 86, 67, 22, goldCols, 431);
-      leafDab(ox + 64, 48, 29, goldCols, 461);
-      leafDab(ox + 56, 36, 18, ["#e4a430", "#ffda62", "#fff9be"], 491);
-    };
-    // 3: 鲜明嫩绿林丛（伊希利恩 / 夏尔 / 切特林）
-    const drawBush = (ox) => {
+      sh.addColorStop(0, "rgba(20,44,64,0.38)"); sh.addColorStop(1, "rgba(20,44,64,0)");
+      g.fillStyle = sh; g.fillRect(ox + 26, 106, 78, 22);
+      // 暗影内冠核心（略小于完整外冠，保证风吹叶簇张开时只露深邃树影）
+      leafDab(ox + 64, 58, 36, ["#13362c", "#1b4738", "#235844"], 201, 20);
+      // 稳固静止树干与分叉主干
+      g.fillStyle = "#704e34";
+      g.beginPath(); g.moveTo(ox + 55, 118); g.quadraticCurveTo(ox + 60, 96, ox + 59, 68); g.lineTo(ox + 69, 68); g.quadraticCurveTo(ox + 68, 96, ox + 75, 118); g.closePath(); g.fill();
+      g.fillStyle = "#4d3420";
+      g.beginPath(); g.moveTo(ox + 64, 118); g.quadraticCurveTo(ox + 65, 96, ox + 65, 68); g.lineTo(ox + 69, 68); g.quadraticCurveTo(ox + 68, 96, ox + 75, 118); g.closePath(); g.fill();
+      g.strokeStyle = "#5c3e26"; g.lineWidth = 4.5; g.lineCap = "round";
+      g.beginPath(); g.moveTo(ox + 63, 76); g.lineTo(ox + 48, 60); g.moveTo(ox + 65, 76); g.lineTo(ox + 80, 60); g.stroke();
+      // Row 1: 中层橡树叶簇  |  Row 2: 向阳外冠叶簇
+      drawRoundClump(ox, 128, ["#1f5242", "#3e8249", "#6fb44c"], 211, 36);
+      drawRoundClump(ox, 256, ["#2f7048", "#5aa450", "#9ad062"], 307, 34);
+    }
+
+    // ---- Col 2: 金辉梅隆树（罗斯洛立安 · 塞尔达空岛秋金树冠）----
+    {
+      const ox = 256;
+      const sh = g.createRadialGradient(ox + 66, 118, 2, ox + 66, 118, 34);
+      sh.addColorStop(0, "rgba(56,42,20,0.32)"); sh.addColorStop(1, "rgba(56,42,20,0)");
+      g.fillStyle = sh; g.fillRect(ox + 26, 106, 78, 22);
+      // 琥珀暗金内冠核心 (Inside Layer)
+      leafDab(ox + 64, 52, 37, ["#7a4814", "#9c601c", "#b87422"], 401, 20);
+      // 静止银白梅隆树干
+      g.fillStyle = "#dad6c8";
+      g.beginPath(); g.moveTo(ox + 57, 118); g.quadraticCurveTo(ox + 61, 90, ox + 60, 58); g.lineTo(ox + 68, 58); g.quadraticCurveTo(ox + 67, 90, ox + 72, 118); g.closePath(); g.fill();
+      g.fillStyle = "#b4b0a4";
+      g.beginPath(); g.moveTo(ox + 64, 118); g.quadraticCurveTo(ox + 65, 90, ox + 65, 58); g.lineTo(ox + 68, 58); g.quadraticCurveTo(ox + 67, 90, ox + 72, 118); g.closePath(); g.fill();
+      // Row 1: 暖金中层叶簇  |  Row 2: 璀璨向阳金叶簇
+      drawRoundClump(ox, 128, ["#b46e1e", "#e4aa32", "#fce67a"], 431, 36);
+      drawRoundClump(ox, 256, ["#d8982a", "#f8d058", "#fff5b2"], 491, 34);
+    }
+
+    // ---- Col 3: 鲜明嫩绿林丛（伊希利恩 / 夏尔 / 切特林）----
+    {
+      const ox = 384;
       const sh = g.createRadialGradient(ox + 66, 118, 2, ox + 66, 118, 30);
-      sh.addColorStop(0, "rgba(24,52,74,0.30)"); sh.addColorStop(1, "rgba(24,52,74,0)");
-      g.fillStyle = sh; g.fillRect(ox + 32, 106, 68, 22);
-      g.fillStyle = "#7c583c"; g.fillRect(ox + 60, 86, 8, 32);
-      const bushCols = ["#2a684c", "#509c4e", "#84c452"];
-      leafDab(ox + 48, 76, 19, bushCols, 521);
-      leafDab(ox + 80, 77, 19, bushCols, 557);
-      leafDab(ox + 64, 58, 25, bushCols, 587);
-      leafDab(ox + 56, 48, 17, ["#428e4c", "#74b854", "#aedc68"], 617);
-    };
-    drawPine(0); drawOak(128); drawMallorn(256); drawBush(384);
+      sh.addColorStop(0, "rgba(20,44,64,0.34)"); sh.addColorStop(1, "rgba(20,44,64,0)");
+      g.fillStyle = sh; g.fillRect(ox + 30, 106, 70, 22);
+      // 暗影内冠核心 (Inside Layer)
+      leafDab(ox + 64, 62, 32, ["#174234", "#225842", "#2c6c4a"], 521, 18);
+      // 静止木干
+      g.fillStyle = "#785438"; g.fillRect(ox + 60, 82, 8, 36);
+      g.fillStyle = "#543822"; g.fillRect(ox + 64, 82, 4, 36);
+      // Row 1: 翠绿中层叶簇  |  Row 2: 明快嫩绿外冠叶簇
+      drawRoundClump(ox, 128, ["#245c46", "#48924b", "#7ab850"], 557, 34);
+      drawRoundClump(ox, 256, ["#38804a", "#6cb052", "#a2d464"], 617, 32);
+    }
     return cv;
   }
 
@@ -843,12 +889,26 @@
     varying vec2 vUv;
     uniform vec3 uSkyTop;
     uniform vec3 uSkyHor;
-    uniform float uPitch;
+    uniform vec3 uSunDir;
+    uniform vec3 uSunCol;
+    uniform vec3 uCamFwd;
+    uniform vec3 uCamRight;
+    uniform vec3 uCamUp;
+    uniform float uTanHalf;
+    uniform float uAspect;
     void main() {
-      float h = clamp((vUv.y - 0.15) / 0.85, 0.0, 1.0);
-      vec3 col = mix(uSkyHor, uSkyTop, pow(h, 0.78));
-      float glow = smoothstep(0.55, 0.0, abs(vUv.y - 0.28)) * 0.12;
-      col += vec3(1.0, 0.92, 0.76) * glow;
+      vec2 ndc = vUv * 2.0 - 1.0;
+      vec3 rd = normalize(uCamFwd + ndc.x * uAspect * uTanHalf * uCamRight + ndc.y * uTanHalf * uCamUp);
+      float elev = clamp(rd.y * 1.45 + 0.14, 0.0, 1.0);
+      vec3 col = mix(uSkyHor, uSkyTop, pow(elev, 0.72));
+      // Atlantis 黄金时刻大气散射 + 真实 3D 太阳光盘与温暖日晕
+      vec3 L = normalize(uSunDir);
+      float sunCos = max(dot(rd, L), 0.0);
+      float mieHalo = pow(sunCos, 6.0) * 0.24 + pow(sunCos, 38.0) * 0.34;
+      float sunDisc = smoothstep(0.9968, 0.9992, sunCos);
+      float horBand = smoothstep(0.32, 0.0, abs(rd.y)) * (0.14 + 0.22 * pow(sunCos, 2.0));
+      col += mix(uSunCol, vec3(1.0, 0.88, 0.62), 0.45) * (mieHalo + horBand);
+      col = mix(col, vec3(1.0, 0.96, 0.84), sunDisc * 0.92);
       gl_FragColor = vec4(col, 1.0);
     }
   `;
@@ -1063,14 +1123,26 @@
       return w;
     }
 
+    // Atlantis 风格双层水底折射焦散（Caustics）：在浅滩、湖泊与陆沉遗迹上方闪烁流动光网
+    float caustic(vec2 p, float t) {
+      vec2 a = p * 0.24 + vec2(t * 0.52, -t * 0.36);
+      vec2 b = p * 0.31 + vec2(-t * 0.44, t * 0.48);
+      float c1 = sin(a.x + sin(a.y * 1.3 + t * 0.7)) * cos(a.y + cos(a.x * 1.1 - t * 0.6));
+      float c2 = sin(b.x * 1.2 - cos(b.y + t * 0.5)) * cos(b.y * 1.2 + sin(b.x - t * 0.8));
+      return pow(clamp(0.5 + 0.5 * (c1 * 0.55 + c2 * 0.45), 0.0, 1.0), 3.6);
+    }
+
     void main() {
       float camDist = length(uEye - vWorld);
       vec2 uv = vec2((vWorld.x - ${BX.toFixed(1)}) / ${BW.toFixed(1)}, (vWorld.z - ${BY.toFixed(1)}) / ${BH.toFixed(1)});
       float shore = 0.0;
+      float sunkenShelf = 0.0;
       float isLake = 0.0;
       if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0) {
         vec4 ht = texture2D(uHeightTex, uv);
         shore = max(ht.r, max(ht.g * (1.0 - uBelSink), ht.b * (1.0 - uNuSink)));
+        // 沉没中的贝烈瑞安德/努门诺尔在海底泛出柔和幽蓝浅架光影
+        sunkenShelf = max(ht.g * uBelSink, ht.b * uNuSink) * 0.38;
         isLake = ht.a;
       }
 
@@ -1080,22 +1152,33 @@
       float w0 = wave(p, uTime);
       float wx = wave(p + vec2(e, 0.0), uTime) - w0;
       float wz = wave(p + vec2(0.0, e), uTime) - w0;
-      vec3 N = normalize(vec3(-wx * 0.18, 1.0, -wz * 0.18));
+      vec3 N = normalize(vec3(-wx * 0.19, 1.0, -wz * 0.19));
       vec3 V = normalize(uEye - vWorld);
       vec3 L = normalize(uSunDir);
       vec3 H = normalize(L + V);
+      vec3 R = reflect(-V, N);
 
-      // 塞尔达赛璐珞清澈海面：两阶碧蓝深浅过渡 + 清脆日光星点反光 + 卡通白色岸浪环
+      // Atlantis Beer-Lambert 水深光吸收 + 塞尔达清澈碧蓝过渡
       float shallow = clamp(pow(shore, 1.05) + isLake * 0.62, 0.0, 1.0);
-      float celDepth = mix(shallow, smoothstep(0.18, 0.55, shallow) * 0.5 + smoothstep(0.55, 0.85, shallow) * 0.5, 0.42);
-      vec3 wCol = mix(uWaterDeep, uWaterShal, celDepth);
+      float depth = max(0.0, 1.0 - shallow);
+      vec3 absorb = exp(-depth * vec3(1.65, 0.68, 0.34));
+      float celDepth = mix(shallow, smoothstep(0.18, 0.55, shallow) * 0.5 + smoothstep(0.55, 0.85, shallow) * 0.5, 0.38);
+      vec3 wCol = mix(uWaterDeep, uWaterShal, celDepth) * mix(vec3(0.84, 0.92, 1.0), vec3(1.0), absorb);
+
+      // 水底光影焦散（浅水海岸、湖泊及沉没大陆浅架）
+      float caustMask = clamp(smoothstep(0.22, 0.88, shore) + isLake * 0.55 + sunkenShelf * 0.45, 0.0, 1.0);
+      float caust = caustic(p, uTime) * caustMask * (1.0 - smoothstep(320.0, 950.0, camDist) * 0.65);
+      wCol += mix(vec3(0.22, 0.82, 0.84), uSunCol, 0.35) * caust * 0.30;
+
+      // 菲涅尔天空镜面反射 + 黄金时刻水面日光碎金长廊
       float fres = pow(1.0 - max(dot(N, V), 0.0), 3.0);
-      wCol = mix(wCol, uFogCol * 0.98, fres * 0.36);
-      // 塞尔达风清脆波光高光点（克制不刺眼）
-      float spec = smoothstep(0.88, 0.96, pow(max(dot(N, H), 0.0), 34.0));
-      wCol += vec3(0.96, 0.95, 0.88) * spec * 0.36;
-      // 柔和的风格化海浪纹带
-      wCol += vec3(0.035, 0.085, 0.10) * smoothstep(0.25, 0.75, w0 * 0.5 + 0.5);
+      vec3 skyRefl = mix(uFogCol * 0.96, mix(uFogCol, uSunCol, 0.45), pow(max(dot(R, L), 0.0), 3.0));
+      wCol = mix(wCol, skyRefl, fres * 0.44);
+      float sunPath = pow(max(dot(R, L), 0.0), 22.0) * 0.24;
+      float spec = smoothstep(0.88, 0.96, pow(max(dot(N, H), 0.0), 34.0)) * 0.38;
+      wCol += mix(uSunCol, vec3(1.0, 0.95, 0.82), 0.5) * (sunPath + spec);
+      // 柔和风格化海浪纹带
+      wCol += vec3(0.03, 0.075, 0.09) * smoothstep(0.25, 0.75, w0 * 0.5 + 0.5);
 
       // 塞尔达风双层清脆白色拍岸浪环（随大陆沉没实时消散）
       if (isLake < 0.5 && shore > 0.38) {
@@ -1113,11 +1196,99 @@
     }
   `;
 
+  // Atlantis 风格纯程序化 3D 奇观建筑着色器（白石大理石 / 黑曜石 / 镀金穹顶 / 水晶塔尖 / 魔眼自发光）
+  const VS_ARCH = `
+    precision highp float;
+    attribute vec3 aPos;
+    attribute vec3 aNorm;
+    attribute vec3 aCol;
+    attribute vec3 aMeta; // x: matKind(0=stone/marble, 1=gold/crystal, 2=emissive), y: archId(0..7), z: baseY
+    uniform mat4 uMvp;
+    uniform vec3 uEye;
+    uniform float uArchVis[8]; // 0=隐藏, 1=矗立, (0..1)=随大陆升降沉没
+    varying vec3 vWorld;
+    varying vec3 vNorm;
+    varying vec3 vCol;
+    varying float vMat;
+    varying float vCamDist;
+    void main() {
+      int aid = int(aMeta.y + 0.5);
+      float vis = 1.0;
+      for (int i = 0; i < 8; i++) { if (i == aid) vis = uArchVis[i]; }
+      vec3 pos = aPos;
+      if (vis <= 0.001) {
+        pos.y = -200.0;
+      } else if (vis < 0.999) {
+        // 努门诺尔 / 刚多林随大陆整体沉入海底
+        pos.y -= (1.0 - vis) * 28.0;
+      }
+      vWorld = pos;
+      vNorm = aNorm;
+      vCol = aCol;
+      vMat = aMeta.x;
+      vCamDist = length(uEye - pos);
+      gl_Position = uMvp * vec4(pos, 1.0);
+    }
+  `;
+  const FS_ARCH = `
+    precision highp float;
+    varying vec3 vWorld;
+    varying vec3 vNorm;
+    varying vec3 vCol;
+    varying float vMat;
+    varying float vCamDist;
+    uniform vec3 uEye;
+    uniform vec3 uSunDir;
+    uniform vec3 uSunCol;
+    uniform vec3 uAmbCol;
+    uniform vec3 uFogCol;
+    uniform float uFogStart;
+    uniform float uFogEnd;
+    uniform float uTime;
+    void main() {
+      if (vWorld.y < -45.0) discard;
+      vec3 N = normalize(vNorm);
+      vec3 V = normalize(uEye - vWorld);
+      vec3 L = normalize(uSunDir);
+      vec3 H = normalize(L + V);
+      vec3 col = vCol;
+
+      if (vMat > 1.5) {
+        // 自发光（魔眼烈焰、水晶灯塔、暖黄城窗）
+        float pulse = 0.86 + 0.14 * sin(uTime * 3.1 + vWorld.x * 0.2);
+        col *= (1.15 * pulse);
+      } else {
+        // 黄金时刻大理石/黑曜石立体受光 + 赛璐珞柔和层次 + 暖金轮廓光
+        float ndl = max(dot(N, L), 0.0);
+        float cel = mix(ndl, smoothstep(0.08, 0.26, ndl) * 0.58 + smoothstep(0.50, 0.72, ndl) * 0.42, 0.45);
+        float hemi = N.y * 0.5 + 0.5;
+        vec3 amb = uAmbCol * mix(vec3(0.68, 0.80, 1.05), vec3(0.96, 1.0, 1.08), hemi);
+        col = col * (amb * (1.0 - cel * 0.35) + uSunCol * cel * 0.92);
+        float specPow = vMat > 0.5 ? 42.0 : 14.0;
+        float specAmt = vMat > 0.5 ? 0.58 : 0.12;
+        col += mix(uSunCol, vec3(1.0, 0.96, 0.84), 0.45) * pow(max(dot(N, H), 0.0), specPow) * specAmt;
+        float rim = pow(1.0 - max(dot(N, V), 0.0), 3.0) * 0.22;
+        col += mix(uSunCol, vec3(1.0, 0.92, 0.75), 0.5) * rim;
+        // 柔和高光压缩防止大理石过曝
+        col = col / (vec3(1.0) + max(col - vec3(0.84), vec3(0.0)) * 0.72);
+      }
+
+      // 水下折射染色（沉没中的亚特兰蒂斯/努门诺尔浸入碧蓝海水）
+      if (vWorld.y < 0.0) {
+        col = mix(col, vec3(0.08, 0.30, 0.46), smoothstep(0.0, -7.5, vWorld.y));
+      }
+      float fogF = smoothstep(uFogStart, uFogEnd, vCamDist);
+      col = mix(col, uFogCol, fogF * 0.86);
+      gl_FragColor = vec4(col, 1.0);
+    }
+  `;
+
   const VS_TREES = `
     precision highp float;
     attribute vec3 aBase;   // x, y, z 树根世界坐标
-    attribute vec2 aCorner; // (-0.5..0.5, 0..1)
-    attribute vec4 aMeta;   // x: width, y: height, z: variant(0..3), w: region(0=ME,1=Bel) + seed*0.01
+    attribute vec2 aCorner; // (-0.5..0.5, 0..1) 树干，或 (-0.5..0.5, -0.5..0.5) 独立叶簇
+    attribute vec4 aMeta;   // x: width, y: height, z: col(0..3) + row(0..2)*4, w: region(0=ME,1=Bel) + seed*0.95
+    attribute vec4 aClump;  // x: localOx, y: localOy, z: camDepthBias, w: windMobility (0=静止树干内冠, >0=叶簇)
     uniform mat4 uMvp;
     uniform vec3 uCamRight;
     uniform vec3 uEye;
@@ -1126,6 +1297,7 @@
     varying vec2 vUv;
     varying float vCamDist;
     varying float vShade;
+    varying float vGlint;
     void main() {
       vec3 base = aBase;
       float isBel = step(0.5, floor(aMeta.w));
@@ -1133,12 +1305,43 @@
       base.y = mix(base.y, -26.0, sink);
       float scH = max(0.0, 1.0 - sink * 1.15);
       float seed = fract(aMeta.w) * 100.0;
-      float sway = sin(uTime * 1.45 + seed) * aCorner.y * 0.65;
-      vec3 pos = base + uCamRight * (aCorner.x * aMeta.x * scH + sway) + vec3(0.0, aCorner.y * aMeta.y * scH, 0.0);
-      float vIdx = aMeta.z;
-      vUv = vec2((vIdx + (aCorner.x + 0.5)) * 0.25, 1.0 - aCorner.y);
+
+      float cell = aMeta.z;
+      float col = mod(cell, 4.0);
+      float row = floor(cell / 4.0 + 0.01);
+
+      // SpriteCook 风格风浪：树干与内冠 100% 静止锚定，外层叶簇按世界空间行波 + 阵风/静风周期独立波动！
+      vec2 windDir = normalize(vec2(0.86, 0.51));
+      float gustField = sin(dot(base.xz, windDir) * 0.011 - uTime * 0.52) * 0.5 + 0.5;
+      float gustMod   = sin(dot(base.xz, vec2(-0.42, 0.91)) * 0.015 - uTime * 0.34 + 1.7) * 0.5 + 0.5;
+      float gust = 0.14 + 0.86 * smoothstep(0.24, 0.88, gustField * 0.68 + gustMod * 0.32);
+
+      // 行波相位（Traveling Wave）：同一阵风自西向东依次掠过森林与同一棵树的每团叶簇
+      float wavePhase = dot(base.xz, windDir) * 0.048 + aClump.x * 0.36 + aClump.y * 0.22;
+      float w1 = sin(wavePhase - uTime * 2.55);
+      float w2 = sin(wavePhase * 1.85 - uTime * 4.10 + seed * 0.17);
+      float mob = aClump.w * scH;
+      float moveX = (w1 * 0.68 + w2 * 0.22 + 0.30 * gust) * gust * mob * 0.78;
+      float moveY = (cos(wavePhase - uTime * 2.55) * 0.26 - 0.06 * gust) * gust * mob * 0.44;
+
+      // 沿相机方向微小深度前移，确保外层叶簇稳定浮于暗影内冠之前、零 Z 冲突
+      vec3 toCam = normalize(uEye - base);
+      float localX = (aClump.x + aCorner.x * aMeta.x) * scH + moveX;
+      float localY = (aClump.y + aCorner.y * aMeta.y) * scH + moveY;
+      vec3 pos = base + uCamRight * localX + vec3(0.0, localY, 0.0) + toCam * (aClump.z * scH);
+
+      // 4×3 图集 UV（带 0.006 内边距防跨格采样渗色）
+      float uLocal = aCorner.x + 0.5;
+      float vLocal = row < 0.5 ? (1.0 - aCorner.y) : (0.5 - aCorner.y);
+      uLocal = clamp(uLocal, 0.01, 0.99);
+      vLocal = clamp(vLocal, 0.01, 0.99);
+      vUv = vec2((col + uLocal) * 0.25, (row + vLocal) / 3.0);
+
       vCamDist = length(uEye - pos);
-      vShade = 0.84 + 0.24 * aCorner.y + 0.08 * sin(seed);
+      // 暗影内冠更深邃，向阳顶冠更明朗，风拂过时叶面微泛日光闪烁
+      float layerBoost = row < 0.5 ? 0.78 : (row < 1.5 ? 0.94 : 1.08);
+      vShade = layerBoost + 0.14 * (0.5 - vLocal) + 0.06 * sin(seed);
+      vGlint = step(1.5, row) * max(0.0, w1) * gust;
       gl_Position = uMvp * vec4(pos, 1.0);
     }
   `;
@@ -1147,6 +1350,7 @@
     varying vec2 vUv;
     varying float vCamDist;
     varying float vShade;
+    varying float vGlint;
     uniform sampler2D uAtlas;
     uniform vec3 uSunCol;
     uniform vec3 uAmbCol;
@@ -1157,7 +1361,7 @@
       vec4 t = texture2D(uAtlas, vUv);
       if (t.a < 0.35) discard;
       vec3 celLight = uAmbCol * 0.50 + uSunCol * (0.48 + 0.22 * vShade);
-      vec3 col = t.rgb * celLight;
+      vec3 col = t.rgb * celLight + vec3(0.055, 0.068, 0.018) * vGlint;
       float fogF = smoothstep(uFogStart, uFogEnd, vCamDist);
       col = mix(col, uFogCol, fogF * 0.82);
       gl_FragColor = vec4(col, t.a);
@@ -1298,9 +1502,13 @@
   let active = false, inited = false, rafId = 0;
   let gl = null, isWebGL2 = false;
   let progs = {}, bufs = {}, texs = {};
-  let terrainIdxCount = 0, treeVertCount = 0, fxVertCount = 0, trailVertCount = 0;
+  let terrainIdxCount = 0, archVertCount = 0, treeVertCount = 0, fxVertCount = 0, trailVertCount = 0;
   let realmCanvas = null, realmCtx = null, lastRealmKey = "";
   let viewW = 1, viewH = 1, dpr = 1;
+  let autoCruise = false;
+  const archVis = new Float32Array([1, 1, 1, 1, 1, 1, 1, 1]);
+  const ARCH_IDS = { armenelos: 0, minastirith: 1, baraddur: 2, isengard: 3, gondolin: 4, tirion: 5, edoras: 6, argonath: 7 };
+  const ARCH_LABEL_Y = { armenelos: 22, minastirith: 28, baraddur: 36, isengard: 28, gondolin: 22, tirion: 26, edoras: 13, argonath: 16 };
 
   // 3D 轨道相机（平滑惯性阻尼）
   const c3 = {
@@ -1418,6 +1626,280 @@
     ]), gl.STATIC_DRAW);
   }
 
+  /* ==================== Atlantis 风格纯程序化 3D 奇观建筑网格生成器（零外部模型！） ==================== */
+  function buildArchBuffers() {
+    const V = []; // 每顶点 12 float: pos3 + norm3 + col3 + meta3(matKind, archId, baseY)
+    let curId = 0, curBaseY = 0;
+
+    const tri = (a, b, c, col, mat = 0) => {
+      const ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2];
+      const vx = c[0] - a[0], vy = c[1] - a[1], vz = c[2] - a[2];
+      let nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+      const nl = Math.hypot(nx, ny, nz) || 1;
+      nx /= nl; ny /= nl; nz /= nl;
+      const pts = [a, b, c];
+      for (let i = 0; i < 3; i++) {
+        V.push(pts[i][0], pts[i][1], pts[i][2], nx, ny, nz, col[0], col[1], col[2], mat, curId, curBaseY);
+      }
+    };
+    const quad = (a, b, c, d, col, mat = 0) => { tri(a, b, c, col, mat); tri(a, c, d, col, mat); };
+
+    // 棱柱/圆柱体（可上下变径）
+    const cyl = (cx, y0, cz, r0, r1, h, seg, col, mat = 0, capTop = true) => {
+      const y1 = y0 + h;
+      for (let i = 0; i < seg; i++) {
+        const a0 = (i / seg) * Math.PI * 2, a1 = ((i + 1) / seg) * Math.PI * 2;
+        const c0 = Math.cos(a0), s0 = Math.sin(a0), c1 = Math.cos(a1), s1 = Math.sin(a1);
+        const p00 = [cx + c0 * r0, y0, cz + s0 * r0];
+        const p10 = [cx + c1 * r0, y0, cz + s1 * r0];
+        const p11 = [cx + c1 * r1, y1, cz + s1 * r1];
+        const p01 = [cx + c0 * r1, y1, cz + s0 * r1];
+        quad(p00, p01, p11, p10, col, mat);
+        if (capTop && r1 > 0.05) tri([cx, y1, cz], p11, p01, col, mat);
+      }
+    };
+    // 尖塔/圆锥
+    const cone = (cx, y0, cz, r, h, seg, col, mat = 0) => {
+      const tip = [cx, y0 + h, cz];
+      for (let i = 0; i < seg; i++) {
+        const a0 = (i / seg) * Math.PI * 2, a1 = ((i + 1) / seg) * Math.PI * 2;
+        tri([cx + Math.cos(a0) * r, y0, cz + Math.sin(a0) * r], tip, [cx + Math.cos(a1) * r, y0, cz + Math.sin(a1) * r], col, mat);
+      }
+    };
+    // 穹顶（半球）
+    const dome = (cx, y0, cz, r, h, seg, col, mat = 1) => {
+      const rings = 4;
+      for (let rI = 0; rI < rings; rI++) {
+        const t0 = (rI / rings) * (Math.PI * 0.5), t1 = ((rI + 1) / rings) * (Math.PI * 0.5);
+        const rr0 = Math.cos(t0) * r, yy0 = y0 + Math.sin(t0) * h;
+        const rr1 = Math.cos(t1) * r, yy1 = y0 + Math.sin(t1) * h;
+        for (let i = 0; i < seg; i++) {
+          const a0 = (i / seg) * Math.PI * 2, a1 = ((i + 1) / seg) * Math.PI * 2;
+          const p00 = [cx + Math.cos(a0) * rr0, yy0, cz + Math.sin(a0) * rr0];
+          const p10 = [cx + Math.cos(a1) * rr0, yy0, cz + Math.sin(a1) * rr0];
+          const p11 = [cx + Math.cos(a1) * rr1, yy1, cz + Math.sin(a1) * rr1];
+          const p01 = [cx + Math.cos(a0) * rr1, yy1, cz + Math.sin(a0) * rr1];
+          if (rI < rings - 1) quad(p00, p01, p11, p10, col, mat);
+          else tri(p00, [cx, y0 + h, cz], p10, col, mat);
+        }
+      }
+    };
+    // 环形城墙（带厚度与可选城门缺口）
+    const ringWall = (cx, y0, cz, rIn, rOut, h, seg, col, mat = 0, gapAngle = -99) => {
+      const y1 = y0 + h;
+      for (let i = 0; i < seg; i++) {
+        const a0 = (i / seg) * Math.PI * 2, a1 = ((i + 1) / seg) * Math.PI * 2;
+        const am = (a0 + a1) * 0.5;
+        if (gapAngle > -10 && Math.abs(Math.atan2(Math.sin(am - gapAngle), Math.cos(am - gapAngle))) < 0.24) continue;
+        const c0 = Math.cos(a0), s0 = Math.sin(a0), c1 = Math.cos(a1), s1 = Math.sin(a1);
+        const o00 = [cx + c0 * rOut, y0, cz + s0 * rOut], o10 = [cx + c1 * rOut, y0, cz + s1 * rOut];
+        const o01 = [cx + c0 * rOut, y1, cz + s0 * rOut], o11 = [cx + c1 * rOut, y1, cz + s1 * rOut];
+        const i00 = [cx + c0 * rIn,  y0, cz + s0 * rIn],  i10 = [cx + c1 * rIn,  y0, cz + s1 * rIn];
+        const i01 = [cx + c0 * rIn,  y1, cz + s0 * rIn],  i11 = [cx + c1 * rIn,  y1, cz + s1 * rIn];
+        quad(o00, o01, o11, o10, col, mat); // 外壁
+        quad(i10, i11, i01, i00, col, mat); // 内壁
+        quad(o01, i01, i11, o11, col, mat); // 墙顶
+      }
+    };
+    // 旋转立方体
+    const box = (cx, y0, cz, w, h, d, col, mat = 0, ang = 0) => {
+      const ca = Math.cos(ang), sa = Math.sin(ang);
+      const pt = (lx, ly, lz) => [cx + lx * ca - lz * sa, y0 + ly, cz + lx * sa + lz * ca];
+      const hw = w * 0.5, hd = d * 0.5;
+      const b0 = pt(-hw, 0, -hd), b1 = pt(hw, 0, -hd), b2 = pt(hw, 0, hd), b3 = pt(-hw, 0, hd);
+      const t0 = pt(-hw, h, -hd), t1 = pt(hw, h, -hd), t2 = pt(hw, h, hd), t3 = pt(-hw, h, hd);
+      quad(b0, t0, t1, b1, col, mat); quad(b1, t1, t2, b2, col, mat);
+      quad(b2, t2, t3, b3, col, mat); quad(b3, t3, t0, b0, col, mat);
+      quad(t0, t3, t2, t1, col, mat);
+    };
+    // 棱晶水晶 / 尖角双锥
+    const crystal = (cx, y0, cz, r, h, col, mat = 2) => {
+      cone(cx, y0 + h * 0.45, cz, r, h * 0.55, 6, col, mat);
+      cone(cx, y0 + h * 0.45, cz, r, -h * 0.45, 6, col, mat);
+    };
+
+    const C_MARBLE = [0.92, 0.90, 0.84], C_MARBLE2 = [0.84, 0.80, 0.74], C_GOLD = [0.95, 0.78, 0.34];
+    const C_OBSID = [0.16, 0.14, 0.17], C_OBSID2 = [0.24, 0.21, 0.25], C_STONE = [0.68, 0.65, 0.58];
+    const C_BLUE = [0.36, 0.64, 0.90], C_CANAL = [0.18, 0.68, 0.78], C_EYE = [1.0, 0.48, 0.08], C_GLOW = [1.0, 0.90, 0.62];
+
+    const placeOf = (id) => D.PLACES.find((p) => p.id === id);
+
+    // 0. 努门诺尔 · 阿美尼洛斯（致敬 Noniv/atlantis：阶梯大理石环城 + 碧蓝运河环 + 黄金穹顶神殿 + 4 座水晶尖塔）
+    {
+      const p = placeOf("armenelos");
+      if (p) {
+        curId = ARCH_IDS.armenelos;
+        curBaseY = Math.max(1.5, sampleH(p.x, p.y, false)) - 0.6;
+        const x = p.x, z = p.y, y = curBaseY;
+        cyl(x, y - 6.0, z, 11.2, 10.0, 8.0, 16, C_MARBLE2, 0); // 深入山坡地基裙座，杜绝悬空
+        cyl(x, y + 2.04, z, 9.2, 9.2, 0.16, 16, C_CANAL, 1);  // 亚特兰蒂斯同心碧蓝运河环
+        cyl(x, y + 2.0, z, 7.0, 6.4, 2.5, 14, C_MARBLE, 0);
+        cyl(x, y + 4.5, z, 4.8, 4.2, 3.2, 12, C_MARBLE, 0);
+        dome(x, y + 7.7, z, 4.1, 3.9, 12, C_GOLD, 1);         // 黄金穹顶神殿
+        cyl(x, y + 11.4, z, 0.5, 0.22, 3.0, 6, C_GOLD, 1);
+        crystal(x, y + 14.2, z, 0.9, 2.6, C_GLOW, 2);         // 塔顶圣光结晶
+        for (let i = 0; i < 4; i++) {
+          const a = (i / 4) * Math.PI * 2 + 0.4;
+          const sx = x + Math.cos(a) * 8.0, sz = z + Math.sin(a) * 8.0;
+          cyl(sx, y - 2.0, sz, 0.98, 0.66, 11.0, 8, C_MARBLE, 0);
+          cone(sx, y + 9.0, sz, 0.88, 2.6, 8, C_BLUE, 1);
+          crystal(sx, y + 11.5, sz, 0.42, 1.2, [0.76, 0.94, 1.0], 2);
+        }
+      }
+    }
+
+    // 1. 米那斯提力斯 · 七层白城（首层黑石深基座 + 六层阶梯白石城垣 + 斜坡船头巨岩 + 埃克塞理安白塔）
+    {
+      const p = placeOf("minastirith");
+      if (p) {
+        curId = ARCH_IDS.minastirith;
+        curBaseY = Math.max(2.0, sampleH(p.x, p.y, false)) - 1.2;
+        const x = p.x, z = p.y, y = curBaseY;
+        // 深入山体底盘，确保低视角从任意角度零悬空
+        cyl(x, y - 7.5, z, 8.6, 8.1, 9.4, 16, C_OBSID2, 0);
+        for (let t = 1; t < 7; t++) {
+          const r = 8.1 - t * 0.92;
+          const ty = y + t * 1.78;
+          cyl(x - t * 0.22, ty, z, r, r * 0.94, 1.88, 14, C_MARBLE, 0);
+          if (t < 6) cyl(x - t * 0.22, ty + 0.92, z, r * 0.98, r * 0.98, 0.22, 12, C_GOLD, 1, false);
+        }
+        // 经典楔形东伸船头巨岩 (Tapered Prow of Mindolluin)
+        {
+          const px0 = x - 1.2, px1 = x + 6.8, py0 = y - 3.5, py1 = y + 12.2, hw = 1.05;
+          const a0 = [px0, py0, z - hw], a1 = [px0, py0, z + hw], a2 = [px0, py1, z + hw * 0.55], a3 = [px0, py1, z - hw * 0.55];
+          const b0 = [px1, py0, z], b1 = [px1 - 1.6, py0 + 5.8, z];
+          quad(a1, a2, b1, b0, C_MARBLE, 0);
+          quad(b0, b1, a3, a0, C_MARBLE2, 0);
+          tri(a2, a3, b1, C_MARBLE, 0);
+        }
+        // 埃克塞理安白塔 + 顶部微光灯塔
+        cyl(x - 1.3, y + 12.4, z, 1.18, 0.85, 8.2, 10, C_MARBLE, 0);
+        cone(x - 1.3, y + 20.6, z, 1.02, 2.7, 10, [0.85, 0.90, 0.96], 1);
+        crystal(x - 1.3, y + 23.2, z, 0.48, 1.5, C_GLOW, 2);
+      }
+    }
+
+    // 2. 巴拉督尔 · 索隆黑塔（深埋黑曜石地基 + 多层飞扶壁巨塔 + 熔岩城窗 + 双角塔尖 + 炽燃 3D 魔眼！）
+    {
+      const p = placeOf("baraddur");
+      if (p) {
+        curId = ARCH_IDS.baraddur;
+        curBaseY = Math.max(2.0, sampleH(p.x, p.y, false)) - 1.2;
+        const x = p.x, z = p.y, y = curBaseY;
+        cyl(x, y - 6.5, z, 8.6, 6.8, 11.4, 8, C_OBSID, 0);
+        cyl(x, y + 4.9, z, 5.8, 4.6, 6.4, 8, C_OBSID, 0);
+        cyl(x, y + 11.3, z, 3.9, 2.9, 7.6, 8, C_OBSID2, 0);
+        cyl(x, y + 18.9, z, 2.6, 1.85, 7.2, 8, C_OBSID, 0);
+        for (let i = 0; i < 4; i++) {
+          const a = (i / 4) * Math.PI * 2 + 0.35;
+          const bx = x + Math.cos(a) * 4.8, bz = z + Math.sin(a) * 4.8;
+          cone(bx, y + 4.2, bz, 1.6, 8.8, 5, C_OBSID, 0);
+        }
+        cyl(x, y + 8.0, z, 5.2, 5.1, 0.65, 8, [0.95, 0.36, 0.08], 2, false);
+        cyl(x, y + 15.2, z, 3.4, 3.3, 0.6, 8, [1.0, 0.42, 0.10], 2, false);
+        cone(x - 2.0, y + 25.4, z, 1.1, 7.0, 5, C_OBSID, 0);
+        cone(x + 2.0, y + 25.4, z, 1.1, 7.0, 5, C_OBSID, 0);
+        crystal(x, y + 27.6, z, 1.95, 3.5, C_EYE, 2);
+        crystal(x, y + 28.4, z, 0.85, 1.8, [1.0, 0.92, 0.42], 2);
+      }
+    }
+
+    // 3. 艾森加德 · 欧尔桑克黑塔（深植环形巨石城墙 + 四叉黑曜石高塔）
+    {
+      const p = placeOf("isengard");
+      if (p) {
+        curId = ARCH_IDS.isengard;
+        curBaseY = Math.max(2.0, sampleH(p.x, p.y, false)) - 0.8;
+        const x = p.x, z = p.y, y = curBaseY;
+        ringWall(x, y - 4.5, z, 7.6, 9.0, 7.2, 20, C_STONE, 0, Math.PI * 0.5);
+        cyl(x, y - 4.5, z, 2.6, 1.55, 22.8, 4, C_OBSID, 1);
+        for (let i = 0; i < 4; i++) {
+          const a = (i / 4) * Math.PI * 2 + Math.PI * 0.25;
+          cone(x + Math.cos(a) * 1.05, y + 17.8, z + Math.sin(a) * 1.05, 0.7, 5.8, 4, C_OBSID, 1);
+        }
+        crystal(x, y + 19.2, z, 0.52, 1.5, [0.78, 0.90, 1.0], 2);
+      }
+    }
+
+    // 4. 刚多林 · 环山隐秘白城（白石三层城垣 + 4 座精灵蓝顶塔 + 金顶国王之塔）
+    {
+      const p = placeOf("gondolin");
+      if (p) {
+        curId = ARCH_IDS.gondolin;
+        curBaseY = Math.max(2.0, sampleH(p.x, p.y, false)) - 0.8;
+        const x = p.x, z = p.y, y = curBaseY;
+        ringWall(x, y - 4.5, z, 7.2, 8.4, 6.8, 16, C_MARBLE, 0);
+        cyl(x, y - 4.5, z, 5.8, 5.2, 7.4, 12, C_MARBLE, 0);
+        cyl(x, y + 2.9, z, 3.6, 3.0, 3.2, 10, C_MARBLE, 0);
+        cyl(x, y + 6.1, z, 1.3, 0.9, 9.4, 8, C_MARBLE, 0);
+        cone(x, y + 15.5, z, 1.15, 3.4, 8, C_GOLD, 1);
+        for (let i = 0; i < 4; i++) {
+          const a = (i / 4) * Math.PI * 2;
+          const sx = x + Math.cos(a) * 4.8, sz = z + Math.sin(a) * 4.8;
+          cyl(sx, y + 2.4, sz, 0.82, 0.62, 5.5, 6, C_MARBLE, 0);
+          cone(sx, y + 7.9, sz, 0.82, 2.1, 6, C_BLUE, 1);
+        }
+      }
+    }
+
+    // 5. 提力安 · 阿门洲图纳丘水晶白城（深植大理石基座 + 明登·埃尔达利瓦灯塔 + 碧蓝穹顶）
+    {
+      const p = placeOf("tirion");
+      if (p) {
+        curId = ARCH_IDS.tirion;
+        curBaseY = Math.max(2.0, sampleH(p.x, p.y, false)) - 0.8;
+        const x = p.x, z = p.y, y = curBaseY;
+        cyl(x, y - 6.0, z, 8.4, 7.0, 9.0, 14, C_MARBLE, 0);
+        cyl(x, y + 3.0, z, 5.2, 4.4, 3.0, 12, C_MARBLE, 0);
+        cyl(x, y + 6.0, z, 1.3, 0.88, 12.6, 10, C_MARBLE, 0);
+        cone(x, y + 18.6, z, 1.12, 2.8, 10, [0.82, 0.92, 1.0], 1);
+        crystal(x, y + 21.3, z, 0.82, 2.4, [0.84, 0.96, 1.0], 2);
+        for (let i = 0; i < 3; i++) {
+          const a = (i / 3) * Math.PI * 2 + 0.5;
+          dome(x + Math.cos(a) * 4.4, y + 5.4, z + Math.sin(a) * 4.4, 1.65, 1.65, 8, C_BLUE, 1);
+        }
+      }
+    }
+
+    // 6. 埃多拉斯 · 洛汗青丘金殿梅杜塞尔德
+    {
+      const p = placeOf("edoras");
+      if (p) {
+        curId = ARCH_IDS.edoras;
+        curBaseY = Math.max(2.0, sampleH(p.x, p.y, false)) - 0.8;
+        const x = p.x, z = p.y, y = curBaseY;
+        cyl(x, y - 4.5, z, 8.6, 6.8, 7.6, 14, [0.44, 0.64, 0.30], 0);
+        ringWall(x, y + 2.9, z, 5.8, 6.6, 1.35, 14, [0.54, 0.38, 0.22], 0, Math.PI * 0.5);
+        box(x, y + 3.0, z, 5.8, 3.0, 3.5, [0.62, 0.44, 0.24], 0, 0.2);
+        cone(x, y + 5.9, z, 4.1, 4.0, 4, C_GOLD, 1);
+      }
+    }
+
+    // 7. 阿刚那斯 · 安都因河两岸王者之柱双巨像
+    {
+      const LIFE = window.ME_LIFE || {};
+      const m = (LIFE.LANDMARKS || []).find((q) => q.id === "argonath");
+      if (m) {
+        curId = ARCH_IDS.argonath;
+        curBaseY = Math.max(1.2, sampleH(m.x, m.y, false)) - 0.8;
+        const x = m.x, z = m.y, y = curBaseY;
+        [-4.2, 4.2].forEach((dx) => {
+          const sx = x + dx;
+          box(sx, y - 4.5, z, 3.4, 7.6, 3.4, C_STONE, 0);
+          cyl(sx, y + 3.1, z, 1.35, 1.15, 6.6, 8, C_MARBLE2, 0);
+          cyl(sx, y + 9.7, z, 1.05, 0.95, 1.9, 8, C_MARBLE, 0);
+          cyl(sx, y + 11.6, z, 1.1, 0.85, 1.05, 8, C_GOLD, 1);
+          box(sx + (dx < 0 ? 1.1 : -1.1), y + 7.7, z + 1.3, 0.95, 1.05, 2.6, C_MARBLE, 0);
+        });
+      }
+    }
+
+    archVertCount = V.length / 12;
+    bufs.archVbo = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufs.archVbo);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(V), gl.STATIC_DRAW);
+  }
+
   function buildTreeBuffers() {
     const items = [];
     let sd = 733;
@@ -1440,19 +1922,60 @@
       }
     });
 
-    // 每棵树 2 个三角形 (6 顶点)，每顶点 9 float: base3 + corner2 + meta4
-    const data = new Float32Array(items.length * 6 * 9);
-    const quad = [[-0.5, 0], [0.5, 0], [-0.5, 1], [-0.5, 1], [0.5, 0], [0.5, 1]];
+    // SpriteCook 分层构树：每棵树 = 1 个静止树干+暗影内冠 + 5~6 团独立风浪叶簇（单次 DrawCall 全 GPU 驱动！）
+    // 叶簇模板：[row(1=中层,2=向阳冠), ox/W, oy/H, cw/W, ch/H, depthBias, windMobility]
+    const PINE_CLUMPS = [
+      [1, -0.15, 0.34, 0.62, 0.36, 0.16, 0.44],
+      [1,  0.15, 0.32, 0.60, 0.35, 0.14, 0.44],
+      [2, -0.10, 0.56, 0.54, 0.34, 0.24, 0.68],
+      [1,  0.11, 0.54, 0.52, 0.33, 0.22, 0.66],
+      [2, -0.02, 0.77, 0.44, 0.34, 0.32, 0.96]
+    ];
+    const ROUND_CLUMPS = [
+      [1, -0.26, 0.48, 0.56, 0.46, 0.16, 0.58],
+      [1,  0.26, 0.47, 0.54, 0.45, 0.14, 0.56],
+      [1,  0.02, 0.55, 0.60, 0.48, 0.24, 0.72],
+      [2, -0.19, 0.70, 0.54, 0.44, 0.30, 0.90],
+      [2,  0.20, 0.67, 0.50, 0.42, 0.28, 0.86],
+      [2, -0.03, 0.82, 0.54, 0.42, 0.38, 1.05]
+    ];
+
+    let totalQuads = 0;
+    for (let i = 0; i < items.length; i++) totalQuads += 1 + (items[i][5] === 0 ? PINE_CLUMPS.length : ROUND_CLUMPS.length);
+
+    // 每顶点 13 float: base3 + corner2 + meta4 + clump4 (stride = 52 bytes)
+    const data = new Float32Array(totalQuads * 6 * 13);
+    const trunkQuad = [[-0.5, 0], [0.5, 0], [-0.5, 1], [-0.5, 1], [0.5, 0], [0.5, 1]];
+    const clumpQuad = [[-0.5, -0.5], [0.5, -0.5], [-0.5, 0.5], [-0.5, 0.5], [0.5, -0.5], [0.5, 0.5]];
     let p = 0;
-    for (let i = 0; i < items.length; i++) {
-      const [x, y, z, w, h, v, m] = items[i];
+    const pushQuad = (quad, x, y, z, w, h, cell, m, ox, oy, oz, mob) => {
       for (let q = 0; q < 6; q++) {
         data[p++] = x; data[p++] = y; data[p++] = z;
         data[p++] = quad[q][0]; data[p++] = quad[q][1];
-        data[p++] = w; data[p++] = h; data[p++] = v; data[p++] = m;
+        data[p++] = w; data[p++] = h; data[p++] = cell; data[p++] = m;
+        data[p++] = ox; data[p++] = oy; data[p++] = oz; data[p++] = mob;
+      }
+    };
+
+    for (let i = 0; i < items.length; i++) {
+      const [x, y, z, w, h, v, m] = items[i];
+      // 1) 静止树干 + 暗影内冠 (row=0, mob=0)
+      pushQuad(trunkQuad, x, y, z, w, h, v, m, 0, 0, 0, 0);
+      // 2) 多团独立叶簇 (row=1/2, mob>0)，微调随机偏移让每棵树轮廓自然多变
+      const clumps = v === 0 ? PINE_CLUMPS : ROUND_CLUMPS;
+      const jit = (rn() - 0.5) * 0.08;
+      for (let ci = 0; ci < clumps.length; ci++) {
+        const [row, ox, oy, cw, ch, oz, mob] = clumps[ci];
+        const jx = (rn() - 0.5) * 0.06, jy = (rn() - 0.5) * 0.05;
+        pushQuad(
+          clumpQuad, x, y, z,
+          w * (cw + jit), h * (ch + jit * 0.7),
+          v + row * 4, m,
+          w * (ox + jx), h * (oy + jy), oz, mob
+        );
       }
     }
-    treeVertCount = items.length * 6;
+    treeVertCount = totalQuads * 6;
     bufs.treeVbo = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, bufs.treeVbo);
     gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
@@ -1597,8 +2120,8 @@
     bbLayer.innerHTML = "";
     BB.places = []; BB.journeys = []; BB.residents = []; BB.moments = []; BB.labels = [];
 
-    // 1. 地点城堡立牌（复用 ME_ICON 原画；双圣树使用专属金银双树微缩立牌；核心地标加大展示）
-    const PEAK_ONLY = new Set(["orodruin"]);
+    // 1. 地点城堡立牌（已升级为真 3D 程序化奇观建筑的城市仅放清爽可点击注记，避免 2D 贴片遮挡真 3D 城邦！）
+    const PEAK_ONLY = new Set(["orodruin", "armenelos", "minastirith", "baraddur", "isengard", "gondolin", "tirion", "edoras"]);
     const HERO_PLACES = new Set([
       "twotrees", "hobbiton", "rivendell", "lorien", "minastirith", "baraddur",
       "isengard", "erebor", "edoras", "helmsdeep", "moria", "gondolin",
@@ -1616,21 +2139,21 @@
         <!-- 金银圣光双晕 -->
         <circle class="tt-aura" cx="-10.5" cy="-16.5" r="14.5" fill="#ffd868" opacity=".32"/>
         <circle class="tt-aura" cx="10.5" cy="-16.5" r="14.5" fill="#cfe8ff" opacity=".32"/>
-        <!-- 左：金树劳瑞林 (Laurelin) -->
+        <!-- 左：金树劳瑞林 (Laurelin)：静止树干 + 暗金内冠 + 独立行波摇曳叶簇 -->
+        <circle cx="-10.8" cy="-17.2" r="7.2" fill="#8f5610"/>
         <path d="M-12.6,3.2 C-11.8,-3 -11.4,-8 -10.8,-14.5 L-9.4,-14.5 C-9.8,-8 -9.4,-3 -8.2,3.2 Z" fill="#9a6b24" stroke="#4c3008" stroke-width=".35"/>
         <path d="M-10.4,-9 L-16.5,-15 M-10.0,-10.5 L-5.2,-16.5" stroke="#8c5e1c" stroke-width="1.4" stroke-linecap="round"/>
-        <circle cx="-15.5" cy="-15.2" r="5.6" fill="#e6a828" stroke="#6a460c" stroke-width=".3"/>
-        <circle cx="-6.2" cy="-15.4" r="5.4" fill="#f2bd34" stroke="#6a460c" stroke-width=".3"/>
-        <circle cx="-10.8" cy="-20.2" r="7.4" fill="#ffd84e" stroke="#7a5410" stroke-width=".32"/>
-        <circle cx="-12.2" cy="-21.6" r="4.2" fill="#fff4a8" opacity=".88"/>
+        <g class="clump-w c1"><circle cx="-15.5" cy="-15.2" r="5.6" fill="#e6a828" stroke="#6a460c" stroke-width=".3"/></g>
+        <g class="clump-w c2"><circle cx="-6.2" cy="-15.4" r="5.4" fill="#f2bd34" stroke="#6a460c" stroke-width=".3"/></g>
+        <g class="clump-w c3"><circle cx="-10.8" cy="-20.2" r="7.4" fill="#ffd84e" stroke="#7a5410" stroke-width=".32"/><circle cx="-12.2" cy="-21.6" r="4.2" fill="#fff4a8" opacity=".88"/></g>
         <circle class="tt-aura" cx="-16" cy="-8.5" r=".9" fill="#ffe880"/><circle class="tt-aura" cx="-6.5" cy="-9" r=".8" fill="#fff2a4"/>
-        <!-- 右：银树泰尔佩瑞安 (Telperion) -->
+        <!-- 右：银树泰尔佩瑞安 (Telperion)：静止树干 + 深蓝银内冠 + 独立行波摇曳叶簇 -->
+        <circle cx="10.8" cy="-17.2" r="7.2" fill="#5a7692"/>
         <path d="M8.4,3.2 C9.4,-3 9.8,-8 9.4,-14.5 L10.8,-14.5 C11.4,-8 11.8,-3 12.6,3.2 Z" fill="#a8b6c6" stroke="#485666" stroke-width=".35"/>
         <path d="M10.2,-9 L5.2,-15.5 M10.6,-10.5 L16.5,-15.2" stroke="#96a6b8" stroke-width="1.4" stroke-linecap="round"/>
-        <circle cx="6.2" cy="-15.2" r="5.4" fill="#b4d2ec" stroke="#4a6278" stroke-width=".3"/>
-        <circle cx="15.5" cy="-15.4" r="5.6" fill="#cae2f6" stroke="#4a6278" stroke-width=".3"/>
-        <circle cx="10.8" cy="-20.2" r="7.4" fill="#e8f4ff" stroke="#587088" stroke-width=".32"/>
-        <circle cx="9.6" cy="-21.6" r="4.2" fill="#ffffff" opacity=".92"/>
+        <g class="clump-w c2"><circle cx="6.2" cy="-15.2" r="5.4" fill="#b4d2ec" stroke="#4a6278" stroke-width=".3"/></g>
+        <g class="clump-w c4"><circle cx="15.5" cy="-15.4" r="5.6" fill="#cae2f6" stroke="#4a6278" stroke-width=".3"/></g>
+        <g class="clump-w c3"><circle cx="10.8" cy="-20.2" r="7.4" fill="#e8f4ff" stroke="#587088" stroke-width=".32"/><circle cx="9.6" cy="-21.6" r="4.2" fill="#ffffff" opacity=".92"/></g>
         <circle class="tt-aura" cx="6.5" cy="-8.8" r=".85" fill="#e4f4ff"/><circle class="tt-aura" cx="15.8" cy="-8.4" r=".9" fill="#ffffff"/>
       </g>`;
 
@@ -1726,13 +2249,16 @@
     (LIFE.LANDMARKS || []).forEach((m) => {
       const art = LART[m.k];
       if (!art) return;
+      const isArch3d = m.id === "argonath";
       const el = document.createElement("div");
-      el.className = "bb-item bb-lm";
+      el.className = "bb-item bb-lm" + (isArch3d ? " bb-peak-only" : "");
       el.style.display = "none";
-      el.innerHTML = `<div class="bb-wrap"><span class="bb-sh"></span><svg class="bb-svg" width="30" height="28" viewBox="-16 -22 32 30">${art}</svg><span class="bb-lb">${m.n}</span></div>`;
+      el.innerHTML = isArch3d
+        ? `<div class="bb-wrap"><span class="bb-lb">${m.n}</span></div>`
+        : `<div class="bb-wrap"><span class="bb-sh"></span><svg class="bb-svg" width="30" height="28" viewBox="-16 -22 32 30">${art}</svg><span class="bb-lb">${m.n}</span></div>`;
       el.addEventListener("click", (ev) => { ev.stopPropagation(); M.showLandmark(m); });
       bbLayer.appendChild(el);
-      BB.landmarks.push({ m, el, lb: el.querySelector(".bb-lb"), shown: false, dc: false });
+      BB.landmarks.push({ m, el, lb: el.querySelector(".bb-lb"), isArch3d, shown: false, dc: false });
     });
 
     // 8. 年代奇观（史矛革盘旋、炎魔、树人进军、巨鹰、戒灵、西渡白船等）
@@ -2027,7 +2553,8 @@
         if (!it.vis || (isMinor && farMode)) { hideItem(it); continue; }
         const h = sampleH(it.p.x, it.p.y, true);
         if (h < -1.5) { hideItem(it); continue; }
-        const wy = Math.max(0.5, h) + (it.peakOnly ? 6.5 : 0.4);
+        const labelLift = ARCH_LABEL_Y[it.p.id] ?? (it.peakOnly ? 6.5 : 0.4);
+        const wy = Math.max(0.5, h) + labelLift;
         const pr = proj(it.p.x, wy, it.p.y);
         if (!pr) { hideItem(it); continue; }
         const occ = (it.peakOnly || it.isTwoTrees) ? 1.0 : occFactor(it.p.x, wy, it.p.y, eye);
@@ -2046,7 +2573,7 @@
       if (!it.vis || !nearMode) return hideItem(it);
       const h = sampleH(it.m.x, it.m.y, true);
       if (h < -1.2) return hideItem(it);
-      const wy = Math.max(0.5, h) + 0.6;
+      const wy = Math.max(0.5, h) + (it.isArch3d ? ARCH_LABEL_Y.argonath : 0.6);
       const pr = proj(it.m.x, wy, it.m.y);
       if (!pr) return hideItem(it);
       const occ = occFactor(it.m.x, wy, it.m.y, eye);
@@ -2111,7 +2638,7 @@
     lastFrameT = now;
     elapsed += dt;
 
-    // 1. 相机平滑飞行或惯性阻尼
+    // 1. 相机平滑飞行或惯性阻尼（支持 Atlantis 式缓慢环绕巡游）
     if (flyAnim) {
       const k = sm(clamp((now - flyAnim.t0) / flyAnim.ms, 0, 1));
       c3.tx = c3.tTx = lerp(flyAnim.s.tx, flyAnim.e.tx, k);
@@ -2121,6 +2648,7 @@
       c3.yaw = c3.tYaw = lerp(flyAnim.s.yaw, flyAnim.e.yaw, k);
       if (k >= 1) flyAnim = null;
     } else {
+      if (autoCruise) c3.tYaw += dt * 0.18;
       const a = 1 - Math.exp(-dt * 17);
       c3.tx = lerp(c3.tx, c3.tTx, a);
       c3.tz = lerp(c3.tz, c3.tTz, a);
@@ -2129,11 +2657,23 @@
       c3.yaw = lerp(c3.yaw, c3.tYaw, a);
     }
 
-    // 2. 纪元大陆升降与阿门洲迷雾过渡
+    // 2. 纪元大陆升降与阿门洲迷雾过渡 + 3D 奇观建筑年代显隐/陆沉联动
     const sinkA = 1 - Math.exp(-dt * 4.5);
     belSink = lerp(belSink, belSinkTgt, sinkA);
     nuSink = lerp(nuSink, nuSinkTgt, sinkA);
     amanVeil = lerp(amanVeil, amanVeilTgt, sinkA);
+    {
+      const t = M.T;
+      const visP = (id) => { const p = M.P[id]; return p && M.visible(p, t) ? 1 : 0; };
+      archVis[ARCH_IDS.armenelos] = t >= 622 ? Math.max(0, 1 - nuSink) : 0;
+      archVis[ARCH_IDS.minastirith] = visP("minastirith");
+      archVis[ARCH_IDS.baraddur] = visP("baraddur");
+      archVis[ARCH_IDS.isengard] = visP("isengard");
+      archVis[ARCH_IDS.gondolin] = t >= 116 ? Math.max(0, 1 - belSink) : 0;
+      archVis[ARCH_IDS.tirion] = visP("tirion");
+      archVis[ARCH_IDS.edoras] = visP("edoras");
+      archVis[ARCH_IDS.argonath] = t >= 5371 ? 1 : 0; // TA 1340
+    }
 
     // 同步 2D cam & 比例尺 & 小地图 & 罗盘
     const w2d = camWFromDist(c3.dist), h2d = (w2d * viewH) / Math.max(1, viewW);
@@ -2146,7 +2686,8 @@
     const cy = Math.cos(c3.yaw), sy = Math.sin(c3.yaw);
     const eye = [c3.tx + sy * cp * c3.dist, sp * c3.dist, c3.tz + cy * cp * c3.dist];
     const target = [c3.tx, 2.0, c3.tz];
-    const projM = mat4Perspective(FOVY, viewW / Math.max(1, viewH), 8.0, 5200.0);
+    const aspect = viewW / Math.max(1, viewH);
+    const projM = mat4Perspective(FOVY, aspect, 8.0, 5200.0);
     const viewM = mat4LookAt(eye, target, [0, 1, 0]);
     const mvp = mat4Mul(projM, viewM);
     lastMvp = mvp;
@@ -2154,12 +2695,13 @@
 
     const camRight = [viewM[0], viewM[4], viewM[8]];
     const camUp = [viewM[1], viewM[5], viewM[9]];
+    const camFwd = [-viewM[2], -viewM[6], -viewM[10]];
     const atm = curAtmos();
     const fogStart = c3.dist * 1.45, fogEnd = c3.dist * 3.25 + 920.0;
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // Pass 1: 天空大气背景
+    // Pass 1: Atlantis 黄金时刻天空与真实 3D 太阳光盘
     {
       const P = progs.sky;
       gl.useProgram(P.p);
@@ -2170,7 +2712,13 @@
       gl.vertexAttribPointer(P.aPos, 2, gl.FLOAT, false, 0, 0);
       gl.uniform3fv(P.uSkyTop, atm.skyTop);
       gl.uniform3fv(P.uSkyHor, atm.skyHor);
-      gl.uniform1f(P.uPitch, c3.pitch);
+      gl.uniform3fv(P.uSunDir, atm.sunDir);
+      gl.uniform3fv(P.uSunCol, atm.sunCol);
+      gl.uniform3fv(P.uCamFwd, camFwd);
+      gl.uniform3fv(P.uCamRight, camRight);
+      gl.uniform3fv(P.uCamUp, camUp);
+      gl.uniform1f(P.uTanHalf, Math.tan(FOVY * 0.5));
+      gl.uniform1f(P.uAspect, aspect);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
       gl.depthMask(true);
       gl.enable(gl.DEPTH_TEST);
@@ -2208,6 +2756,33 @@
       gl.disableVertexAttribArray(P.aInfo);
     }
 
+    // Pass 2.5: Atlantis 风格纯程序化 3D 奇观建筑（努门诺尔、米那斯提力斯、巴拉督尔、欧尔桑克、刚多林、提力安、埃多拉斯、阿刚那斯）
+    if (archVertCount > 0) {
+      const P = progs.arch;
+      gl.useProgram(P.p);
+      gl.disable(gl.BLEND);
+      gl.bindBuffer(gl.ARRAY_BUFFER, bufs.archVbo);
+      const stride = 48;
+      gl.enableVertexAttribArray(P.aPos); gl.vertexAttribPointer(P.aPos, 3, gl.FLOAT, false, stride, 0);
+      gl.enableVertexAttribArray(P.aNorm); gl.vertexAttribPointer(P.aNorm, 3, gl.FLOAT, false, stride, 12);
+      gl.enableVertexAttribArray(P.aCol); gl.vertexAttribPointer(P.aCol, 3, gl.FLOAT, false, stride, 24);
+      gl.enableVertexAttribArray(P.aMeta); gl.vertexAttribPointer(P.aMeta, 3, gl.FLOAT, false, stride, 36);
+      gl.uniformMatrix4fv(P.uMvp, false, mvp);
+      gl.uniform3fv(P.uEye, eye);
+      gl.uniform3fv(P.uSunDir, atm.sunDir);
+      gl.uniform3fv(P.uSunCol, atm.sunCol);
+      gl.uniform3fv(P.uAmbCol, atm.ambCol);
+      gl.uniform3fv(P.uFogCol, atm.fog);
+      gl.uniform1f(P.uFogStart, fogStart);
+      gl.uniform1f(P.uFogEnd, fogEnd);
+      gl.uniform1f(P.uTime, elapsed);
+      gl.uniform1fv(P.uArchVis, archVis);
+      gl.drawArrays(gl.TRIANGLES, 0, archVertCount);
+      gl.disableVertexAttribArray(P.aNorm);
+      gl.disableVertexAttribArray(P.aCol);
+      gl.disableVertexAttribArray(P.aMeta);
+    }
+
     // Pass 3: 动态 3D 海洋与海岸拍岸浪花
     {
       const P = progs.water;
@@ -2234,15 +2809,16 @@
       gl.depthMask(true);
     }
 
-    // Pass 4: 3D 森林立牌群（真实深度遮挡 + 微风摇曳）
+    // Pass 4: 3D 森林分层树冠（SpriteCook 静止树干+暗影内冠 + 行波阵风叶簇）
     if (treeVertCount > 0) {
       const P = progs.trees;
       gl.useProgram(P.p);
       gl.bindBuffer(gl.ARRAY_BUFFER, bufs.treeVbo);
-      const stride = 36;
+      const stride = 52;
       gl.enableVertexAttribArray(P.aBase); gl.vertexAttribPointer(P.aBase, 3, gl.FLOAT, false, stride, 0);
       gl.enableVertexAttribArray(P.aCorner); gl.vertexAttribPointer(P.aCorner, 2, gl.FLOAT, false, stride, 12);
       gl.enableVertexAttribArray(P.aMeta); gl.vertexAttribPointer(P.aMeta, 4, gl.FLOAT, false, stride, 20);
+      gl.enableVertexAttribArray(P.aClump); gl.vertexAttribPointer(P.aClump, 4, gl.FLOAT, false, stride, 36);
       gl.uniformMatrix4fv(P.uMvp, false, mvp);
       gl.uniform3fv(P.uCamRight, camRight);
       gl.uniform3fv(P.uEye, eye);
@@ -2257,6 +2833,7 @@
       gl.drawArrays(gl.TRIANGLES, 0, treeVertCount);
       gl.disableVertexAttribArray(P.aCorner);
       gl.disableVertexAttribArray(P.aMeta);
+      gl.disableVertexAttribArray(P.aClump);
     }
 
     // Pass 5: 贴地 3D 旅程流光路径
@@ -2323,6 +2900,7 @@
     buildHeightfield();
     buildTerrainBuffers();
     buildWaterAndSkyBuffers();
+    buildArchBuffers();
     buildTreeBuffers();
     buildFxBuffers();
     bufs.trailVbo = gl.createBuffer();
@@ -2344,16 +2922,21 @@
       unifs.forEach((k) => (o[k] = gl.getUniformLocation(p, k)));
       return o;
     };
-    progs.sky = bindLoc(mkProg(gl, VS_SKY, FS_SKY), ["aPos"], ["uSkyTop", "uSkyHor", "uPitch"]);
+    progs.sky = bindLoc(mkProg(gl, VS_SKY, FS_SKY), ["aPos"], [
+      "uSkyTop", "uSkyHor", "uSunDir", "uSunCol", "uCamFwd", "uCamRight", "uCamUp", "uTanHalf", "uAspect"
+    ]);
     progs.terrain = bindLoc(mkProg(gl, VS_TERRAIN, FS_TERRAIN), ["aPos", "aNorm", "aInfo"], [
       "uMvp", "uEye", "uSunDir", "uSunCol", "uAmbCol", "uFogCol", "uFogStart", "uFogEnd", "uTime",
       "uBelSink", "uNuSink", "uAmanVeil", "uMordorGlow", "uAlbedo", "uRealm", "uElevTex"
+    ]);
+    progs.arch = bindLoc(mkProg(gl, VS_ARCH, FS_ARCH), ["aPos", "aNorm", "aCol", "aMeta"], [
+      "uMvp", "uEye", "uSunDir", "uSunCol", "uAmbCol", "uFogCol", "uFogStart", "uFogEnd", "uTime", "uArchVis"
     ]);
     progs.water = bindLoc(mkProg(gl, VS_WATER, FS_WATER), ["aPos"], [
       "uMvp", "uEye", "uSunDir", "uSunCol", "uFogCol", "uWaterDeep", "uWaterShal",
       "uFogStart", "uFogEnd", "uTime", "uBelSink", "uNuSink", "uHeightTex"
     ]);
-    progs.trees = bindLoc(mkProg(gl, VS_TREES, FS_TREES), ["aBase", "aCorner", "aMeta"], [
+    progs.trees = bindLoc(mkProg(gl, VS_TREES, FS_TREES), ["aBase", "aCorner", "aMeta", "aClump"], [
       "uMvp", "uCamRight", "uEye", "uSunCol", "uAmbCol", "uFogCol", "uFogStart", "uFogEnd", "uTime", "uBelSink", "uAtlas"
     ]);
     progs.trail = bindLoc(mkProg(gl, VS_TRAIL, FS_TRAIL), ["aPos", "aCol", "aDist"], ["uMvp", "uTime"]);
@@ -2371,12 +2954,17 @@
     return true;
   }
 
-  /* ==================== 交互控制（平移 / 光标锚定缩放 / 旋转倾角） ==================== */
+  /* ==================== 交互控制（平移 / 光标锚定缩放 / 旋转倾角 / 低空巡游） ==================== */
+  function stopCruise() {
+    if (!autoCruise) return;
+    autoCruise = false;
+    stageEl.querySelector('[data-cam25="cruise"]')?.classList.remove("on");
+  }
   function clampTarget() {
     c3.tTx = clamp(c3.tTx, BX - 60, BX + BW + 60);
     c3.tTz = clamp(c3.tTz, BY - 60, BY + BH + 60);
-    c3.tDist = clamp(c3.tDist, 130, 1900);
-    c3.tPitch = clamp(c3.tPitch, 22 * DEG, 78 * DEG);
+    c3.tDist = clamp(c3.tDist, 110, 1900);
+    c3.tPitch = clamp(c3.tPitch, 15 * DEG, 78 * DEG);
   }
 
   function bind25DControls() {
@@ -2387,6 +2975,7 @@
     stageEl.addEventListener("contextmenu", (e) => e.preventDefault());
     canvas.addEventListener("pointerdown", (e) => {
       flyAnim = null;
+      stopCruise();
       pts.set(e.pointerId, [e.clientX, e.clientY]);
       canvas.setPointerCapture?.(e.pointerId);
       if (pts.size === 1) {
@@ -2416,12 +3005,12 @@
       lastX = e.clientX; lastY = e.clientY;
       if (dragMode === "orbit") {
         c3.tYaw -= dx * 0.0062;
-        c3.tPitch = clamp(c3.tPitch + dy * 0.0052, 22 * DEG, 78 * DEG);
+        c3.tPitch = clamp(c3.tPitch + dy * 0.0052, 15 * DEG, 78 * DEG);
       } else if (dragMode === "pan") {
         // 沿相机偏航角对齐地平面 1:1 拖拽
         const scale = (c3.dist * 2 * Math.tan(FOVY / 2)) / Math.max(1, viewH);
         const cy = Math.cos(c3.yaw), sy = Math.sin(c3.yaw);
-        const py = dy / Math.max(0.38, Math.sin(c3.pitch));
+        const py = dy / Math.max(0.32, Math.sin(c3.pitch));
         c3.tTx -= (dx * cy + py * sy) * scale;
         c3.tTz -= (-dx * sy + py * cy) * scale;
         clampTarget();
@@ -2453,7 +3042,7 @@
 
       const dy = clamp(raw, -150, 150);
       const factor = Math.exp(dy * (e.ctrlKey ? 0.0052 : isTrackpad ? 0.0022 : 0.00148));
-      const newDist = clamp(c3.tDist * factor, 130, 1900);
+      const newDist = clamp(c3.tDist * factor, 110, 1900);
       const ratio = newDist / c3.tDist;
       if (lastInvMvp && Math.abs(ratio - 1) > 1e-4) {
         const r = canvas.getBoundingClientRect();
@@ -2480,8 +3069,15 @@
       if (!btn) return;
       flyAnim = null;
       const a = btn.dataset.cam25;
-      if (a === "tiltUp") c3.tPitch = clamp(c3.tPitch + 10 * DEG, 22 * DEG, 78 * DEG);
-      else if (a === "tiltDn") c3.tPitch = clamp(c3.tPitch - 10 * DEG, 22 * DEG, 78 * DEG);
+      if (a === "cruise") {
+        autoCruise = !autoCruise;
+        btn.classList.toggle("on", autoCruise);
+        if (autoCruise && c3.tPitch > 34 * DEG) c3.tPitch = 28 * DEG;
+        return;
+      }
+      stopCruise();
+      if (a === "tiltUp") c3.tPitch = clamp(c3.tPitch + 10 * DEG, 15 * DEG, 78 * DEG);
+      else if (a === "tiltDn") c3.tPitch = clamp(c3.tPitch - 10 * DEG, 15 * DEG, 78 * DEG);
       else if (a === "rotL") c3.tYaw -= 22 * DEG;
       else if (a === "rotR") c3.tYaw += 22 * DEG;
       else if (a === "reset") { c3.tYaw = 0; c3.tPitch = 42 * DEG; }
@@ -2492,6 +3088,7 @@
       compassEl.addEventListener("click", () => {
         if (!active) return;
         flyAnim = null;
+        stopCruise();
         c3.tYaw = 0;
       });
     }
@@ -2499,8 +3096,8 @@
     // 键盘 Q/E 旋转视角
     document.addEventListener("keydown", (e) => {
       if (!active || e.target.closest("input,textarea")) return;
-      if (e.key === "q" || e.key === "Q") { flyAnim = null; c3.tYaw -= 14 * DEG; }
-      else if (e.key === "e" || e.key === "E") { flyAnim = null; c3.tYaw += 14 * DEG; }
+      if (e.key === "q" || e.key === "Q") { flyAnim = null; stopCruise(); c3.tYaw -= 14 * DEG; }
+      else if (e.key === "e" || e.key === "E") { flyAnim = null; stopCruise(); c3.tYaw += 14 * DEG; }
     });
 
     window.addEventListener("resize", () => { if (active) resizeGL(); });
@@ -2560,8 +3157,8 @@
       flyAnim = null;
       if (opts.tx != null) c3.tx = c3.tTx = opts.tx;
       if (opts.tz != null) c3.tz = c3.tTz = opts.tz;
-      if (opts.dist != null) c3.dist = c3.tDist = clamp(opts.dist, 130, 1900);
-      if (opts.pitchDeg != null) c3.pitch = c3.tPitch = clamp(opts.pitchDeg * DEG, 22 * DEG, 78 * DEG);
+      if (opts.dist != null) c3.dist = c3.tDist = clamp(opts.dist, 110, 1900);
+      if (opts.pitchDeg != null) c3.pitch = c3.tPitch = clamp(opts.pitchDeg * DEG, 15 * DEG, 78 * DEG);
       if (opts.yawDeg != null) c3.yaw = c3.tYaw = opts.yawDeg * DEG;
     },
     get camera() { return { tx: c3.tx, tz: c3.tz, dist: c3.dist, pitchDeg: +(c3.pitch / DEG).toFixed(1), yawDeg: +(c3.yaw / DEG).toFixed(1) }; },
@@ -2589,7 +3186,7 @@
     zoomBtn(f) {
       if (!active) return;
       flyAnim = null;
-      c3.tDist = clamp(c3.tDist * f, 130, 1900);
+      c3.tDist = clamp(c3.tDist * f, 110, 1900);
     }
   };
 

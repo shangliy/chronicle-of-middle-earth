@@ -2080,6 +2080,24 @@ body.mode-25d .compass {
   filter: grayscale(.84) brightness(.55) contrast(1.12) drop-shadow(0 3px 4px rgba(0, 0, 0, .55));
 }
 .bb-pl.bb-twotrees.trees-dead .tt-aura { opacity: .06; }
+/* SpriteCook 风格：树干静止锚定，仅独立叶簇按行波相位与阵风/静风周期轻柔摇曳 */
+.clump-w {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: clumpWindGust 6.4s ease-in-out infinite;
+}
+.clump-w.c1 { animation-delay: 0s; }
+.clump-w.c2 { animation-delay: -.55s; }
+.clump-w.c3 { animation-delay: -1.10s; }
+.clump-w.c4 { animation-delay: -1.65s; }
+@keyframes clumpWindGust {
+  0%, 38%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(1.05px, -0.35px); }
+  62% { transform: translate(-0.45px, 0.2px); }
+  74% { transform: translate(0.75px, -0.25px); }
+  86% { transform: translate(-0.2px, 0.1px); }
+}
+.bb-pl.bb-twotrees.trees-dead .clump-w { animation: none; }
 .hud-25d {
   position: absolute;
   right: 14px;
@@ -2109,6 +2127,12 @@ body.mode-25d .compass {
   border-color: #b88220;
   color: #1e1206;
   transform: scale(1.06);
+}
+.hud-25d button.on {
+  background: linear-gradient(180deg, #e8be56, #c69024);
+  border-color: #fff0b8;
+  color: #1e1206;
+  box-shadow: 0 0 10px rgba(240, 192, 74, .65);
 }
 .hint-25d {
   position: absolute;

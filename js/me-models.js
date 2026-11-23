@@ -144,13 +144,15 @@
       s += path("M-5.4,-3.2Q0,-7.0 5.4,-3.2", "none", 'stroke="#f7f4ec" stroke-width="1.35"') + glow(0, -10, 6.2, "w");
       return s;
     },
-    lorien() { // 卡拉斯加拉松：银皮梅隆巨树与金色树屋平台
+    lorien() { // 卡拉斯加拉松：静止银皮梅隆巨树干 + 暗金内冠 + 独立微风摇曳金叶簇
       let s = shd(0, 4, 18, 6) + `<ellipse cx="0" cy="4.2" rx="14.5" ry="4.4" fill="none" stroke="#9ec8dc" stroke-width=".7" opacity=".7"/>`;
-      const T = (x, y, r, h) => path(`M${x - 1},${y}C${x - 0.6},${y - h * 0.5} ${x - 0.4},${y - h * 0.8} ${x},${y - h}C${x + 0.4},${y - h * 0.8} ${x + 0.8},${y - h * 0.5} ${x + 1.1},${y}Z`, "url(#m-silver)") +
-        `<ellipse cx="${x}" cy="${y - h - r * 0.25}" rx="${r * 1.18}" ry="${r * 0.68}" fill="url(#m-s-gold)" ${EDGE}/>` +
-        `<ellipse cx="${x - r * 0.72}" cy="${y - h + r * 0.22}" rx="${r * 0.72}" ry="${r * 0.45}" fill="url(#m-s-gold)" ${EDGE}/>` +
-        `<ellipse cx="${x + r * 0.75}" cy="${y - h + r * 0.2}" rx="${r * 0.74}" ry="${r * 0.45}" fill="url(#m-s-gold)" ${EDGE}/>`;
-      s += T(-9.4, 3, 5, 12.5) + T(9.4, 3.4, 5.4, 13.5) + T(0, 4.6, 7.2, 22);
+      const T = (x, y, r, h, c0) =>
+        `<ellipse cx="${x}" cy="${y - h}" rx="${r * 1.02}" ry="${r * 0.56}" fill="#8a5414"/>` +
+        path(`M${x - 1},${y}C${x - 0.6},${y - h * 0.5} ${x - 0.4},${y - h * 0.8} ${x},${y - h}C${x + 0.4},${y - h * 0.8} ${x + 0.8},${y - h * 0.5} ${x + 1.1},${y}Z`, "url(#m-silver)") +
+        `<g class="clump-w c${c0}"><ellipse cx="${x - r * 0.72}" cy="${y - h + r * 0.22}" rx="${r * 0.72}" ry="${r * 0.45}" fill="url(#m-s-gold)" ${EDGE}/></g>` +
+        `<g class="clump-w c${(c0 % 4) + 1}"><ellipse cx="${x + r * 0.75}" cy="${y - h + r * 0.2}" rx="${r * 0.74}" ry="${r * 0.45}" fill="url(#m-s-gold)" ${EDGE}/></g>` +
+        `<g class="clump-w c${((c0 + 1) % 4) + 1}"><ellipse cx="${x}" cy="${y - h - r * 0.25}" rx="${r * 1.18}" ry="${r * 0.68}" fill="url(#m-s-gold)" ${EDGE}/></g>`;
+      s += T(-9.4, 3, 5, 12.5, 1) + T(9.4, 3.4, 5.4, 13.5, 3) + T(0, 4.6, 7.2, 22, 2);
       s += path("M-5.4,-15.5H5.4L6.4,-14.3H-6.4Z", "url(#m-silver)") + gable(0, -15.5, 4.6, 2.2, 2, "white", "gold", 1.8) + glow(0, -17, 4.2, "s") + glow(-6.5, -8.5, 1.8, "s") + glow(6.5, -10, 1.8, "s");
       return s;
     },
@@ -206,10 +208,12 @@
       s += door(7.8, 2.4, 2.2, "#d89c2e", "#fae07a");
       // 红砖烟囱与袅袅炊烟
       s += cyl(-0.4, -13.2, 1.15, 3.6, "red") + smoke(-0.2, -17.8);
-      // 丘顶派对大树（蓬松双层绿金树冠 + 节日小暖灯）
+      // 丘顶派对大树（静止树干 + 暗影内冠 + 独立摇曳蓬松叶簇 + 节日小暖灯）
+      s += `<circle cx="-6.0" cy="-19.2" r="4.6" fill="#1b4628"/>`;
       s += path("M-7.8,-11.5C-7.4,-14.5 -7.2,-16.5 -6.8,-18.5H-5.2C-5.5,-16.5 -5.4,-14.5 -5.0,-11.5Z", "url(#m-wood)", "");
-      s += `<circle cx="-8.8" cy="-18.6" r="3.6" fill="url(#m-s-dgreen)" ${EDGE}/><circle cx="-3.4" cy="-18.4" r="3.4" fill="url(#m-s-green)" ${EDGE}/><circle cx="-6.0" cy="-21.4" r="4.4" fill="url(#m-s-green)" ${EDGE}/>`;
-      s += `<circle cx="-8.5" cy="-17.5" r=".7" fill="#ffe882"/><circle cx="-4.2" cy="-19.2" r=".7" fill="#ffd264"/><circle cx="-6.2" cy="-22.0" r=".75" fill="#fff4a8"/>`;
+      s += `<g class="clump-w c1"><circle cx="-8.8" cy="-18.6" r="3.6" fill="url(#m-s-dgreen)" ${EDGE}/><circle cx="-8.5" cy="-17.5" r=".7" fill="#ffe882"/></g>` +
+        `<g class="clump-w c2"><circle cx="-3.4" cy="-18.4" r="3.4" fill="url(#m-s-green)" ${EDGE}/><circle cx="-4.2" cy="-19.2" r=".7" fill="#ffd264"/></g>` +
+        `<g class="clump-w c3"><circle cx="-6.0" cy="-21.4" r="4.4" fill="url(#m-s-green)" ${EDGE}/><circle cx="-6.2" cy="-22.0" r=".75" fill="#fff4a8"/></g>`;
       // 丘坡小花点缀
       s += `<circle cx="-13.6" cy="2.6" r=".65" fill="#ffd84a"/><circle cx="-11.0" cy="3.4" r=".6" fill="#ff8468"/><circle cx="1.6" cy="3.2" r=".65" fill="#ffe878"/><circle cx="4.0" cy="1.8" r=".55" fill="#fff6d0"/>`;
       // 河畔老风车（高耸木塔 + 旋转四叶风帆）
