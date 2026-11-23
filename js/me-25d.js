@@ -1122,9 +1122,14 @@
         lit = mix(lit, vec3(0.84, 0.88, 0.92), uAmanVeil * 0.56);
       }
 
+      // 远方世界边缘天际柔化（仅在远景边界柔化，不影响近景前景画面）
+      float edgeX = min(smoothstep(0.0, 0.055, vUv.x), smoothstep(1.0, 0.945, vUv.x));
+      float edgeY = min(smoothstep(0.0, 0.075, vUv.y), smoothstep(1.0, 0.935, vUv.y));
+      float worldEdge = (1.0 - edgeX * edgeY) * smoothstep(380.0, 820.0, vCamDist);
+
       // 远景大气雾（HD-2D 纵深感灵魂）
-      float fogF = smoothstep(uFogStart, uFogEnd, vCamDist);
-      lit = mix(lit, uFogCol, fogF * 0.88);
+      float fogF = clamp(smoothstep(uFogStart, uFogEnd, vCamDist) * 0.88 + worldEdge * 0.92, 0.0, 1.0);
+      lit = mix(lit, uFogCol, fogF);
       gl_FragColor = vec4(lit, 1.0);
     }
   `;
@@ -1155,20 +1160,43 @@
     uniform float uBelSink;
     uniform float uNuSink;
 
-    float wave(vec2 p, float t) {
-      float w = sin(p.x * 0.13 + t * 1.15 + sin(p.y * 0.08 - t * 0.6)) * 0.5;
-      w += sin(p.y * 0.16 - t * 0.95 + cos(p.x * 0.10 + t * 0.5)) * 0.35;
-      w += sin((p.x + p.y) * 0.22 + t * 1.4) * 0.15;
-      return w;
+    float whash(vec2 p) {
+      return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+    }
+    float wnoise(vec2 p) {
+      vec2 i = floor(p), f = fract(p);
+      f = f * f * (3.0 - 2.0 * f);
+      return mix(
+        mix(whash(i), whash(i + vec2(1.0, 0.0)), f.x),
+        mix(whash(i + vec2(0.0, 1.0)), whash(i + vec2(1.0, 1.0)), f.x),
+        f.y
+      );
     }
 
-    // Atlantis 风格双层水底折射焦散（Caustics）：在浅滩、湖泊与陆沉遗迹上方闪烁流动光网
+    // 非周期旋转多倍频海涌：高空如丝绒手绘海面无棋盘重复，低空呈现细腻流动波纹
+    float oceanWave(vec2 p, float t, float detailAmt) {
+      mat2 rot1 = mat2(0.80, -0.60, 0.60, 0.80);
+      mat2 rot2 = mat2(0.54, 0.84, -0.84, 0.54);
+      vec2 p1 = rot1 * (p * 0.018) + vec2(t * 0.055, -t * 0.032);
+      vec2 p2 = rot2 * (p * 0.042) + vec2(-t * 0.085, t * 0.062);
+      float swell = (wnoise(p1) - 0.5) * 0.62 + (wnoise(p2) - 0.5) * 0.38;
+      if (detailAmt > 0.02) {
+        vec2 p3 = rot1 * (p * 0.145) + vec2(t * 0.24, t * 0.16);
+        vec2 p4 = rot2 * (p * 0.29) + vec2(-t * 0.32, t * 0.21);
+        float rip = (wnoise(p3) - 0.5) * 0.58 + (wnoise(p4) - 0.5) * 0.42;
+        swell += rip * 0.55 * detailAmt;
+      }
+      return swell;
+    }
+
+    // 双层域扭曲水底折射焦散（Caustics）：在浅滩、湖泊与陆沉遗迹上方闪烁流动光网
     float caustic(vec2 p, float t) {
-      vec2 a = p * 0.24 + vec2(t * 0.52, -t * 0.36);
-      vec2 b = p * 0.31 + vec2(-t * 0.44, t * 0.48);
-      float c1 = sin(a.x + sin(a.y * 1.3 + t * 0.7)) * cos(a.y + cos(a.x * 1.1 - t * 0.6));
-      float c2 = sin(b.x * 1.2 - cos(b.y + t * 0.5)) * cos(b.y * 1.2 + sin(b.x - t * 0.8));
-      return pow(clamp(0.5 + 0.5 * (c1 * 0.55 + c2 * 0.45), 0.0, 1.0), 3.6);
+      vec2 warp = vec2(wnoise(p * 0.09 + t * 0.12), wnoise(p * 0.09 - t * 0.11 + 4.3)) * 1.4;
+      vec2 a = p * 0.23 + warp + vec2(t * 0.48, -t * 0.34);
+      vec2 b = p * 0.30 - warp * 0.8 + vec2(-t * 0.41, t * 0.44);
+      float c1 = sin(a.x + sin(a.y * 1.25 + t * 0.65)) * cos(a.y + cos(a.x * 1.1 - t * 0.55));
+      float c2 = sin(b.x * 1.18 - cos(b.y + t * 0.48)) * cos(b.y * 1.15 + sin(b.x - t * 0.72));
+      return pow(clamp(0.5 + 0.5 * (c1 * 0.55 + c2 * 0.45), 0.0, 1.0), 3.4);
     }
 
     void main() {
@@ -1180,68 +1208,72 @@
       if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0) {
         vec4 ht = texture2D(uHeightTex, uv);
         shore = max(ht.r, max(ht.g * (1.0 - uBelSink), ht.b * (1.0 - uNuSink)));
-        // 沉没中的贝烈瑞安德/努门诺尔在海底泛出柔和幽蓝浅架光影
-        sunkenShelf = max(ht.g * uBelSink, ht.b * uNuSink) * 0.38;
+        sunkenShelf = max(ht.g * uBelSink, ht.b * uNuSink) * 0.42;
         isLake = ht.a;
       }
 
-      // 动态波纹法线
+      // 距离自适应波纹细节（高空平滑丝绒，低空波光粼粼）
+      float ripFade = 1.0 - smoothstep(220.0, 920.0, camDist);
       vec2 p = vWorld.xz;
-      float e = 1.1;
-      float w0 = wave(p, uTime);
-      float wx = wave(p + vec2(e, 0.0), uTime) - w0;
-      float wz = wave(p + vec2(0.0, e), uTime) - w0;
-      vec3 N = normalize(vec3(-wx * 0.19, 1.0, -wz * 0.19));
+      float e = mix(3.4, 0.95, ripFade);
+      float w0 = oceanWave(p, uTime, ripFade);
+      float wx = oceanWave(p + vec2(e, 0.0), uTime, ripFade) - w0;
+      float wz = oceanWave(p + vec2(0.0, e), uTime, ripFade) - w0;
+      float nStr = mix(0.24, 0.42, ripFade);
+      vec3 N = normalize(vec3(-wx * nStr, 1.0, -wz * nStr));
       vec3 V = normalize(uEye - vWorld);
       vec3 L = normalize(uSunDir);
       vec3 H = normalize(L + V);
       vec3 R = reflect(-V, N);
 
-      // Atlantis Beer-Lambert 水深光吸收 + 塞尔达清澈碧蓝过渡
+      // Beer-Lambert 水深光吸收 + 清澈宝石蓝碧波渐变
       float shallow = clamp(pow(shore, 1.05) + isLake * 0.62, 0.0, 1.0);
       float depth = max(0.0, 1.0 - shallow);
-      vec3 absorb = exp(-depth * vec3(1.65, 0.68, 0.34));
-      float celDepth = mix(shallow, smoothstep(0.18, 0.55, shallow) * 0.5 + smoothstep(0.55, 0.85, shallow) * 0.5, 0.38);
+      vec3 absorb = exp(-depth * vec3(1.62, 0.66, 0.32));
+      float celDepth = mix(shallow, smoothstep(0.16, 0.56, shallow) * 0.5 + smoothstep(0.56, 0.88, shallow) * 0.5, 0.34);
       vec3 wCol = mix(uWaterDeep, uWaterShal, celDepth) * mix(vec3(0.84, 0.92, 1.0), vec3(1.0), absorb);
 
+      // 宏大洋流明暗微韵（非周期柔和云影海流，彻底杜绝棋盘格感）
+      float macroFlow = wnoise(p * 0.0055 + vec2(uTime * 0.012, -uTime * 0.008));
+      wCol *= (0.93 + 0.13 * macroFlow);
+
       // 水底光影焦散（浅水海岸、湖泊及沉没大陆浅架）
-      float caustMask = clamp(smoothstep(0.22, 0.88, shore) + isLake * 0.55 + sunkenShelf * 0.45, 0.0, 1.0);
-      float caust = caustic(p, uTime) * caustMask * (1.0 - smoothstep(320.0, 950.0, camDist) * 0.65);
-      wCol += mix(vec3(0.22, 0.82, 0.84), uSunCol, 0.35) * caust * 0.30;
+      float caustMask = clamp(smoothstep(0.22, 0.88, shore) + isLake * 0.55 + sunkenShelf * 0.48, 0.0, 1.0);
+      float caust = caustic(p, uTime) * caustMask * (1.0 - smoothstep(300.0, 920.0, camDist) * 0.72);
+      wCol += mix(vec3(0.24, 0.84, 0.86), uSunCol, 0.35) * caust * 0.32;
 
-      // 菲涅尔天空镜面反射 + 黄金时刻水面日光碎金长廊
-      float fres = pow(1.0 - max(dot(N, V), 0.0), 3.0);
-      vec3 skyRefl = mix(uFogCol * 0.96, mix(uFogCol, uSunCol, 0.45), pow(max(dot(R, L), 0.0), 3.0));
-      wCol = mix(wCol, skyRefl, fres * 0.44);
-      float sunPath = pow(max(dot(R, L), 0.0), 22.0) * 0.24;
-      float spec = smoothstep(0.88, 0.96, pow(max(dot(N, H), 0.0), 34.0)) * 0.38;
-      wCol += mix(uSunCol, vec3(1.0, 0.95, 0.82), 0.5) * (sunPath + spec);
-      // 柔和风格化海浪纹带
-      wCol += vec3(0.03, 0.075, 0.09) * smoothstep(0.25, 0.75, w0 * 0.5 + 0.5);
+      // 菲涅尔天空镜面反射 + 黄金时刻水面碎金长廊
+      float fres = pow(1.0 - max(dot(N, V), 0.0), 3.1);
+      vec3 skyRefl = mix(uFogCol * 0.95, mix(uFogCol, uSunCol, 0.48), pow(max(dot(R, L), 0.0), 3.0));
+      wCol = mix(wCol, skyRefl, fres * 0.46);
+      float sunPath = pow(max(dot(R, L), 0.0), 20.0) * 0.26;
+      float spec = smoothstep(0.84, 0.96, pow(max(dot(N, H), 0.0), 36.0)) * (0.28 + 0.24 * ripFade);
+      wCol += mix(uSunCol, vec3(1.0, 0.96, 0.84), 0.5) * (sunPath + spec);
 
-      // 塞尔达风双层清脆白色拍岸浪环（随大陆沉没实时消散）
-      if (isLake < 0.5 && shore > 0.38) {
-        float foamWave = sin((1.0 - shore) * 34.0 - uTime * 2.6 + w0 * 1.8) * 0.5 + 0.5;
-        float shoreLine = smoothstep(0.80, 0.94, shore);
-        float outerRing = smoothstep(0.50, 0.82, shore) * smoothstep(0.68, 0.84, foamWave) * 0.58;
-        float foam = clamp(shoreLine * 0.84 + outerRing, 0.0, 0.86);
-        wCol = mix(wCol, vec3(0.90, 0.94, 0.96), foam);
+      // 柔润白色拍岸浪环（随大陆沉没实时消散，带细微扰动不呆板）
+      if (isLake < 0.5 && shore > 0.36) {
+        float surfN = wnoise(p * 0.11 + vec2(uTime * 0.18, -uTime * 0.14));
+        float foamWave = sin((1.0 - shore) * 32.0 - uTime * 2.4 + surfN * 3.2) * 0.5 + 0.5;
+        float shoreLine = smoothstep(0.79, 0.94, shore + (surfN - 0.5) * 0.06);
+        float outerRing = smoothstep(0.48, 0.82, shore) * smoothstep(0.66, 0.84, foamWave) * (0.42 + 0.24 * ripFade);
+        float foam = clamp(shoreLine * 0.85 + outerRing, 0.0, 0.88);
+        wCol = mix(wCol, vec3(0.92, 0.96, 0.98), foam);
       }
 
-      float alpha = isLake > 0.5 ? 0.82 : clamp(0.86 + (1.0 - shallow) * 0.12, 0.0, 0.98);
+      float alpha = isLake > 0.5 ? 0.82 : clamp(0.88 + (1.0 - shallow) * 0.10, 0.0, 0.98);
       float fogF = smoothstep(uFogStart, uFogEnd, camDist);
       wCol = mix(wCol, uFogCol, fogF * 0.86);
       gl_FragColor = vec4(wCol, alpha);
     }
   `;
 
-  // 纯程序化 3D 奇观建筑着色器（白石大理石 / 黑曜石 / 镀金穹顶 / 水晶塔尖 / 魔眼自发光）
+  // 纯程序化 3D 奇观建筑着色器（精雕砌石肌理 / 大理石纹 / 基座环境遮蔽 / 镀金穹顶 / 运河水光 / 魔眼自发光）
   const VS_ARCH = `
     precision highp float;
     attribute vec3 aPos;
     attribute vec3 aNorm;
     attribute vec3 aCol;
-    attribute vec3 aMeta; // x: matKind(0=stone/marble, 1=gold/crystal, 2=emissive), y: archId(0..9), z: baseY
+    attribute vec3 aMeta; // x: matKind(0=stone/marble, 1=gold/crystal/canal, 2=emissive), y: archId(0..9), z: baseY
     uniform mat4 uMvp;
     uniform vec3 uEye;
     uniform float uArchVis[10]; // 0=隐藏, 1=矗立, (0..1)=随大陆升降沉没
@@ -1249,6 +1281,7 @@
     varying vec3 vNorm;
     varying vec3 vCol;
     varying float vMat;
+    varying float vLocalY;
     varying float vCamDist;
     void main() {
       int aid = int(aMeta.y + 0.5);
@@ -1265,6 +1298,7 @@
       vNorm = aNorm;
       vCol = aCol;
       vMat = aMeta.x;
+      vLocalY = aPos.y - aMeta.z;
       vCamDist = length(uEye - pos);
       gl_Position = uMvp * vec4(pos, 1.0);
     }
@@ -1275,6 +1309,7 @@
     varying vec3 vNorm;
     varying vec3 vCol;
     varying float vMat;
+    varying float vLocalY;
     varying float vCamDist;
     uniform vec3 uEye;
     uniform vec3 uSunDir;
@@ -1284,6 +1319,20 @@
     uniform float uFogStart;
     uniform float uFogEnd;
     uniform float uTime;
+
+    float ahash(vec2 p) {
+      return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+    }
+    float anoise(vec2 p) {
+      vec2 i = floor(p), f = fract(p);
+      f = f * f * (3.0 - 2.0 * f);
+      return mix(
+        mix(ahash(i), ahash(i + vec2(1.0, 0.0)), f.x),
+        mix(ahash(i + vec2(0.0, 1.0)), ahash(i + vec2(1.0, 1.0)), f.x),
+        f.y
+      );
+    }
+
     void main() {
       if (vWorld.y < -45.0) discard;
       vec3 N = normalize(vNorm);
@@ -1293,26 +1342,57 @@
       vec3 col = vCol;
 
       if (vMat > 1.5) {
-        // 自发光（魔眼烈焰、水晶灯塔、暖黄城窗）
-        float pulse = 0.86 + 0.14 * sin(uTime * 3.1 + vWorld.x * 0.2);
-        col *= (1.15 * pulse);
+        // 自发光（魔眼烈焰、水晶灯塔、矮人锻炉火光、城头火盆）
+        float pulse = 0.85 + 0.15 * sin(uTime * 3.2 + vWorld.x * 0.25 + vWorld.z * 0.2);
+        float glowCore = 0.92 + 0.18 * anoise(vWorld.xz * 1.4 + uTime * 0.8);
+        col *= (1.16 * pulse * glowCore);
       } else {
-        // 黄金时刻大理石/黑曜石立体受光 + 赛璐珞柔和层次 + 暖金轮廓光
+        // 近距手雕石砌肌理 + 大理石微脉 + 高度环境遮蔽（让 10 座奇观如博物馆微缩雕塑！）
+        float detailFade = 1.0 - smoothstep(55.0, 260.0, vCamDist);
+        float wallMask = 1.0 - smoothstep(0.55, 0.88, abs(N.y));
+        float isCanal = step(0.5, vMat) * step(1.25, col.b / max(0.05, col.r));
+
+        if (isCanal > 0.5) {
+          // 碧蓝环城运河与喷泉水面：柔和流动波纹与碎光
+          float cRip = anoise(vWorld.xz * 1.6 + vec2(uTime * 0.45, -uTime * 0.32));
+          float cRip2 = anoise(vWorld.xz * 3.1 - vec2(uTime * 0.35, uTime * 0.52));
+          col = mix(col * 0.88, vec3(0.58, 0.94, 0.98), smoothstep(0.58, 0.88, cRip * 0.6 + cRip2 * 0.4) * 0.45);
+        } else if (vMat < 0.5 && detailFade > 0.01) {
+          // 阶梯状精雕砌石（错缝石块 + 水平灰缝 + 天然石材色差）
+          float horiz = (abs(N.x) > abs(N.z)) ? vWorld.z : vWorld.x;
+          float row = floor(vLocalY * 1.45);
+          float rowF = fract(vLocalY * 1.45);
+          float colId = floor(horiz * 0.95 + mod(row, 2.0) * 0.5);
+          float colF = fract(horiz * 0.95 + mod(row, 2.0) * 0.5);
+          float mortarH = smoothstep(0.0, 0.09, rowF) * smoothstep(1.0, 0.91, rowF);
+          float mortarV = smoothstep(0.0, 0.07, colF) * smoothstep(1.0, 0.93, colF);
+          float mortar = mix(1.0, 0.84 + 0.16 * mortarH * mortarV, wallMask * detailFade * 0.78);
+          float blockTint = (ahash(vec2(colId, row)) - 0.5) * 0.09 * wallMask * detailFade;
+          float vein = (anoise(vec2(horiz * 0.65, vLocalY * 0.85)) - 0.5) * 0.08 * detailFade;
+          col = col * mortar * (1.0 + blockTint + vein);
+          // 墙顶石板微妙暖色受光质感
+          float roofGrain = (anoise(vWorld.xz * 1.35) - 0.5) * 0.07 * (1.0 - wallMask) * detailFade;
+          col *= (1.0 + roofGrain);
+        }
+
+        // 基座厚重环境光遮蔽（AO）：越接近山岩底座越沉稳厚重，塔顶越通透圣洁
+        float baseAO = mix(0.68, 1.03, smoothstep(-3.0, 6.5, vLocalY));
         float ndl = max(dot(N, L), 0.0);
-        float cel = mix(ndl, smoothstep(0.08, 0.26, ndl) * 0.58 + smoothstep(0.50, 0.72, ndl) * 0.42, 0.45);
+        float cel = mix(ndl, smoothstep(0.06, 0.24, ndl) * 0.54 + smoothstep(0.48, 0.72, ndl) * 0.46, 0.38);
         float hemi = N.y * 0.5 + 0.5;
-        vec3 amb = uAmbCol * mix(vec3(0.68, 0.80, 1.05), vec3(0.96, 1.0, 1.08), hemi);
-        col = col * (amb * (1.0 - cel * 0.35) + uSunCol * cel * 0.92);
-        float specPow = vMat > 0.5 ? 42.0 : 14.0;
-        float specAmt = vMat > 0.5 ? 0.58 : 0.12;
+        vec3 amb = uAmbCol * mix(vec3(0.66, 0.78, 1.04), vec3(0.98, 1.0, 1.06), hemi);
+        col = col * (amb * (1.0 - cel * 0.34) + uSunCol * cel * 0.94) * baseAO;
+
+        float specPow = vMat > 0.5 ? 46.0 : 18.0;
+        float specAmt = vMat > 0.5 ? 0.62 : 0.14;
         col += mix(uSunCol, vec3(1.0, 0.96, 0.84), 0.45) * pow(max(dot(N, H), 0.0), specPow) * specAmt;
-        float rim = pow(1.0 - max(dot(N, V), 0.0), 3.0) * 0.22;
-        col += mix(uSunCol, vec3(1.0, 0.92, 0.75), 0.5) * rim;
+        float rim = pow(1.0 - max(dot(N, V), 0.0), 3.0) * 0.24;
+        col += mix(uSunCol, vec3(1.0, 0.92, 0.76), 0.5) * rim;
         // 柔和高光压缩防止大理石过曝
-        col = col / (vec3(1.0) + max(col - vec3(0.84), vec3(0.0)) * 0.72);
+        col = col / (vec3(1.0) + max(col - vec3(0.86), vec3(0.0)) * 0.70);
       }
 
-      // 水下折射染色（沉没中的亚特兰蒂斯/努门诺尔浸入碧蓝海水）
+      // 水下折射染色（沉没中的努门诺尔/刚多林浸入碧蓝海水）
       if (vWorld.y < 0.0) {
         col = mix(col, vec3(0.08, 0.30, 0.46), smoothstep(0.0, -7.5, vWorld.y));
       }
@@ -3251,6 +3331,10 @@
         if (autoCruise && c3.tPitch > 34 * DEG) c3.tPitch = 28 * DEG;
         return;
       }
+      if (a === "zen") {
+        window.__ME?.toggleZen?.();
+        return;
+      }
       stopCruise();
       if (a === "tiltUp") c3.tPitch = clamp(c3.tPitch + 10 * DEG, 10 * DEG, 78 * DEG);
       else if (a === "tiltDn") c3.tPitch = clamp(c3.tPitch - 10 * DEG, 10 * DEG, 78 * DEG);
@@ -3290,17 +3374,18 @@
     toggleBtn.setAttribute("aria-pressed", "true");
     resizeGL();
 
-    // 从当前 2D 镜头无缝对接；默认启动直达 42° 黄金倾角，手动切换时以优雅俯仰动画落入
+    // 从当前 2D 镜头无缝对接；全景视角做透视黄金重心补偿（避免大片空白南洋占满屏幕下半部）
     M.updateSvgSize();
     const h2d = (M.cam.w * Math.max(1, M.ch)) / Math.max(1, M.cw);
-    const cx = M.cam.x + M.cam.w * 0.5, cz = M.cam.y + h2d * 0.5;
-    const d = distFromCamW(M.cam.w);
+    const cx = M.cam.x + M.cam.w * 0.5;
+    const d = M.cam.w > 900 ? Math.min(distFromCamW(M.cam.w), 1120) : distFromCamW(M.cam.w);
+    const cz = M.cam.y + h2d * 0.5 - (M.cam.w > 700 ? d * 0.085 : 0);
     c3.tx = c3.tTx = cx;
     c3.tz = c3.tTz = cz;
     c3.dist = c3.tDist = d;
     c3.yaw = c3.tYaw = 0;
-    c3.pitch = (instant ? 42 : 68) * DEG;
-    c3.tPitch = 42 * DEG;
+    c3.pitch = (instant ? 40 : 68) * DEG;
+    c3.tPitch = 40 * DEG;
     flyAnim = null;
 
     syncStateAtTime(M.T);
@@ -3329,6 +3414,7 @@
   window.__ME_25D = {
     get active() { return active; },
     enter, exit, toggle,
+    resize() { if (active) { resizeGL(); bbNeedsSort = true; } },
     setCamera(opts = {}) {
       flyAnim = null;
       if (opts.tx != null) c3.tx = c3.tTx = opts.tx;
@@ -3348,17 +3434,18 @@
     flyTo(x, y, w, ms = 1200) {
       if (!active) return;
       const closeUp = w <= 260;
-      const d = closeUp ? clamp(w * 0.34, 58, 92) : distFromCamW(w);
-      const tgtPitch = closeUp ? 22 * DEG : c3.tPitch;
+      const d = closeUp ? clamp(w * 0.34, 58, 92) : (w > 900 ? Math.min(distFromCamW(w), 1120) : distFromCamW(w));
+      const ty = w > 700 ? y - d * 0.085 : y;
+      const tgtPitch = closeUp ? 22 * DEG : (w > 900 ? 40 * DEG : c3.tPitch);
       if (ms <= 0) {
         flyAnim = null;
-        c3.tx = c3.tTx = x; c3.tz = c3.tTz = y; c3.dist = c3.tDist = d; c3.pitch = c3.tPitch = tgtPitch;
+        c3.tx = c3.tTx = x; c3.tz = c3.tTz = ty; c3.dist = c3.tDist = d; c3.pitch = c3.tPitch = tgtPitch;
         return;
       }
       flyAnim = {
         t0: performance.now(), ms: Math.max(180, ms),
         s: { tx: c3.tx, tz: c3.tz, dist: c3.dist, pitch: c3.pitch, yaw: c3.yaw },
-        e: { tx: x, tz: y, dist: d, pitch: tgtPitch, yaw: c3.tYaw }
+        e: { tx: x, tz: ty, dist: d, pitch: tgtPitch, yaw: c3.tYaw }
       };
     },
     zoomBtn(f) {

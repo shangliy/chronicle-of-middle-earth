@@ -2042,9 +2042,16 @@
       const shut = document.body.classList.toggle("mini-shut");
       try { localStorage.setItem("me-mini-shut", shut ? "1" : "0"); } catch (e) {}
     };
+    const toggleZen = (force) => {
+      const on = force != null ? !!force : !document.body.classList.contains("zen-mode");
+      document.body.classList.toggle("zen-mode", on);
+      if ($("#zenExit")) $("#zenExit").hidden = !on;
+      setTimeout(() => { updateSvgSize(); applyCam(); window.__ME_25D?.resize?.(); }, 40);
+    };
+    if ($("#zenExit")) $("#zenExit").onclick = () => toggleZen(false);
     $("#panelToggle").onclick = () => {
       if (innerWidth <= 860) document.body.classList.toggle("panel-open");
-      else { document.body.classList.toggle("panel-shut"); setTimeout(() => { updateSvgSize(); applyCam(); }, 50); }
+      else { document.body.classList.toggle("panel-shut"); setTimeout(() => { updateSvgSize(); applyCam(); window.__ME_25D?.resize?.(); }, 50); }
     };
     $("#bClose").onclick = closeBattle;
     $("#moment").addEventListener("click", (e) => {
@@ -2057,7 +2064,9 @@
       if (e.target.closest("input,textarea")) return;
       if (!$("#moment").hidden) { if (e.key === "Escape") closeMoment(false); if (e.key === " " || e.key === "Enter") { e.preventDefault(); closeMoment(true); } if (e.key === "ArrowRight" || e.key === "ArrowLeft") { const i = MOI[moCur.id] + (e.key === "ArrowRight" ? 1 : -1); if (MO[i]) openMoment(MO[i].id); } return; }
       if (!B.el.hidden) { if (e.key === "Escape") closeBattle(); if (e.key === "ArrowRight") phase(B.k + 1); if (e.key === "ArrowLeft") B.k > 0 && phase(B.k - 1); return; }
+      if (e.key === "Escape" && document.body.classList.contains("zen-mode")) { toggleZen(false); return; }
       if (e.key === "Escape" && !$("#card").hidden) { $("#card").hidden = true; return; }
+      if (e.key === "h" || e.key === "H") { toggleZen(); return; }
       if (e.key === " ") { e.preventDefault(); playing ? pause() : play(); }
       if (e.key === "ArrowRight") stepEvent(1); if (e.key === "ArrowLeft") stepEvent(-1);
       if (e.key === "3" && window.__ME_25D) window.__ME_25D.toggle();
@@ -2079,7 +2088,7 @@
       const cx = Math.round(cam.x + cam.w / 2), cy = Math.round(cam.y + hh / 2), w = Math.round(cam.w);
       return `#t=${+T.toFixed(4)}&x=${cx}&y=${cy}&w=${w}${window.__ME_25D && !window.__ME_25D.active ? "&d=2" : ""}`;
     };
-    window.__ME = { pulse, flyBox, PT, CI, openMoment, closeMoment, MO, setT, flyTo, applyCam, updateSvgSize, syncMiniAndBar, openBattle, phase, openLegend, play, pause, followJ, showChar, showPlace, showJourney, showLandmark, visible, openCard, showToast, hideToast, placeHeroSvg, setTab, svg, P, L, D, W, DECO, SEA_ART, RING, RING_END, at, eraOf, hasDay, getShareHash, get T() { return T; }, get follow() { return !!follow; }, get cw() { return cw; }, get ch() { return ch; }, cam, posOf, tAt, fmt, JR, RES, tr };
+    window.__ME = { pulse, flyBox, PT, CI, openMoment, closeMoment, MO, setT, flyTo, applyCam, updateSvgSize, syncMiniAndBar, openBattle, phase, openLegend, play, pause, followJ, showChar, showPlace, showJourney, showLandmark, visible, openCard, showToast, hideToast, placeHeroSvg, setTab, toggleZen, svg, P, L, D, W, DECO, SEA_ART, RING, RING_END, at, eraOf, hasDay, getShareHash, get T() { return T; }, get follow() { return !!follow; }, get cw() { return cw; }, get ch() { return ch; }, cam, posOf, tAt, fmt, JR, RES, tr };
   }
   init();
 })();
