@@ -2898,8 +2898,15 @@
       c3.yaw = c3.tYaw = lerp(flyAnim.s.yaw, flyAnim.e.yaw, k);
       if (k >= 1) flyAnim = null;
     } else {
-      if (autoCruise) c3.tYaw += dt * 0.18;
-      const a = 1 - Math.exp(-dt * 17);
+      const onCover = document.body.classList.contains("on-cover");
+      if (onCover) {
+        // 封面序幕：以史诗电影镜头感缓慢呼吸巡航整片中洲历史大陆
+        c3.tYaw = Math.sin(elapsed * 0.14) * (11 * DEG);
+        c3.tPitch = 30 * DEG + Math.sin(elapsed * 0.10) * (2.5 * DEG);
+      } else if (autoCruise) {
+        c3.tYaw += dt * 0.18;
+      }
+      const a = 1 - Math.exp(-dt * (onCover ? 4.5 : 17));
       c3.tx = lerp(c3.tx, c3.tTx, a);
       c3.tz = lerp(c3.tz, c3.tTz, a);
       c3.dist = Math.exp(lerp(Math.log(c3.dist), Math.log(c3.tDist), a));
@@ -3377,15 +3384,17 @@
     // 从当前 2D 镜头无缝对接；全景视角做透视黄金重心补偿（避免大片空白南洋占满屏幕下半部）
     M.updateSvgSize();
     const h2d = (M.cam.w * Math.max(1, M.ch)) / Math.max(1, M.cw);
+    const onCover = document.body.classList.contains("on-cover");
     const cx = M.cam.x + M.cam.w * 0.5;
-    const d = M.cam.w > 900 ? Math.min(distFromCamW(M.cam.w), 1120) : distFromCamW(M.cam.w);
+    const d0 = M.cam.w > 900 ? Math.min(distFromCamW(M.cam.w), 1120) : distFromCamW(M.cam.w);
+    const d = onCover ? Math.min(d0, 960) : d0;
     const cz = M.cam.y + h2d * 0.5 - (M.cam.w > 700 ? d * 0.085 : 0);
     c3.tx = c3.tTx = cx;
     c3.tz = c3.tTz = cz;
     c3.dist = c3.tDist = d;
     c3.yaw = c3.tYaw = 0;
-    c3.pitch = (instant ? 40 : 68) * DEG;
-    c3.tPitch = 40 * DEG;
+    c3.pitch = (onCover ? 30 : instant ? 40 : 68) * DEG;
+    c3.tPitch = (onCover ? 30 : 40) * DEG;
     flyAnim = null;
 
     syncStateAtTime(M.T);
@@ -3437,15 +3446,16 @@
       const d = closeUp ? clamp(w * 0.34, 58, 92) : (w > 900 ? Math.min(distFromCamW(w), 1120) : distFromCamW(w));
       const ty = w > 700 ? y - d * 0.085 : y;
       const tgtPitch = closeUp ? 22 * DEG : (w > 900 ? 40 * DEG : c3.tPitch);
+      const tgtYaw = w > 900 ? 0 : c3.tYaw;
       if (ms <= 0) {
         flyAnim = null;
-        c3.tx = c3.tTx = x; c3.tz = c3.tTz = ty; c3.dist = c3.tDist = d; c3.pitch = c3.tPitch = tgtPitch;
+        c3.tx = c3.tTx = x; c3.tz = c3.tTz = ty; c3.dist = c3.tDist = d; c3.pitch = c3.tPitch = tgtPitch; c3.yaw = c3.tYaw = tgtYaw;
         return;
       }
       flyAnim = {
         t0: performance.now(), ms: Math.max(180, ms),
         s: { tx: c3.tx, tz: c3.tz, dist: c3.dist, pitch: c3.pitch, yaw: c3.yaw },
-        e: { tx: x, tz: ty, dist: d, pitch: tgtPitch, yaw: c3.tYaw }
+        e: { tx: x, tz: ty, dist: d, pitch: tgtPitch, yaw: tgtYaw }
       };
     },
     zoomBtn(f) {

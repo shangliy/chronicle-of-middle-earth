@@ -2016,8 +2016,10 @@
 
   /* ======================= 启动 ======================= */
   function start(mode) {
-    $("#intro").classList.add("gone"); setTimeout(() => ($("#intro").hidden = true), 900);
-    if (mode === "begin") { setT(T0 + 1); flyBox(ERAS[0].cam); setTimeout(play, 900); }
+    document.body.classList.remove("on-cover");
+    $("#intro").classList.add("gone"); setTimeout(() => ($("#intro").hidden = true), 950);
+    setTimeout(() => { updateSvgSize(); applyCam(); window.__ME_25D?.resize?.(); }, 40);
+    if (mode === "begin") { setT(T0 + 1); flyBox(ERAS[0].cam); }
     else if (mode === "war") { const ev = D.EVENTS.find((e) => (e.h0 || e.h) === "离开袋底洞"); setT(ev.t); flyBox(eraOf(ev.t).cam); setTab("legends"); openLegend("ring", 0); }
     else if (mode === "battle") { setTab("battles"); }
     else if (mode === "kids" && window.ME_KIDS) window.ME_KIDS.enter();
@@ -2030,7 +2032,9 @@
     $("#intro").addEventListener("click", (e) => { const b = e.target.closest("[data-start]"); if (b) start(b.dataset.start); });
     if ($("#homeBtn")) $("#homeBtn").onclick = () => {
       pause(); closeMoment(false); if (!B.el.hidden) closeBattle();
+      document.body.classList.add("on-cover");
       const intro = $("#intro"); intro.hidden = false; void intro.offsetWidth; intro.classList.remove("gone");
+      setTimeout(() => { updateSvgSize(); applyCam(); window.__ME_25D?.resize?.(); }, 40);
     };
     if ($("#momentsBtn")) $("#momentsBtn").onclick = () => {
       if (!MO.length) return;
@@ -2062,6 +2066,10 @@
     $("#follow").onclick = (e) => { if (e.target.closest("button")) pause(); };
     document.addEventListener("keydown", (e) => {
       if (e.target.closest("input,textarea")) return;
+      if (!$("#intro").hidden && !$("#intro").classList.contains("gone")) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); start("begin"); }
+        return;
+      }
       if (!$("#moment").hidden) { if (e.key === "Escape") closeMoment(false); if (e.key === " " || e.key === "Enter") { e.preventDefault(); closeMoment(true); } if (e.key === "ArrowRight" || e.key === "ArrowLeft") { const i = MOI[moCur.id] + (e.key === "ArrowRight" ? 1 : -1); if (MO[i]) openMoment(MO[i].id); } return; }
       if (!B.el.hidden) { if (e.key === "Escape") closeBattle(); if (e.key === "ArrowRight") phase(B.k + 1); if (e.key === "ArrowLeft") B.k > 0 && phase(B.k - 1); return; }
       if (e.key === "Escape" && document.body.classList.contains("zen-mode")) { toggleZen(false); return; }
@@ -2073,7 +2081,8 @@
     });
     // 深链接：#t= / #x=&y=&w= / #l=&k= / #b= / #m= / #c= / #f= / #d=3
     const h = new URLSearchParams(location.hash.slice(1));
-    if ([...h.keys()].length) { $("#intro").hidden = true; }
+    const qKids = new URLSearchParams(location.search).get("kids") === "1";
+    if ([...h.keys()].length || qKids) { $("#intro").hidden = true; document.body.classList.remove("on-cover"); }
     if (h.get("t")) { setT(+h.get("t")); if (!h.get("x")) flyBox(eraOf(T).cam); }
     if (h.get("x") && h.get("y")) { flyTo(+h.get("x"), +h.get("y"), +(h.get("w") || 420), 0); }
     if (h.get("l")) { setTab("legends"); openLegend(h.get("l"), +(h.get("k") || 0)); }

@@ -38,129 +38,116 @@
     })();
   </script>
 </head>
-<body data-era="trees">
-  <!-- 封面 · 精灵拱门与至尊戒 -->
+<body data-era="trees" class="on-cover">
+  <!-- 封面 · 电影级魔戒序幕（实时 2.5D 中洲历史大底图） -->
   <div id="intro" class="intro">
     <svg class="intro-sky" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <defs>
-        <radialGradient id="isk-valinor" cx="22%" cy="28%" r="52%">
-          <stop offset="0%" stop-color="#ffeab0" stop-opacity=".16"/>
-          <stop offset="45%" stop-color="#c99a2e" stop-opacity=".05"/>
+        <radialGradient id="isk-valinor" cx="20%" cy="22%" r="50%">
+          <stop offset="0%" stop-color="#ffeab0" stop-opacity=".14"/>
+          <stop offset="48%" stop-color="#c99a2e" stop-opacity=".04"/>
           <stop offset="100%" stop-color="#000" stop-opacity="0"/>
         </radialGradient>
-        <radialGradient id="isk-mordor" cx="82%" cy="78%" r="48%">
-          <stop offset="0%" stop-color="#ff5a18" stop-opacity=".16"/>
-          <stop offset="50%" stop-color="#7a1c08" stop-opacity=".06"/>
+        <radialGradient id="isk-mordor" cx="84%" cy="82%" r="48%">
+          <stop offset="0%" stop-color="#ff621c" stop-opacity=".14"/>
+          <stop offset="50%" stop-color="#7a1c08" stop-opacity=".05"/>
           <stop offset="100%" stop-color="#000" stop-opacity="0"/>
         </radialGradient>
         <linearGradient id="isk-arch" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#f6de98" stop-opacity=".55"/>
-          <stop offset="50%" stop-color="#b88934" stop-opacity=".28"/>
-          <stop offset="100%" stop-color="#6e4c18" stop-opacity=".1"/>
+          <stop offset="0%" stop-color="#f8e2a0" stop-opacity=".62"/>
+          <stop offset="50%" stop-color="#c4943a" stop-opacity=".28"/>
+          <stop offset="100%" stop-color="#6e4c18" stop-opacity=".08"/>
         </linearGradient>
       </defs>
       <rect width="1440" height="900" fill="url(#isk-valinor)"/>
       <rect width="1440" height="900" fill="url(#isk-mordor)"/>
-      <!-- 都林之门式的精灵星拱背纹 -->
-      <g fill="none" stroke="url(#isk-arch)" transform="translate(720,460)">
-        <path d="M-470,390 V-40 C-470,-280 -220,-405 0,-425 C220,-405 470,-280 470,-40 V390" stroke-width="1.4"/>
-        <path d="M-454,390 V-36 C-454,-268 -210,-388 0,-408 C210,-388 454,-268 454,-36 V390" stroke-width=".7" stroke-dasharray="4 6"/>
-        <path d="M0,-432 L4,-416 L20,-412 L4,-408 L0,-392 L-4,-408 L-20,-412 L-4,-416 Z" fill="#fae29c" stroke="none" opacity=".7"/>
-        <circle cy="-360" r="3" fill="#fff4c8" stroke="none" opacity=".5"/>
-        <path d="M-470,60 C-430,20 -410,-40 -430,-95 M470,60 C430,20 410,-40 430,-95" stroke-width=".9" opacity=".45"/>
+      <!-- 礼仪级细金边框与都林星拱 -->
+      <rect x="24" y="24" width="1392" height="852" rx="4" fill="none" stroke="rgba(232,192,104,.22)" stroke-width="1"/>
+      <rect x="30" y="30" width="1380" height="840" rx="2" fill="none" stroke="rgba(232,192,104,.09)" stroke-width=".75"/>
+      <g fill="none" stroke="url(#isk-arch)" transform="translate(720,455)">
+        <path d="M-490,395 V-45 C-490,-285 -225,-408 0,-428 C225,-408 490,-285 490,-45 V395" stroke-width="1.2"/>
+        <path d="M-474,395 V-40 C-474,-272 -214,-391 0,-411 C214,-391 474,-272 474,-40 V395" stroke-width=".65" stroke-dasharray="3 7"/>
+        <path d="M0,-436 L3.5,-420 L19,-416 L3.5,-412 L0,-396 L-3.5,-412 L-19,-416 L-3.5,-420 Z" fill="#fae29c" stroke="none" opacity=".78"/>
       </g>
-      <!-- 星尘与余烬微粒 -->
+      <!-- 悬浮星尘与炉火余烬 -->
       <g class="intro-motes" fill="#ffe7a0">
         <circle cx="190" cy="160" r="1.4" opacity=".6"/><circle cx="310" cy="95" r="1" opacity=".45"/>
-        <circle cx="420" cy="210" r="1.6" opacity=".7"/><circle cx="1040" cy="130" r="1.3" opacity=".6"/>
+        <circle cx="420" cy="210" r="1.6" opacity=".65"/><circle cx="1040" cy="130" r="1.3" opacity=".6"/>
         <circle cx="1190" cy="220" r="1.8" opacity=".5"/><circle cx="1280" cy="120" r="1.1" opacity=".4"/>
-        <circle cx="260" cy="680" r="1.5" fill="#ff9a40" opacity=".5"/><circle cx="1160" cy="710" r="1.9" fill="#ff822e" opacity=".6"/>
-        <circle cx="980" cy="770" r="1.3" fill="#ffb860" opacity=".5"/><circle cx="490" cy="760" r="1.2" opacity=".4"/>
+        <circle cx="240" cy="700" r="1.5" fill="#ff9a40" opacity=".55"/><circle cx="1180" cy="710" r="1.9" fill="#ff822e" opacity=".62"/>
+        <circle cx="990" cy="785" r="1.3" fill="#ffb860" opacity=".5"/><circle cx="460" cy="780" r="1.2" opacity=".4"/>
       </g>
     </svg>
 
     <div class="intro-in">
       <div class="intro-ring" aria-hidden="true">
-        <svg viewBox="-110 -110 220 220">
+        <svg viewBox="-115 -115 230 230">
           <defs>
             <linearGradient id="ir-gold" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#fff8cc"/>
-              <stop offset=".22" stop-color="#f5cc5c"/>
-              <stop offset=".48" stop-color="#b47412"/>
-              <stop offset=".74" stop-color="#fae084"/>
-              <stop offset="1" stop-color="#5c3404"/>
+              <stop offset="0" stop-color="#fffbe0"/>
+              <stop offset=".20" stop-color="#f6cf62"/>
+              <stop offset=".48" stop-color="#a86810"/>
+              <stop offset=".75" stop-color="#fae288"/>
+              <stop offset="1" stop-color="#4d2904"/>
             </linearGradient>
             <linearGradient id="ir-inner" x1="1" y1="0" x2="0" y2="1">
               <stop offset="0" stop-color="#5c3404"/>
-              <stop offset=".45" stop-color="#e4ac38"/>
-              <stop offset=".8" stop-color="#fff3bc"/>
-              <stop offset="1" stop-color="#844e0c"/>
+              <stop offset=".45" stop-color="#e8b03c"/>
+              <stop offset=".8" stop-color="#fff5c4"/>
+              <stop offset="1" stop-color="#7c460a"/>
             </linearGradient>
             <radialGradient id="ir-glow" cx=".5" cy=".5" r=".5">
-              <stop offset=".42" stop-color="#ff9a20" stop-opacity="0"/>
-              <stop offset=".72" stop-color="#ff8a18" stop-opacity=".48"/>
-              <stop offset=".88" stop-color="#ffd25a" stop-opacity=".22"/>
-              <stop offset="1" stop-color="#ff5500" stop-opacity="0"/>
+              <stop offset=".38" stop-color="#ff9a20" stop-opacity="0"/>
+              <stop offset=".68" stop-color="#ff8616" stop-opacity=".54"/>
+              <stop offset=".86" stop-color="#ffd460" stop-opacity=".24"/>
+              <stop offset="1" stop-color="#ff4800" stop-opacity="0"/>
             </radialGradient>
           </defs>
-          <circle r="102" fill="url(#ir-glow)"/>
-          <!-- 外圈星盘 -->
+          <circle r="108" fill="url(#ir-glow)"/>
+          <!-- 外圈精灵星盘 -->
           <g class="ir-spin">
-            <circle r="90" fill="none" stroke="rgba(246,208,106,.32)" stroke-width=".8" stroke-dasharray="2 5"/>
-            <circle r="84" fill="none" stroke="rgba(246,208,106,.16)" stroke-width=".6"/>
-            <path d="M0,-96L2.6,-86L0,-81L-2.6,-86ZM0,96L2.6,86L0,81L-2.6,86ZM-96,0L-86,2.6L-81,0L-86,-2.6ZM96,0L86,2.6L81,0L86,-2.6Z" fill="#f0ca68" opacity=".8"/>
-            <path d="M-66,-66L-59,-61L-61,-59ZM66,-66L61,-59L59,-61ZM-66,66L-61,59L-59,61ZM66,66L59,61L61,59Z" fill="#e0b048" opacity=".55"/>
+            <circle r="94" fill="none" stroke="rgba(246,208,106,.34)" stroke-width=".75" stroke-dasharray="2 6"/>
+            <circle r="86" fill="none" stroke="rgba(246,208,106,.16)" stroke-width=".6"/>
+            <path d="M0,-100L2.5,-89L0,-84L-2.5,-89ZM0,100L2.5,89L0,84L-2.5,89ZM-100,0L-89,2.5L-84,0L-89,-2.5ZM100,0L89,2.5L84,0L89,-2.5Z" fill="#f4cf72" opacity=".82"/>
+            <path d="M-68,-68L-61,-63L-63,-61ZM68,-68L63,-61L61,-63ZM-68,68L-63,61L-61,63ZM68,68L61,63L63,61Z" fill="#e0b048" opacity=".55"/>
           </g>
-          <!-- 戒身立体倒角与熔金火纹 -->
-          <circle r="64" fill="none" stroke="#1e0c02" stroke-width="23" opacity=".75"/>
-          <circle r="64" fill="none" stroke="url(#ir-gold)" stroke-width="17.5"/>
-          <circle r="56.5" fill="none" stroke="url(#ir-inner)" stroke-width="2.2" opacity=".9"/>
-          <circle r="72.5" fill="none" stroke="#fff8d6" stroke-width="1" opacity=".75"/>
-          <!-- 腾格瓦风流线火字 -->
+          <!-- 戒身立体倒角与熔金质感 -->
+          <circle r="66" fill="none" stroke="#180902" stroke-width="25" opacity=".78"/>
+          <circle r="66" fill="none" stroke="url(#ir-gold)" stroke-width="18.5"/>
+          <circle r="58" fill="none" stroke="url(#ir-inner)" stroke-width="2.1" opacity=".92"/>
+          <circle r="75" fill="none" stroke="#fff8d6" stroke-width="1" opacity=".8"/>
+          <!-- 腾格瓦流火铭文 -->
           <g class="ir-runes">
-            <circle r="64" fill="none" stroke="#ff5e00" stroke-width="5" stroke-dasharray="7 4 3 3 9 5 2 3 8 4 4 3" stroke-linecap="round" opacity=".5"/>
-            <circle r="64" fill="none" stroke="#fffbe2" stroke-width="1.8" stroke-dasharray="7 4 3 3 9 5 2 3 8 4 4 3" stroke-linecap="round" opacity=".92"/>
+            <circle r="66" fill="none" stroke="#ff5e00" stroke-width="5.2" stroke-dasharray="7 4 3 3 9 5 2 3 8 4 4 3" stroke-linecap="round" opacity=".56"/>
+            <circle r="66" fill="none" stroke="#fffbe2" stroke-width="1.75" stroke-dasharray="7 4 3 3 9 5 2 3 8 4 4 3" stroke-linecap="round" opacity=".95"/>
           </g>
-          <!-- 埃兰迪尔之星与双树暗纹 -->
-          <path d="M0,-32L3.2,-7L24,-14L7.5,0L30,0L7.5,4.5L22,22L3.2,9.5L0,34L-3.2,9.5L-22,22L-7.5,4.5L-30,0L-7.5,0L-24,-14L-3.2,-7Z" fill="#fae088" opacity=".26"/>
-          <path d="M0,-20L2,-3L17,0L2,3L0,20L-2,3L-17,0L-2,-3Z" fill="#fff7d6" opacity=".65"/>
-          <circle r="3.2" fill="#ffffff" opacity=".9"/>
+          <!-- 埃兰迪尔圣星 -->
+          <path d="M0,-30L2.8,-6.5L22,-13L7,0L28,0L7,4L20,20L2.8,9L0,32L-2.8,9L-20,20L-7,4L-28,0L-7,0L-22,-13L-2.8,-6.5Z" fill="#fae292" opacity=".28"/>
+          <path d="M0,-18L1.8,-2.8L16,0L1.8,2.8L0,18L-1.8,2.8L-16,0L-1.8,-2.8Z" fill="#fff8dc" opacity=".72"/>
+          <circle r="2.8" fill="#ffffff" opacity=".92"/>
         </svg>
       </div>
 
-      <p class="intro-k">阿尔达历史地理与战役全览 · 非官方爱好者作品</p>
+      <p class="intro-k">阿尔达 · 七千年史诗长卷</p>
       <h1>中洲纪年</h1>
-      <p class="intro-en">A Chronicle of Middle-earth</p>
+      <p class="intro-en">Chronicle of Middle-earth</p>
       <div class="intro-rule" aria-hidden="true"><span></span><i>✦</i><span></span></div>
-      <p class="intro-p">从双圣树的光，到魔戒在末日火山中熔化——七千多年的大陆、王国、传说与战争，铺在一张会随时间变化的地图上。拖动时间，看贝烈瑞安德沉入大海、努门诺尔升起又覆灭；跟着至尊戒走完它的路；看六十多位 Q 版人物在大陆上迁徙、远征、定居；走进战场，亲身经历那几场决定世界的战役。</p>
+      <p class="intro-p">从双圣树的初光，到末日火山的余烬——七千年山河兴衰，尽在一卷动态史诗。</p>
 
-      <div class="intro-btns">
-        <button data-start="begin" class="pri">
-          <i class="ib-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><path d="M9,24V15Q9,10 5,8M9,15Q11,11 13,9M19,24V15Q19,10 23,8M19,15Q17,11 15,9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="7" cy="8" r="4.5" fill="currentColor" opacity=".35"/><circle cx="21" cy="8" r="4.5" fill="#fff" opacity=".45"/><path d="M14,3L15,6L18,7L15,8L14,11L13,8L10,7L13,6Z" fill="#fff6c8"/></svg></i>
-          <span><b>从头开始 ▸</b><small>自动播放全部纪元</small></span>
-        </button>
-        <button data-start="war">
-          <i class="ib-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="8.5" fill="none" stroke="currentColor" stroke-width="3.2"/><circle cx="14" cy="14" r="8.5" fill="none" stroke="#fff6c8" stroke-width="1" stroke-dasharray="3 3"/><path d="M14,8L15,12.5L19.5,14L15,15.5L14,20L13,15.5L8.5,14L13,12.5Z" fill="currentColor" opacity=".75"/></svg></i>
-          <span><b>直接去魔戒大战</b><small>跟着弗罗多出发</small></span>
-        </button>
-        <button data-start="battle">
-          <i class="ib-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><path d="M5,22L21,6M17,6H21V10M23,22L7,6M11,6H7V10M4,19L9,24M24,19L19,24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
-          <span><b>身临战场 ⚔</b><small>六场主要战役</small></span>
-        </button>
-        <button data-start="kids" class="kid">
-          <i class="ib-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><path d="M3,22Q6,8 14,8Q22,8 25,22Z" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="14" cy="16.5" r="5" fill="currentColor" opacity=".3" stroke="currentColor" stroke-width="1.5"/><circle cx="15.6" cy="16.5" r="1" fill="#fff"/></svg></i>
-          <span><b>小朋友寻宝 🧒</b><small>跟着弗罗多找地方、集贴纸</small></span>
+      <div class="intro-lang" role="group" aria-label="选择语言">
+        <button type="button" data-set-lang="zh">简体中文</button>
+        <i aria-hidden="true">·</i>
+        <button type="button" data-set-lang="en">English</button>
+      </div>
+
+      <div class="intro-enter-wrap">
+        <button type="button" data-start="begin" class="intro-enter">
+          <span class="ie-gem" aria-hidden="true">✦</span>
+          <span class="ie-txt">踏入中洲 · 开启纪年</span>
         </button>
       </div>
 
-      <div class="intro-styles" aria-label="地图画风选择">
-        <span class="is-lbl">地图画风</span>
-        <button type="button" data-set-style="paint">手绘山河</button>
-        <button type="button" data-set-style="h3">英雄冒险</button>
-        <button type="button" data-set-style="parch">古卷羊皮</button>
-      </div>
-
-      <p class="intro-note">空格 播放/暂停 · ← → 逐个事件 · 3 切换 2.5D/2D · H 沉浸观景 · R 真知晶石 · W 幽影界 · B 点燃烽火</p>
+      <p class="intro-note">按 Enter 进入 · 空格 播放纪年 · 3 切换 2.5D/2D · H 沉浸观景</p>
     </div>
   </div>
 

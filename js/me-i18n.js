@@ -11,6 +11,12 @@
     "可交互的中洲世界地图、编年史、传说导读与主要战役推演。非官方爱好者作品。": "An interactive map of Middle-earth: chronicle, guided legends and the great battles. An unofficial fan work.",
     "商海时报 · 特别版 · 非官方爱好者作品": "Chronicle of Commerce · Special Edition · Unofficial fan work",
     "阿尔达历史地理与战役全览 · 非官方爱好者作品": "Interactive Chronicle, Legends & Great Battles of Arda · Unofficial Fan Work",
+    "阿尔达 · 七千年史诗长卷": "ARDA · SEVEN THOUSAND YEARS OF HISTORY",
+    "Chronicle of Middle-earth": "The lands, legends & ages of Arda",
+    "从双圣树的初光，到末日火山的余烬——七千年山河兴衰，尽在一卷动态史诗。": "From the light of the Two Trees to the fires of Mount Doom — seven thousand years of Arda, alive on one living map.",
+    "踏入中洲 · 开启纪年": "Enter Middle-earth",
+    "选择语言": "Choose Language",
+    "按 Enter 进入 · 空格 播放纪年 · 3 切换 2.5D/2D · H 沉浸观景": "Press Enter to begin · Space play · 3 toggle 2.5D/2D · H gallery",
     "回到封面": "Back to Cover",
     "收起/展开侧栏": "Collapse / Expand Sidebar",
     "浏览关键时刻": "Explore Key Moments",
@@ -149,17 +155,24 @@
   };
   const UI = window.ME_UI;
 
-  // 语言切换按钮
+  // 语言切换按钮（顶栏 + 封面唯一语言选择）
+  const setLang = (to) => {
+    if (!to || to === window.ME_LANG) return;
+    try { localStorage.setItem("me-lang", to); } catch (e) {}
+    const u = new URL(location.href); u.searchParams.set("lang", to); location.href = u.toString();
+  };
   const btn = document.getElementById("langBtn");
   if (btn) {
     btn.textContent = EN ? "中文" : "EN";
     btn.title = EN ? "切换到中文" : "Switch to English";
-    btn.addEventListener("click", () => {
-      const to = EN ? "zh" : "en";
-      try { localStorage.setItem("me-lang", to); } catch (e) {}
-      const u = new URL(location.href); u.searchParams.set("lang", to); location.href = u.toString();
-    });
+    btn.addEventListener("click", () => setLang(EN ? "zh" : "en"));
   }
+  document.querySelectorAll("[data-set-lang]").forEach((b) => {
+    const isOn = b.dataset.setLang === window.ME_LANG;
+    b.classList.toggle("on", isOn);
+    b.setAttribute("aria-pressed", String(isOn));
+    b.addEventListener("click", (e) => { e.stopPropagation(); setLang(b.dataset.setLang); });
+  });
   // 地图风格切换：支持三段式按钮组（封面 + 顶栏）与循环按钮
   const setStyle = (to) => {
     if (!to || to === window.ME_STYLE) return;
